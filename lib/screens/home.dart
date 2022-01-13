@@ -262,7 +262,10 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(32.0),
               child: Column(
                 children: [
-                  // ElevatedButton(onPressed: login, child: const Text('Login')),
+                  ElevatedButton(
+                    onPressed: () => login('', ''),
+                    child: const Text('Login'),
+                  ),
                   ElevatedButton(
                       onPressed: changeToken,
                       child: const Text('Change Token')),
