@@ -39,11 +39,29 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void initSettings() async {
-    Globals.apiToken = await readStorageKey('token');
-    if (Globals.apiToken != null) {
+    Globals.apiAccessToken = await readStorageKey('accessToken');
+    if (Globals.apiAccessToken != null) {
+      Globals.apiRefreshToken = await readStorageKey('refreshToken');
+      Globals.apiAccessTokenExpiryTime =
+          DateTime?.parse((await readStorageKey('accessTokenExpiryTime'))!);
+
       String? vehilcleIdText = await readStorageKey('vehicleId');
       if (vehilcleIdText != null) {
         Globals.vehicleId = int.tryParse(vehilcleIdText);
+      }
+
+      if (Globals.apiAccessTokenExpiryTime != null) {
+        if (DateTime.now()
+            .add(
+              const Duration(
+                minutes: 30,
+              ),
+            )
+            .isAfter(
+              Globals.apiAccessTokenExpiryTime!,
+            )) {
+          await refreshToken();
+        }
       }
 
       // Load Vehicle Settings.
@@ -109,7 +127,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void changeToken() {
-    TextEditingController textEditingController = TextEditingController();
+    TextEditingController accessTokenController = TextEditingController();
+    TextEditingController refreshTokenController = TextEditingController();
 
     // set up the buttons
     Widget cancelButton = TextButton(
@@ -122,17 +141,35 @@ class _HomeScreenState extends State<HomeScreen> {
     Widget okButton = TextButton(
       child: const Text("Ok"),
       onPressed: () async {
-        String token = textEditingController.value.text;
-        Globals.apiToken = token;
-        await writeStorageKey('token', token);
+        String accessTokenValue = accessTokenController.value.text;
+        Globals.apiAccessToken = accessTokenValue;
+        await writeStorageKey('accessToken', accessTokenValue);
+
+        String refreshTokenValue = refreshTokenController.value.text;
+        Globals.apiRefreshToken = refreshTokenValue;
+        await writeStorageKey('refreshToken', refreshTokenValue);
+
         Navigator.of(context).pop();
+
+        await refreshToken();
       },
     );
 
     var dialog = AlertDialog(
-      title: const Text('Paste your token here'),
-      content: TextField(
-        controller: textEditingController,
+      title: const Text('Enter Token:'),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('Access Token:'),
+          TextField(
+            controller: accessTokenController,
+          ),
+          const Text('Refresh Token:'),
+          TextField(
+            controller: refreshTokenController,
+          ),
+        ],
       ),
       actions: [
         cancelButton,

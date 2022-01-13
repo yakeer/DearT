@@ -33,7 +33,6 @@ dependencies:
   http: ^0.13.4
   json_annotation: ^4.4.0
   flutter_secure_storage: ^5.0.2
-  flutter_appauth: ^2.2.0
   crypto: ^3.0.1
 
   # The following adds the Cupertino Icons font to your application.
