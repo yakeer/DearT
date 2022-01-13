@@ -1,8 +1,6 @@
-import 'dart:convert';
-
-import 'package:deart/models/api_response.dart';
 import 'package:deart/models/charge_state.dart';
 import 'package:deart/models/command_result.dart';
+import 'package:deart/utils/api_utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:deart/globals.dart';
 import 'package:deart/models/vehicle.dart';
@@ -19,7 +17,7 @@ class TeslaAPI {
       headers: _initHeaders(),
     );
 
-    List<Vehicle> vehicles = _parseResponse(response, Vehicle.fromJsonList);
+    List<Vehicle> vehicles = parseResponse(response, Vehicle.fromJsonList);
     return vehicles.first;
   }
 
@@ -31,7 +29,7 @@ class TeslaAPI {
     http.Response response = await http.post(uri, headers: _initHeaders());
 
     if (response.statusCode == 200) {
-      Vehicle vehicle = _parseResponse(response, Vehicle.fromJson);
+      Vehicle vehicle = parseResponse(response, Vehicle.fromJson);
       if (vehicle.state == "online") {
         return true;
       } else {
@@ -61,7 +59,7 @@ class TeslaAPI {
 
     if (response.statusCode == 200) {
       CommandResult commandResult =
-          _parseResponse(response, CommandResult.fromJson);
+          parseResponse(response, CommandResult.fromJson);
       return commandResult.result;
     } else if (response.statusCode == 408) {
       if (await wakeUp()) {
@@ -86,7 +84,7 @@ class TeslaAPI {
     );
 
     if (response.statusCode == 200) {
-      ChargeState chargeState = _parseResponse(response, ChargeState.fromJson);
+      ChargeState chargeState = parseResponse(response, ChargeState.fromJson);
       return chargeState;
     } else if (response.statusCode == 408) {
       if (await wakeUp()) {
@@ -108,7 +106,7 @@ class TeslaAPI {
 
     if (response.statusCode == 200) {
       CommandResult commandResult =
-          _parseResponse(response, CommandResult.fromJson);
+          parseResponse(response, CommandResult.fromJson);
       return commandResult.result;
     } else if (response.statusCode == 408) {
       if (await wakeUp()) {
@@ -124,7 +122,8 @@ class TeslaAPI {
   Map<String, String> _initHeaders() {
     Map<String, String> headers = {};
 
-    headers.putIfAbsent('Authorization', () => 'Bearer ${Globals.apiToken!}');
+    headers.putIfAbsent(
+        'Authorization', () => 'Bearer ${Globals.apiAccessToken!}');
     headers.putIfAbsent('User-Agent', () => 'DearT/1.0.0');
 
     return headers;
@@ -132,12 +131,5 @@ class TeslaAPI {
 
   Uri _getUriByAPIName(String apiName) {
     return Uri.parse('$baseURL/$apiName');
-  }
-
-  T _parseResponse<T>(http.Response response, Function fromJsonT) {
-    Map<String, dynamic> decodedResponse =
-        jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
-
-    return APIResponse<T>.fromJson(decodedResponse, fromJsonT).response;
   }
 }
