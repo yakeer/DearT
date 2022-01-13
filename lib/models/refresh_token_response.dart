@@ -16,11 +16,19 @@ class RefreshTokenResponse {
   @JsonKey(name: 'expires_in')
   final int? expiresIn;
 
+  @JsonKey(name: 'state')
+  final String? state;
+
+  @JsonKey(name: 'token_type')
+  final String? tokenType;
+
   RefreshTokenResponse(
     this.accessToken,
     this.refreshToken,
     this.idToken,
     this.expiresIn,
+    this.state,
+    this.tokenType,
   );
 
   factory RefreshTokenResponse.fromJson(Map<String, dynamic> json) =>

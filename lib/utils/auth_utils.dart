@@ -5,17 +5,38 @@ import 'package:deart/constants.dart';
 import 'package:deart/globals.dart';
 import 'package:deart/models/internal/login_page_data.dart';
 import 'package:deart/models/refresh_token_response.dart';
+import 'package:deart/screens/login.dart';
 import 'package:deart/utils/api_utils.dart';
 import 'package:deart/utils/storage_utils.dart';
-import 'package:html/dom.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:html/parser.dart' show parse;
+
+void login(BuildContext context, String username, String password) async {
+  LoginPageData? loginPageData = await getLoginPage(username);
+
+  await showModalBottomSheet(
+    context: context,
+    builder: (context) => LoginWebView(loginPageData!),
+    useRootNavigator: true,
+  );
+
+  loginPageData = await exchangeAuthorizationCodeForBearerToken(loginPageData!);
+
+  loginPageData = await exchangeBearerTokenForAccessToken(loginPageData);
+}
 
 Future<LoginPageData?> getLoginPage(String username) async {
+  LoginPageData result = LoginPageData();
+
   String apiName = "oauth2/v3/authorize";
 
-  String codeChallenge = createCodeChallenge();
-  String state = getRandomString(10);
+  String codeVerifier = getRandomString(86);
+  result.codeVerifier = codeVerifier;
+
+  String codeChallenge = createCodeChallenge(codeVerifier);
+  result.codeChallenge = codeChallenge;
+
+  String state = getRandomString(24);
 
   Map<String, String> parameters = {
     "client_id": Constants.teslaAPIClientID,
@@ -25,146 +46,84 @@ Future<LoginPageData?> getLoginPage(String username) async {
     "response_type": "code",
     "state": state,
     "scope": Constants.teslaAuthScopes,
-    "locale": "en",
-    "prompt": "login",
   };
 
-  Uri uri = _getUriByAPIName(apiName, parameters: parameters);
-  http.Response response = await http.get(uri, headers: {
-    'User-Agent': "Deart",
-    'X-Requested-With': 'com.capitan.deart',
-    "x-tesla-user-agent": 'Deart'
-  });
+  result.parameters = parameters;
 
-  if (response.statusCode == 200) {
-    LoginPageData result = LoginPageData();
-    result.cookie = response.headers['set-cookie']!;
-    result.codeChallenge = codeChallenge;
-    result.parameters = parameters;
+  result.loginUrl = _getUriByAPIName(apiName, parameters: parameters);
 
-    // Parse html for hidden inputs.
-    String loginHtml = utf8.decode(response.bodyBytes);
-
-    Document loginPage = parse(loginHtml);
-
-    Map<String, String> hiddenInputs = {};
-
-    loginPage.getElementsByTagName('input[type=hidden]').forEach(
-      (element) {
-        hiddenInputs.putIfAbsent(
-          element.attributes['name']!,
-          () => element.attributes['value']!,
-        );
-      },
-    );
-
-    result.hiddenInputs = hiddenInputs;
-
-    return result;
-  }
+  return result;
 }
 
-Future<LoginPageData> obtainAuthorizationCode(
-  LoginPageData loginPageData,
-  String username,
-  String password,
-) async {
-  String apiName = "oauth2/v3/authorize";
+Future<LoginPageData> exchangeAuthorizationCodeForBearerToken(
+    LoginPageData loginPageData) async {
+  String apiName = "oauth2/v3/token";
 
-  // loginPageData.parameters['state'] = getRandomString(10);
-
-  Uri uri = _getUriByAPIName(apiName, parameters: loginPageData.parameters);
-
-  Map<String, String> formData = {
-    "identity": username,
-    "credential": password,
+  Map<String, String> requestBody = {
+    "grant_type": "authorization_code",
+    "client_id": Constants.teslaAPIClientID,
+    "code": loginPageData.authorizationCode,
+    "code_verifier": loginPageData.codeVerifier,
+    "redirect_uri": "https://auth.tesla.com/void/callback",
   };
 
-  loginPageData.hiddenInputs.forEach((key, value) {
-    formData.putIfAbsent(key, () => value);
-  });
+  Uri uri = _getUriByAPIName(apiName);
 
-  http.Response response = await http.post(uri,
-      headers: {
-        "Cookie": loginPageData.cookie,
-        "Content-Type": "application/x-www-form-urlencoded",
-        'User-Agent': "Deart",
-        'X-Requested-With': 'com.capitan.deart',
-        "x-tesla-user-agent": 'Deart'
-        // 'Accept': "*/*",
-        // 'accept-encoding': "deflate"
-      },
-      body: formData,
-      encoding: Encoding.getByName('utf-8'));
+  http.Response response = await http.post(
+    uri,
+    body: requestBody,
+  );
 
-  if (response.statusCode == 302) {
-    String location = response.headers["location"]!;
+  if (response.statusCode == 200) {
+    RefreshTokenResponse tokenResponse =
+        parseAuthResponse(response, RefreshTokenResponse.fromJson);
 
-    Uri redirectLocation = Uri.parse(location);
-
-    String code = redirectLocation.queryParameters['redirect_uri']!;
-
-    loginPageData.authorizationCode = code;
-  } else if (response.statusCode == 403) {
-    String responseError = utf8.decode(response.bodyBytes);
-    print(responseError);
+    loginPageData.bearerToken = tokenResponse.accessToken!;
+    loginPageData.refreshToken = tokenResponse.refreshToken!;
   }
 
   return loginPageData;
 }
 
-void login(String username, String password) async {
-  LoginPageData? loginPageData = await getLoginPage(username);
-  if (loginPageData != null) {
-    loginPageData = await obtainAuthorizationCode(
-      loginPageData,
-      username,
-      password,
-    );
+Future<LoginPageData> exchangeBearerTokenForAccessToken(
+    LoginPageData loginPageData) async {
+  String apiName = "oauth/token";
+
+  String clientId =
+      "81527cff06843c8634fdc09e8ac0abefb46ac849f38fe1e431c2ef2106796384";
+  String clientSecret =
+      "c7257eb71a564034f9419ee651c7d0e5f7aa6bfbd18bafb5c5c033b093bb2fa3";
+
+  Map<String, String> requestBody = {
+    "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+    "client_id": clientId,
+    "client_secret": clientSecret,
+  };
+
+  Uri uri = _getOwnerUriByAPIName(apiName);
+
+  http.Response response = await http.post(
+    uri,
+    headers: {
+      "Authorization": "Bearer ${loginPageData.bearerToken}",
+    },
+    body: requestBody,
+  );
+
+  if (response.statusCode == 200) {
+    RefreshTokenResponse tokenResponse =
+        parseAuthResponse(response, RefreshTokenResponse.fromJson);
+
+    loginPageData.accessToken = tokenResponse.accessToken!;
+    Globals.apiAccessToken = loginPageData.accessToken;
+    Globals.apiRefreshToken = loginPageData.refreshToken;
+
+    writeStorageKey('refreshToken', Globals.apiRefreshToken!);
+
+    await refreshToken();
   }
-//   FlutterAppAuth appAuth = FlutterAppAuth();
 
-//   String authEndpoint = "https://auth.tesla.com/oauth2/v3/authorize";
-//   String tokenEndpoint = "https://auth.tesla.com/oauth2/v3/token";
-//   String redirectUrl = 'deart.app:/oauthredirect';
-//   // String redirectUrl = 'https://auth.tesla.com/void/callback';
-
-//   // CHECK IF CORRECT
-//   String endSessionEndpoint = "https://auth.tesla.com/oauth2/v3/signout";
-
-//   String codeVerifier = getRandomString(86);
-
-//   // hash the password
-//   var bytes = utf8.encode(codeVerifier);
-//   var digest = sha256.convert(bytes);
-
-//   // different formats
-//   var codeChallenge = digest.toString();
-
-//   Map<String, String> additionalParams = {};
-//   // additionalParams.putIfAbsent('code_challenge', () => codeChallenge);
-//   // additionalParams.putIfAbsent('code_challenge_method', () => 'S256');
-//   // additionalParams.putIfAbsent('response_type', () => 'code');
-//   // additionalParams.putIfAbsent('state', () => getRandomString(5));
-
-//   var request = AuthorizationTokenRequest(
-//     'ownerapi',
-//     '',
-//     serviceConfiguration: AuthorizationServiceConfiguration(
-//       authorizationEndpoint: authEndpoint,
-//       tokenEndpoint: tokenEndpoint,
-//     ),
-//     scopes: ['openid', 'email', 'offline_access'],
-//     // additionalParameters: additionalParams,
-//     preferEphemeralSession: true,
-//   );
-
-//   final AuthorizationTokenResponse? result =
-//       await appAuth.authorizeAndExchangeCode(
-//     request,
-//   );
-
-//   print(result);
+  return loginPageData;
 }
 
 const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
@@ -173,20 +132,15 @@ Random _rnd = Random();
 String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
     length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
-String createCodeChallenge() {
-  String codeVerifier = getRandomString(86);
-
-  // code_verifier = random_string(86)
+String createCodeChallenge(String codeVerifier) {
   //code_challenge = Base64.urlsafe_encode64(Digest::SHA256.hexdigest(code_verifier))
 
   // hash the password
-  var bytes = utf8.encode(codeVerifier);
-  var digest = sha256.convert(bytes);
+  List<int> bytes = utf8.encode(codeVerifier);
+  Digest digest = sha256.convert(bytes);
 
   // different formats
-  // var codeChallenge = digest.toString();
-
-  var codeChallenge = base64Url.encode(digest.bytes);
+  String codeChallenge = base64UrlEncode(digest.bytes);
 
   return codeChallenge;
 }
@@ -247,7 +201,20 @@ Future<String?> refreshToken() async {
 }
 
 Uri _getUriByAPIName(String apiName, {Map<String, String>? parameters}) {
-  String url = '${Globals.authBaseURL}/$apiName';
+  String url = '${Constants.authBaseURL}/$apiName';
+
+  if (parameters != null) {
+    url += '?';
+    parameters.forEach((key, value) {
+      url += '$key=$value&';
+    });
+  }
+
+  return Uri.parse(url);
+}
+
+Uri _getOwnerUriByAPIName(String apiName, {Map<String, String>? parameters}) {
+  String url = '${Constants.baseURL}/$apiName';
 
   if (parameters != null) {
     url += '?';

@@ -1,3 +1,4 @@
+import 'package:deart/constants.dart';
 import 'package:deart/models/charge_state.dart';
 import 'package:deart/models/command_result.dart';
 import 'package:deart/utils/api_utils.dart';
@@ -7,7 +8,7 @@ import 'package:deart/globals.dart';
 import 'package:deart/models/vehicle.dart';
 
 class TeslaAPI {
-  final String baseURL = Globals.baseURL;
+  final String baseURL = Constants.baseURL;
 
   Future<Vehicle?> getVehicle() async {
     String apiName = 'api/1/vehicles';
