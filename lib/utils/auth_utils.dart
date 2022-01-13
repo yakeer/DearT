@@ -11,8 +11,8 @@ import 'package:deart/utils/storage_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-void login(BuildContext context, String username, String password) async {
-  LoginPageData? loginPageData = await getLoginPage(username);
+void login(BuildContext context) async {
+  LoginPageData? loginPageData = await getLoginPage();
 
   await showModalBottomSheet(
     context: context,
@@ -25,7 +25,7 @@ void login(BuildContext context, String username, String password) async {
   loginPageData = await exchangeBearerTokenForAccessToken(loginPageData);
 }
 
-Future<LoginPageData?> getLoginPage(String username) async {
+Future<LoginPageData?> getLoginPage() async {
   LoginPageData result = LoginPageData();
 
   String apiName = "oauth2/v3/authorize";

@@ -263,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 children: [
                   ElevatedButton(
-                    onPressed: () => login(context, '', ''),
+                    onPressed: () => login(context),
                     child: const Text('Login'),
                   ),
                   ElevatedButton(
