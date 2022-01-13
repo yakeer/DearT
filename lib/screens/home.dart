@@ -77,13 +77,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future loadVehicle() async {
-    Vehicle vehicle = await api.getVehicle();
-    Globals.vehicleId = vehicle.id;
-    await writeStorageKey('vehicleId', vehicle.id.toString());
+    Vehicle? vehicle = await api.getVehicle();
+    if (vehicle != null) {
+      Globals.vehicleId = vehicle.id;
+      await writeStorageKey('vehicleId', vehicle.id.toString());
 
-    setState(() {
-      vehicleName = vehicle.displayName;
-    });
+      setState(() {
+        vehicleName = vehicle.displayName;
+      });
+    }
   }
 
   Future loadChargeState() async {

@@ -1,6 +1,7 @@
 import 'package:deart/models/charge_state.dart';
 import 'package:deart/models/command_result.dart';
 import 'package:deart/utils/api_utils.dart';
+import 'package:deart/utils/auth_utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:deart/globals.dart';
 import 'package:deart/models/vehicle.dart';
@@ -8,7 +9,7 @@ import 'package:deart/models/vehicle.dart';
 class TeslaAPI {
   final String baseURL = Globals.baseURL;
 
-  Future<Vehicle> getVehicle() async {
+  Future<Vehicle?> getVehicle() async {
     String apiName = 'api/1/vehicles';
     Uri uri = _getUriByAPIName(apiName);
 
@@ -17,8 +18,15 @@ class TeslaAPI {
       headers: _initHeaders(),
     );
 
-    List<Vehicle> vehicles = parseResponse(response, Vehicle.fromJsonList);
-    return vehicles.first;
+    if (response.statusCode == 200) {
+      List<Vehicle> vehicles = parseResponse(response, Vehicle.fromJsonList);
+      return vehicles.first;
+    } else if (response.statusCode == 401) {
+      await refreshToken();
+      return getVehicle();
+    } else {
+      return null;
+    }
   }
 
   Future<bool> wakeUp({int currentTryCount = 0}) async {
@@ -43,6 +51,9 @@ class TeslaAPI {
           return false;
         }
       }
+    } else if (response.statusCode == 401) {
+      await refreshToken();
+      return wakeUp();
     } else {
       return false;
     }
@@ -67,6 +78,9 @@ class TeslaAPI {
       } else {
         return false;
       }
+    } else if (response.statusCode == 401) {
+      await refreshToken();
+      return toggleSentry(setOn);
     } else {
       return false;
     }

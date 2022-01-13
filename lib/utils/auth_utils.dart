@@ -97,23 +97,29 @@ Future<String?> refreshToken() async {
           response, RefreshTokenResponse.fromJson);
 
       if (dto.refreshToken != null) {
+        Globals.apiRefreshToken = dto.refreshToken;
         writeStorageKey('refreshToken', dto.refreshToken!);
       }
 
       if (dto.accessToken != null) {
-        writeStorageKey('accessToken', dto.refreshToken!);
+        Globals.apiAccessToken = dto.accessToken;
+        writeStorageKey('accessToken', dto.accessToken!);
       }
 
       if (dto.idToken != null) {
-        writeStorageKey('idToken', dto.refreshToken!);
+        Globals.apiIdToken = dto.idToken;
+        writeStorageKey('idToken', dto.idToken!);
       }
 
       if (dto.expiresIn != null) {
+        DateTime expiryTime =
+            DateTime.now().add(Duration(seconds: dto.expiresIn!));
+
+        Globals.apiAccessTokenExpiryTime = expiryTime;
+
         writeStorageKey(
           'accessTokenExpiryTime',
-          DateTime.now()
-              .add(Duration(seconds: dto.expiresIn!))
-              .toIso8601String(),
+          expiryTime.toIso8601String(),
         );
       }
     }
