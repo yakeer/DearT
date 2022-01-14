@@ -13,4 +13,6 @@ RefreshTokenResponse _$RefreshTokenResponseFromJson(
       json['refresh_token'] as String?,
       json['id_token'] as String?,
       json['expires_in'] as int?,
+      json['state'] as String?,
+      json['token_type'] as String?,
     );

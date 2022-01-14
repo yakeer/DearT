@@ -1,13 +1,15 @@
+import 'package:deart/constants.dart';
 import 'package:deart/models/charge_state.dart';
 import 'package:deart/models/command_result.dart';
+import 'package:deart/services/auth_service.dart';
 import 'package:deart/utils/api_utils.dart';
-import 'package:deart/utils/auth_utils.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:deart/globals.dart';
 import 'package:deart/models/vehicle.dart';
 
 class TeslaAPI {
-  final String baseURL = Globals.baseURL;
+  final String baseURL = Constants.baseURL;
 
   Future<Vehicle?> getVehicle() async {
     String apiName = 'api/1/vehicles';
@@ -22,7 +24,7 @@ class TeslaAPI {
       List<Vehicle> vehicles = parseResponse(response, Vehicle.fromJsonList);
       return vehicles.first;
     } else if (response.statusCode == 401) {
-      await refreshToken();
+      await Get.find<AuthService>().refreshToken();
       return getVehicle();
     } else {
       return null;
@@ -52,7 +54,7 @@ class TeslaAPI {
         }
       }
     } else if (response.statusCode == 401) {
-      await refreshToken();
+      await Get.find<AuthService>().refreshToken();
       return wakeUp();
     } else {
       return false;
@@ -79,7 +81,7 @@ class TeslaAPI {
         return false;
       }
     } else if (response.statusCode == 401) {
-      await refreshToken();
+      await Get.find<AuthService>().refreshToken();
       return toggleSentry(setOn);
     } else {
       return false;
@@ -125,6 +127,28 @@ class TeslaAPI {
     } else if (response.statusCode == 408) {
       if (await wakeUp()) {
         return horn();
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> flashLights() async {
+    String apiName = 'api/1/vehicles/${Globals.vehicleId}/command/flash_lights';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.post(uri, headers: _initHeaders());
+
+    if (response.statusCode == 200) {
+      CommandResult commandResult =
+          parseResponse(response, CommandResult.fromJson);
+      return commandResult.result;
+    } else if (response.statusCode == 408) {
+      if (await wakeUp()) {
+        return flashLights();
       } else {
         return false;
       }

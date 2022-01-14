@@ -1,14 +1,12 @@
-import 'package:deart/globals.dart';
-import 'package:deart/models/charge_state.dart';
-import 'package:deart/models/vehicle.dart';
-import 'package:deart/utils/auth_utils.dart';
-import 'package:deart/utils/storage_utils.dart';
-import 'package:deart/utils/tesla_api.dart';
-import 'package:deart/utils/unit_utils.dart';
+import 'package:deart/controllers/home_controller.dart';
+import 'package:deart/widgets/battery.dart';
+import 'package:deart/widgets/theme/deart_icon_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key, required this.title}) : super(key: key);
+class HomeScreen extends GetView<HomeController> {
+  const HomeScreen({Key? key}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -19,174 +17,6 @@ class HomeScreen extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  String commandStatus = 'N/A';
-  String vehicleName = 'N/A';
-  TeslaAPI api = TeslaAPI();
-  ChargeState? chargeState;
-
-  @override
-  void initState() {
-    initSettings();
-
-    super.initState();
-  }
-
-  void initSettings() async {
-    Globals.apiAccessToken = await readStorageKey('accessToken');
-    if (Globals.apiAccessToken != null) {
-      Globals.apiRefreshToken = await readStorageKey('refreshToken');
-      Globals.apiAccessTokenExpiryTime =
-          DateTime?.parse((await readStorageKey('accessTokenExpiryTime'))!);
-
-      String? vehilcleIdText = await readStorageKey('vehicleId');
-      if (vehilcleIdText != null) {
-        Globals.vehicleId = int.tryParse(vehilcleIdText);
-      }
-
-      if (Globals.apiAccessTokenExpiryTime != null) {
-        if (DateTime.now()
-            .add(
-              const Duration(
-                minutes: 30,
-              ),
-            )
-            .isAfter(
-              Globals.apiAccessTokenExpiryTime!,
-            )) {
-          await refreshToken();
-        }
-      }
-
-      // Load Vehicle Settings.
-      await loadVehicle();
-
-      await loadChargeState();
-
-      // Wake up the car
-      await api.wakeUp();
-    } else {
-      changeToken();
-    }
-  }
-
-  Future loadVehicle() async {
-    Vehicle? vehicle = await api.getVehicle();
-    if (vehicle != null) {
-      Globals.vehicleId = vehicle.id;
-      await writeStorageKey('vehicleId', vehicle.id.toString());
-
-      setState(() {
-        vehicleName = vehicle.displayName;
-      });
-    }
-  }
-
-  Future loadChargeState() async {
-    var result = await api.chargeState();
-    if (result != null) {
-      setState(() {
-        chargeState = result;
-      });
-    }
-  }
-
-  void turnOnSentry() async {
-    setState(() {
-      commandStatus = 'Activating...';
-    });
-    bool success = await api.toggleSentry(true);
-
-    setState(() {
-      if (success) {
-        commandStatus = 'Activated.';
-      } else {
-        commandStatus = 'Error Activating!';
-      }
-    });
-  }
-
-  void turnOffSentry() async {
-    setState(() {
-      commandStatus = 'Deactivating...';
-    });
-
-    bool success = await api.toggleSentry(false);
-
-    setState(() {
-      if (success) {
-        commandStatus = 'Deactivated.';
-      } else {
-        commandStatus = 'Error Deactivating!';
-      }
-    });
-  }
-
-  void changeToken() {
-    TextEditingController accessTokenController = TextEditingController();
-    TextEditingController refreshTokenController = TextEditingController();
-
-    // set up the buttons
-    Widget cancelButton = TextButton(
-      child: const Text("Cancel"),
-      onPressed: () {
-        Navigator.of(context).pop();
-      },
-    );
-
-    Widget okButton = TextButton(
-      child: const Text("Ok"),
-      onPressed: () async {
-        String accessTokenValue = accessTokenController.value.text;
-        Globals.apiAccessToken = accessTokenValue;
-        await writeStorageKey('accessToken', accessTokenValue);
-
-        String refreshTokenValue = refreshTokenController.value.text;
-        Globals.apiRefreshToken = refreshTokenValue;
-        await writeStorageKey('refreshToken', refreshTokenValue);
-
-        Navigator.of(context).pop();
-
-        await refreshToken();
-      },
-    );
-
-    var dialog = AlertDialog(
-      title: const Text('Enter Token:'),
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text('Access Token:'),
-          TextField(
-            controller: accessTokenController,
-          ),
-          const Text('Refresh Token:'),
-          TextField(
-            controller: refreshTokenController,
-          ),
-        ],
-      ),
-      actions: [
-        cancelButton,
-        okButton,
-      ],
-    );
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return dialog;
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -195,88 +25,79 @@ class _HomeScreenState extends State<HomeScreen> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  Text(
-                    vehicleName,
-                    style: Theme.of(context).textTheme.headline3,
-                  ),
-                  Text(
-                      '${chargeState?.batteryLevel ?? 'N/A'}% (${mileToKM(chargeState?.batteryRange) ?? 'N/A'})km')
-                ],
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Sentry Mode State: ',
-                ),
-                Text(
-                  commandStatus,
-                ),
-              ],
-            ),
-            Column(
-              children: [
-                ElevatedButton(
-                    onPressed: turnOnSentry,
-                    child: const Text('Turn on Sentry')),
-                ElevatedButton(
-                    onPressed: turnOffSentry,
-                    child: const Text('Turn off Sentry')),
-                ElevatedButton(
-                    onPressed: () => api.horn(),
-                    child: const Text('Beep Beep')),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Column(
-                children: [
-                  // ElevatedButton(onPressed: login, child: const Text('Login')),
-                  ElevatedButton(
-                      onPressed: changeToken,
-                      child: const Text('Change Token')),
-                ],
-              ),
-            ),
-          ],
+    return GetX<HomeController>(
+      builder: (controller) => Scaffold(
+        appBar: AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(controller.vehicleName.value),
+              BatteryWidget(
+                chargeState: controller.chargeState.value,
+              )
+            ],
+          ),
         ),
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      DearTIconButtton(
+                        onTap: controller.turnOnSentry,
+                        icon: Icons.add_moderator_outlined,
+                        label: 'Arm',
+                      ),
+                      DearTIconButtton(
+                        onTap: controller.turnOffSentry,
+                        icon: Icons.remove_moderator_outlined,
+                        label: 'Disarm',
+                      ),
+                      DearTIconButtton(
+                        onTap: controller.horn,
+                        icon: Icons.volume_down_outlined,
+                        label: 'Horn',
+                      ),
+                      DearTIconButtton(
+                        onTap: controller.flashLights,
+                        icon: Icons.flourescent_outlined,
+                        label: 'Flash',
+                      ),
+                    ],
+                  ),
+                ),
+                SvgPicture.asset(
+                  'assets/images/upper_view.svg',
+                  semanticsLabel: 'Upper view',
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Sentry Mode State: ',
+                    ),
+                    Text(
+                      controller.commandStatus.value,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        // floatingActionButton: FloatingActionButton(
+        //   onPressed: _incrementCounter,
+        //   tooltip: 'Increment',
+        //   child: const Icon(Icons.add),
+        // ), // This trailing comma makes auto-formatting nicer for build methods.
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: _incrementCounter,
-      //   tooltip: 'Increment',
-      //   child: const Icon(Icons.add),
-      // ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
