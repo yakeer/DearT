@@ -1,77 +1,49 @@
-import 'dart:async';
-import 'dart:io';
-
-import 'package:deart/models/internal/login_page_data.dart';
+import 'package:deart/controllers/login_controller.dart';
+import 'package:deart/services/auth_service.dart';
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:get/get.dart';
 
-class LoginWebView extends StatefulWidget {
-  final LoginPageData loginPageData;
-
-  const LoginWebView(
-    this.loginPageData, {
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  _LoginWebViewState createState() => _LoginWebViewState();
-}
-
-class _LoginWebViewState extends State<LoginWebView> {
-  final Completer<WebViewController> _controller =
-      Completer<WebViewController>();
-
-  @override
-  void initState() {
-    super.initState();
-    if (Platform.isAndroid) {
-      WebView.platform = SurfaceAndroidWebView();
-    }
-  }
+class LoginScreen extends GetView<LoginController> {
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return WebView(
-      initialUrl: widget.loginPageData.loginUrl.toString(),
-      javascriptMode: JavascriptMode.unrestricted,
-      onWebViewCreated: (WebViewController webViewController) {
-        _controller.complete(webViewController);
-      },
-      onProgress: (int progress) {
-        // print('WebView is loading (progress : $progress%)');
-      },
-      javascriptChannels: <JavascriptChannel>{
-        _toasterJavascriptChannel(context),
-      },
-      navigationDelegate: (NavigationRequest request) {
-        if (request.url
-            .startsWith('https://auth.tesla.com/void/callback?code=')) {
-          Uri uri = Uri.parse(request.url);
-          widget.loginPageData.authorizationCode = uri.queryParameters['code']!;
-          Navigator.of(context).pop();
-        }
-
-        return NavigationDecision.navigate;
-      },
-      onPageStarted: (String url) {
-        // print('Page started loading: $url');
-      },
-      onPageFinished: (String url) {
-        // print('Page finished loading: $url');
-      },
-      gestureNavigationEnabled: true,
-      backgroundColor: const Color(0x00000000),
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text('How do you wish to login?',
+              style: Get.theme.textTheme.headline5),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () => Get.find<AuthService>().login(context),
+              child: const Text(
+                'Tesla Login',
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: Get.find<AuthService>().changeToken,
+              child: const Text(
+                'Access Token',
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+              child: Text(
+                'In either way, your login details are on your local device only.',
+                style: Get.theme.textTheme.headline6,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
-  }
-
-  JavascriptChannel _toasterJavascriptChannel(BuildContext context) {
-    return JavascriptChannel(
-        name: 'Toaster',
-        onMessageReceived: (JavascriptMessage message) {
-          // ignore: deprecated_member_use
-          Scaffold.of(context).showSnackBar(
-            SnackBar(content: Text(message.message)),
-          );
-        });
   }
 }
