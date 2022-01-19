@@ -50,14 +50,10 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.capitan.deart"
-        minSdkVersion 18
+        minSdkVersion 19
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-        manifestPlaceholders = [
-            // For IdentityServer4 AppAuth Plugin
-            'appAuthRedirectScheme': 'deart.app'
-        ]
     }
 
     signingConfigs {
