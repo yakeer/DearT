@@ -42,7 +42,7 @@ class LoginScreen extends GetView<LoginController> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
-                      onPressed: Get.find<AuthService>().changeToken,
+                      onPressed: () => Get.find<AuthService>().changeToken(),
                       child: const Text(
                         'Access Token',
                       ),
