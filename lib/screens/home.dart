@@ -1,3 +1,4 @@
+import 'package:deart/controllers/car_controller.dart';
 import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/widgets/battery.dart';
 import 'package:deart/widgets/theme/deart_icon_button.dart';
@@ -26,6 +27,7 @@ class HomeScreen extends GetView<HomeController> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return GetX<HomeController>(
+      init: HomeController(),
       builder: (controller) => Scaffold(
         appBar: AppBar(
           // Here we take the value from the MyHomePage object that was created by
@@ -33,10 +35,13 @@ class HomeScreen extends GetView<HomeController> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(controller.vehicleName.value),
+              Text(Get.find<CarController>().vehicleName.value),
               BatteryWidget(
                 chargeState: controller.chargeState.value,
-              )
+              ),
+              IconButton(
+                  onPressed: controller.goToSettings,
+                  icon: const Icon(Icons.settings))
             ],
           ),
         ),
@@ -77,16 +82,19 @@ class HomeScreen extends GetView<HomeController> {
                   'assets/images/upper_view.svg',
                   semanticsLabel: 'Upper view',
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Sentry Mode State: ',
-                    ),
-                    Text(
-                      controller.commandStatus.value,
-                    ),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Sentry Mode State: ',
+                      ),
+                      Text(
+                        controller.commandStatus.value,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
