@@ -38,7 +38,7 @@ class AuthService extends GetxService {
 
     if (loginPageData.loginSuccess) {
       Get.find<AppController>().isLoggedIn.value = true;
-      Get.offAndToNamed('/home');
+      Get.offAllNamed('/home');
     }
   }
 
@@ -117,6 +117,7 @@ class AuthService extends GetxService {
         }
 
         if (dto.accessToken != null) {
+          accessToken = dto.accessToken;
           Globals.apiAccessToken = dto.accessToken;
           writeStorageKey('accessToken', dto.accessToken!);
         }
@@ -266,17 +267,7 @@ class AuthService extends GetxService {
     Widget okButton = TextButton(
       child: const Text("Ok"),
       onPressed: () async {
-        String accessTokenValue = accessTokenController.value.text;
-        Globals.apiAccessToken = accessTokenValue;
-        await writeStorageKey('accessToken', accessTokenValue);
-
-        String refreshTokenValue = refreshTokenController.value.text;
-        Globals.apiRefreshToken = refreshTokenValue;
-        await writeStorageKey('refreshToken', refreshTokenValue);
-
-        Get.back();
-
-        await refreshToken();
+        await performChangeToken(accessTokenController, refreshTokenController);
       },
     );
 
@@ -308,5 +299,24 @@ class AuthService extends GetxService {
         return dialog;
       },
     );
+  }
+
+  Future<void> performChangeToken(TextEditingController accessTokenController,
+      TextEditingController refreshTokenController) async {
+    String accessTokenValue = accessTokenController.value.text;
+    Globals.apiAccessToken = accessTokenValue;
+    await writeStorageKey('accessToken', accessTokenValue);
+
+    String refreshTokenValue = refreshTokenController.value.text;
+    Globals.apiRefreshToken = refreshTokenValue;
+    await writeStorageKey('refreshToken', refreshTokenValue);
+
+    Get.back();
+
+    String? accessToken = await refreshToken();
+    if (accessToken != null) {
+      Get.find<AppController>().isLoggedIn.value = true;
+      Get.offAllNamed('/home');
+    }
   }
 }
