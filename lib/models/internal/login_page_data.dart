@@ -9,4 +9,5 @@ class LoginPageData {
   late String refreshToken;
   late String accessToken;
   late Uri loginUrl;
+  late bool loginSuccess;
 }

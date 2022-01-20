@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:deart/constants.dart';
+import 'package:deart/controllers/app_controller.dart';
+import 'package:deart/controllers/login_controller.dart';
 import 'package:deart/globals.dart';
 import 'package:deart/models/internal/login_page_data.dart';
 import 'package:deart/models/refresh_token_response.dart';
@@ -17,18 +19,27 @@ Random _rnd = Random();
 
 class AuthService extends GetxService {
   void login(BuildContext context) async {
+    Get.find<LoginController>().isLoading.value = true;
+
     LoginPageData? loginPageData = await getLoginPage();
 
     await showModalBottomSheet(
       context: context,
+      isDismissible: true,
       builder: (context) => LoginWebView(loginPageData!),
       useRootNavigator: true,
+      isScrollControlled: true,
     );
 
     loginPageData =
         await exchangeAuthorizationCodeForBearerToken(loginPageData!);
 
     loginPageData = await exchangeBearerTokenForAccessToken(loginPageData);
+
+    if (loginPageData.loginSuccess) {
+      Get.find<AppController>().isLoggedIn.value = true;
+      Get.offAndToNamed('/home');
+    }
   }
 
   Future<LoginPageData?> getLoginPage() async {
@@ -198,9 +209,20 @@ class AuthService extends GetxService {
       writeStorageKey('refreshToken', Globals.apiRefreshToken!);
 
       await refreshToken();
+
+      loginPageData.loginSuccess = true;
     }
 
     return loginPageData;
+  }
+
+  Future logout() async {
+    Get.find<AppController>().isLoggedIn.value = false;
+
+    await deleteStorageKey('accessToken');
+    await deleteStorageKey('refreshToken');
+    await deleteStorageKey('idToken');
+    await deleteStorageKey('accessTokenExpiryTime');
   }
 
   Uri _getUriByAPIName(String apiName, {Map<String, String>? parameters}) {

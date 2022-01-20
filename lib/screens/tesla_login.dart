@@ -20,6 +20,7 @@ class LoginWebView extends StatefulWidget {
 class _LoginWebViewState extends State<LoginWebView> {
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -31,36 +32,49 @@ class _LoginWebViewState extends State<LoginWebView> {
 
   @override
   Widget build(BuildContext context) {
-    return WebView(
-      initialUrl: widget.loginPageData.loginUrl.toString(),
-      javascriptMode: JavascriptMode.unrestricted,
-      onWebViewCreated: (WebViewController webViewController) {
-        _controller.complete(webViewController);
-      },
-      onProgress: (int progress) {
-        // print('WebView is loading (progress : $progress%)');
-      },
-      javascriptChannels: <JavascriptChannel>{
-        _toasterJavascriptChannel(context),
-      },
-      navigationDelegate: (NavigationRequest request) {
-        if (request.url
-            .startsWith('https://auth.tesla.com/void/callback?code=')) {
-          Uri uri = Uri.parse(request.url);
-          widget.loginPageData.authorizationCode = uri.queryParameters['code']!;
-          Navigator.of(context).pop();
-        }
+    return Stack(
+      children: [
+        WebView(
+          initialUrl: widget.loginPageData.loginUrl.toString(),
+          javascriptMode: JavascriptMode.unrestricted,
+          onWebViewCreated: (WebViewController webViewController) {
+            _controller.complete(webViewController);
+          },
+          onProgress: (int progress) {
+            // print('WebView is loading (progress : $progress%)');
+          },
+          javascriptChannels: <JavascriptChannel>{
+            _toasterJavascriptChannel(context),
+          },
+          navigationDelegate: (NavigationRequest request) {
+            if (request.url
+                .startsWith('https://auth.tesla.com/void/callback?code=')) {
+              Uri uri = Uri.parse(request.url);
+              widget.loginPageData.authorizationCode =
+                  uri.queryParameters['code']!;
+              Navigator.of(context).pop();
+            }
 
-        return NavigationDecision.navigate;
-      },
-      onPageStarted: (String url) {
-        // print('Page started loading: $url');
-      },
-      onPageFinished: (String url) {
-        // print('Page finished loading: $url');
-      },
-      gestureNavigationEnabled: true,
-      backgroundColor: const Color(0x00000000),
+            return NavigationDecision.navigate;
+          },
+          onPageStarted: (String url) {
+            // print('Page started loading: $url');
+          },
+          onPageFinished: (String url) {
+            setState(() {
+              isLoading = false;
+            });
+            // print('Page finished loading: $url');
+          },
+          gestureNavigationEnabled: true,
+          backgroundColor: const Color(0x00000000),
+        ),
+        isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : Stack()
+      ],
     );
   }
 

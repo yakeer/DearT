@@ -1,3 +1,4 @@
+import 'package:deart/controllers/car_controller.dart';
 import 'package:deart/globals.dart';
 import 'package:deart/models/charge_state.dart';
 import 'package:deart/models/vehicle.dart';
@@ -6,21 +7,19 @@ import 'package:deart/utils/tesla_api.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {
-  RxString vehicleName = RxString('N/A');
   Rx<ChargeState?> chargeState = Rx<ChargeState?>(null);
   Rx<String> commandStatus = RxString('Ready.');
   TeslaAPI api = TeslaAPI();
 
   @override
-  void onInit() async {
-    await loadVehicle();
-
+  void onInit() {
     // Load Vehicle Settings.
+    loadVehicle().then((value) async {
+      await loadChargeState();
 
-    await loadChargeState();
-
-    // Wake up the car
-    await api.wakeUp();
+      // Wake up the car
+      await api.wakeUp();
+    });
 
     super.onInit();
   }
@@ -31,7 +30,9 @@ class HomeController extends GetxController {
       Globals.vehicleId = vehicle.id;
       await writeStorageKey('vehicleId', vehicle.id.toString());
 
-      vehicleName.value = vehicle.displayName;
+      CarController carContorller = Get.find<CarController>();
+      carContorller.vehicleId.value = vehicle.id;
+      carContorller.vehicleName.value = vehicle.displayName;
     }
   }
 
@@ -93,9 +94,27 @@ class HomeController extends GetxController {
 
   void horn() async {
     await api.horn();
+
+    Get.snackbar(
+      'Beep beep',
+      'Don\'t disturb your neighbors!',
+      snackPosition: SnackPosition.BOTTOM,
+      isDismissible: true,
+    );
   }
 
   void flashLights() async {
     await api.flashLights();
+
+    Get.snackbar(
+      'Blink Blink',
+      'It\'s too shiny!',
+      snackPosition: SnackPosition.BOTTOM,
+      isDismissible: true,
+    );
+  }
+
+  void goToSettings() {
+    Get.toNamed('/settings');
   }
 }
