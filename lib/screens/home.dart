@@ -28,27 +28,34 @@ class HomeScreen extends GetView<HomeController> {
     // than having to individually change instances of widgets.
     return GetX<HomeController>(
       init: HomeController(),
-      builder: (controller) => Scaffold(
-        appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(Get.find<CarController>().vehicleName.value),
-              BatteryWidget(
-                chargeState: controller.chargeState.value,
-              ),
-              IconButton(
-                  onPressed: controller.goToSettings,
-                  icon: const Icon(Icons.settings))
-            ],
-          ),
-        ),
-        body: SafeArea(
-          child: Center(
-            child: Column(
+      builder: (controller) => RefreshIndicator(
+        displacement: Get.mediaQuery.size.height / 2,
+        backgroundColor: Get.theme.backgroundColor,
+        color: Colors.white,
+        strokeWidth: 3,
+        triggerMode: RefreshIndicatorTriggerMode.anywhere,
+        onRefresh: () => controller.refreshState(),
+        child: Scaffold(
+          appBar: AppBar(
+            // Here we take the value from the MyHomePage object that was created by
+            // the App.build method, and use it to set our appbar title.
+            title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(Get.find<CarController>().vehicleName.value),
+                BatteryWidget(
+                  chargeState: controller.chargeState.value,
+                ),
+                IconButton(
+                    onPressed: controller.goToSettings,
+                    icon: const Icon(Icons.settings))
+              ],
+            ),
+          ),
+          body: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -78,9 +85,12 @@ class HomeScreen extends GetView<HomeController> {
                     ],
                   ),
                 ),
-                SvgPicture.asset(
-                  'assets/images/upper_view.svg',
-                  semanticsLabel: 'Upper view',
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SvgPicture.asset(
+                    'assets/images/upper_view.svg',
+                    semanticsLabel: 'Upper view',
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -91,7 +101,9 @@ class HomeScreen extends GetView<HomeController> {
                         'Sentry Mode State: ',
                       ),
                       Text(
-                        controller.commandStatus.value,
+                        '${controller.sentryModeStateText(
+                          controller.sentryModeState.value,
+                        )}.',
                       ),
                     ],
                   ),
@@ -99,12 +111,12 @@ class HomeScreen extends GetView<HomeController> {
               ],
             ),
           ),
+          // floatingActionButton: FloatingActionButton(
+          //   onPressed: _incrementCounter,
+          //   tooltip: 'Increment',
+          //   child: const Icon(Icons.add),
+          // ), // This trailing comma makes auto-formatting nicer for build methods.
         ),
-        // floatingActionButton: FloatingActionButton(
-        //   onPressed: _incrementCounter,
-        //   tooltip: 'Increment',
-        //   child: const Icon(Icons.add),
-        // ), // This trailing comma makes auto-formatting nicer for build methods.
       ),
     );
   }

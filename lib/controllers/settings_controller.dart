@@ -16,9 +16,6 @@ class SettingsController extends GetxController {
 
     Get.delete<HomeController>();
 
-    // Reset CarController
-    Get.lazyReplace(() => CarController());
-
     Get.offAllNamed('/');
   }
 }

@@ -1,5 +1,11 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+Future<bool> containsStorageKey(String key) {
+  FlutterSecureStorage storage = const FlutterSecureStorage();
+
+  return storage.containsKey(key: key);
+}
+
 Future<String?> readStorageKey(String key) async {
   FlutterSecureStorage storage = const FlutterSecureStorage();
 

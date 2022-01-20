@@ -1,6 +1,7 @@
 import 'package:deart/constants.dart';
 import 'package:deart/models/charge_state.dart';
 import 'package:deart/models/command_result.dart';
+import 'package:deart/models/vehicle_data.dart';
 import 'package:deart/services/auth_service.dart';
 import 'package:deart/utils/api_utils.dart';
 import 'package:get/get.dart';
@@ -8,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:deart/globals.dart';
 import 'package:deart/models/vehicle.dart';
 
-class TeslaAPI {
+class TeslaAPI extends GetxService {
   final String baseURL = Constants.baseURL;
 
   Future<Vehicle?> getVehicle() async {
@@ -105,6 +106,30 @@ class TeslaAPI {
     } else if (response.statusCode == 408) {
       if (await wakeUp()) {
         return chargeState();
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  Future<VehicleData?> vehicleData() async {
+    String apiName = 'api/1/vehicles/${Globals.vehicleId}/vehicle_data';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.get(
+      uri,
+      headers: _initHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      VehicleData vehicleData = parseResponse(response, VehicleData.fromJson);
+      return vehicleData;
+    } else if (response.statusCode == 408) {
+      if (await wakeUp()) {
+        return vehicleData();
       } else {
         return null;
       }

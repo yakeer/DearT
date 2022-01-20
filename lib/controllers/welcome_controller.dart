@@ -2,6 +2,7 @@ import 'package:deart/controllers/app_controller.dart';
 import 'package:deart/controllers/car_controller.dart';
 import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/services/auth_service.dart';
+import 'package:deart/utils/tesla_api.dart';
 import 'package:get/get.dart';
 
 class WelcomeController extends GetxController {
@@ -16,11 +17,8 @@ class WelcomeController extends GetxController {
       permanent: true,
     );
 
-    Get.lazyPut(() => CarController());
-
     Get.find<AppController>().isLoggedIn.listen((loggedIn) {
       if (loggedIn) {
-        Get.put(HomeController());
         Get.offAllNamed('/home');
       } else {
         Get.offAllNamed(
@@ -38,6 +36,7 @@ class WelcomeController extends GetxController {
   // }
 
   void initServices() {
-    Get.put(AuthService());
+    Get.create(() => TeslaAPI(), permanent: true);
+    Get.create(() => AuthService(), permanent: true);
   }
 }
