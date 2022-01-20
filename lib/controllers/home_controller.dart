@@ -1,6 +1,7 @@
 import 'package:deart/controllers/car_controller.dart';
 import 'package:deart/globals.dart';
 import 'package:deart/models/charge_state.dart';
+import 'package:deart/models/enums/sentry_mode_state.dart';
 import 'package:deart/models/vehicle.dart';
 import 'package:deart/utils/storage_utils.dart';
 import 'package:deart/utils/tesla_api.dart';
@@ -8,17 +9,27 @@ import 'package:get/get.dart';
 
 class HomeController extends GetxController {
   Rx<ChargeState?> chargeState = Rx<ChargeState?>(null);
-  Rx<String> commandStatus = RxString('Ready.');
-  TeslaAPI api = TeslaAPI();
+  TeslaAPI api = Get.find<TeslaAPI>();
+  Rx<SentryModeState> sentryModeState = Rx(SentryModeState.unknown);
+
+  HomeController() {
+    Get.put(CarController());
+  }
 
   @override
-  void onInit() {
+  void onInit() async {
     // Load Vehicle Settings.
     loadVehicle().then((value) async {
       await loadChargeState();
-
-      // Wake up the car
       await api.wakeUp();
+    });
+
+    // Init
+    sentryModeState.value = Get.find<CarController>().sentryModeState.value;
+
+    // And listen for changes.
+    Get.find<CarController>().sentryModeState.listen((state) {
+      sentryModeState.value = state;
     });
 
     super.onInit();
@@ -39,6 +50,8 @@ class HomeController extends GetxController {
   Future loadChargeState() async {
     ChargeState? result = await api.chargeState();
     chargeState.value = result;
+
+    update();
   }
 
   void turnOnSentry() async {
@@ -49,7 +62,6 @@ class HomeController extends GetxController {
       isDismissible: true,
     );
 
-    commandStatus.value = 'Activating...';
     bool success = await api.toggleSentry(true);
 
     Get.snackbar(
@@ -60,15 +72,13 @@ class HomeController extends GetxController {
     );
 
     if (success) {
-      commandStatus.value = 'Activated.';
+      Get.find<CarController>().setSentryState(SentryModeState.on);
     } else {
-      commandStatus.value = 'Error Activating!';
+      Get.find<CarController>().setSentryState(SentryModeState.unknown);
     }
   }
 
   void turnOffSentry() async {
-    commandStatus.value = 'Deactivating...';
-
     Get.snackbar(
       'Sentry Mode',
       'Deactivating...',
@@ -86,9 +96,9 @@ class HomeController extends GetxController {
     );
 
     if (success) {
-      commandStatus.value = 'Deactivated.';
+      Get.find<CarController>().setSentryState(SentryModeState.off);
     } else {
-      commandStatus.value = 'Error Deactivating!';
+      Get.find<CarController>().setSentryState(SentryModeState.unknown);
     }
   }
 
@@ -116,5 +126,25 @@ class HomeController extends GetxController {
 
   void goToSettings() {
     Get.toNamed('/settings');
+  }
+
+  Future refreshState() async {
+    return loadVehicle().then((value) async {
+      await loadChargeState();
+
+      // Wake up the car
+      await api.wakeUp();
+    });
+  }
+
+  String sentryModeStateText(SentryModeState sentryModeState) {
+    switch (sentryModeState) {
+      case SentryModeState.unknown:
+        return "Unknown";
+      case SentryModeState.off:
+        return "Off";
+      case SentryModeState.on:
+        return "Engaged";
+    }
   }
 }
