@@ -23,7 +23,6 @@ class HomeController extends GetxController {
     // Load Vehicle Settings.
     loadVehicles().then((value) async {
       await loadChargeState();
-      await api.wakeUp();
     });
 
     // Init

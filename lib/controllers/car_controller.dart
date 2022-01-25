@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:deart/controllers/app_controller.dart';
+import 'package:deart/globals.dart';
 import 'package:deart/models/enums/sentry_mode_state.dart';
 import 'package:deart/models/vehicle_data.dart';
 import 'package:deart/utils/storage_utils.dart';
@@ -11,6 +13,7 @@ class CarController extends GetxController {
   RxString vehicleName = RxString('N/A');
   Rx<SentryModeState> sentryModeState = Rx(SentryModeState.unknown);
   Rx<VehicleData?> vehicleData = Rx(null);
+  Rx<bool?> isOnline = Rx(null);
 
   TeslaAPI api = Get.find<TeslaAPI>();
 
@@ -24,6 +27,9 @@ class CarController extends GetxController {
   }
 
   void _loadVehicleData() async {
+    if (Globals.vehicleId == null) {
+      await Get.find<AppController>().loadVehicleIdFromStorage();
+    }
     vehicleData.value = await api.vehicleData();
   }
 
@@ -39,26 +45,49 @@ class CarController extends GetxController {
     subscriptions.add(vehicleData.listen((data) async {
       // Check Odometer if was on.
       if (sentryModeState.value == SentryModeState.on) {
-        if (await containsStorageKey('sentryModeOnOdometer')) {
-          double? lastOdometer =
-              double.tryParse((await readStorageKey('sentryModeOnOdometer'))!);
-          if (lastOdometer != null) {
-            if (data!.vehicleState.odometer > lastOdometer) {
-              setSentryState(SentryModeState.off);
-            }
-          }
-        }
+        await checkOdometer(data);
       }
     }));
+  }
+
+  Future<void> checkOdometer(VehicleData? vehicleData) async {
+    if (await containsStorageKey('sentryModeOnOdometer')) {
+      double? lastOdometer =
+          double.tryParse((await readStorageKey('sentryModeOnOdometer'))!);
+      if (lastOdometer != null) {
+        if (vehicleData!.vehicleState.odometer > lastOdometer) {
+          setSentryState(SentryModeState.off);
+        }
+      }
+    }
   }
 
   void setSentryState(SentryModeState state) {
     sentryModeState.value = state;
 
     writeStorageKey('sentryModeState', state.toString());
-    if (vehicleData.value != null) {
+    if (state == SentryModeState.on && vehicleData.value != null) {
       writeStorageKey('sentryModeOnOdometer',
           vehicleData.value!.vehicleState.odometer.toString());
+    }
+  }
+
+  setIsOnline(bool isNowOnline) {
+    isOnline.value = isNowOnline;
+
+    switch (sentryModeState.value) {
+      case SentryModeState.unknown:
+        if (!isNowOnline) {
+          setSentryState(SentryModeState.off);
+        }
+        break;
+      case SentryModeState.off:
+        break;
+      case SentryModeState.on:
+        if (!isNowOnline) {
+          setSentryState(SentryModeState.off);
+        }
+        break;
     }
   }
 

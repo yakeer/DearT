@@ -23,11 +23,7 @@ class AppController extends GetxController {
       Globals.apiAccessTokenExpiryTime =
           DateTime?.parse((await readStorageKey('accessTokenExpiryTime'))!);
 
-      String? vehicleIdText = await readStorageKey('vehicleId');
-      if (vehicleIdText != null) {
-        Globals.vehicleId = int.tryParse(vehicleIdText);
-        selectedVehicleId.value = Globals.vehicleId;
-      }
+      await loadVehicleIdFromStorage();
 
       String? vehicleName = await readStorageKey('vehicleName');
       if (vehicleName != null) {
@@ -49,6 +45,14 @@ class AppController extends GetxController {
       }
     } else {
       isLoggedIn.value = false;
+    }
+  }
+
+  Future<void> loadVehicleIdFromStorage() async {
+    String? vehicleIdText = await readStorageKey('vehicleId');
+    if (vehicleIdText != null) {
+      Globals.vehicleId = int.tryParse(vehicleIdText);
+      selectedVehicleId.value = Globals.vehicleId;
     }
   }
 }
