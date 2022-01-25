@@ -12,14 +12,17 @@ class SettingsScreen extends GetView<SettingsController> {
       init: SettingsController(),
       builder: (controller) => Scaffold(
         appBar: AppBar(
-          title: const Text('Settings'),
+          title: const Text(
+            'Settings',
+          ),
         ),
         body: SettingsList(
+          darkBackgroundColor: Get.theme.colorScheme.background,
           contentPadding: const EdgeInsets.all(8),
-          backgroundColor: Get.theme.backgroundColor,
           sections: [
             SettingsSection(
               title: 'General',
+              titleTextStyle: Get.theme.textTheme.headline6,
               tiles: [
                 SettingsTile.switchTile(
                   title: 'Wake up',
@@ -31,6 +34,7 @@ class SettingsScreen extends GetView<SettingsController> {
             ),
             SettingsSection(
               title: 'Account',
+              titleTextStyle: Get.theme.textTheme.headline6,
               tiles: [
                 SettingsTile(
                   title: 'Logout',

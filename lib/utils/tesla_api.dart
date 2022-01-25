@@ -1,4 +1,5 @@
 import 'package:deart/constants.dart';
+import 'package:deart/controllers/car_controller.dart';
 import 'package:deart/models/charge_state.dart';
 import 'package:deart/models/command_result.dart';
 import 'package:deart/models/vehicle_data.dart';
@@ -12,7 +13,7 @@ import 'package:deart/models/vehicle.dart';
 class TeslaAPI extends GetxService {
   final String baseURL = Constants.baseURL;
 
-  Future<Vehicle?> getVehicle() async {
+  Future<List<Vehicle>?> getVehicles() async {
     String apiName = 'api/1/vehicles';
     Uri uri = _getUriByAPIName(apiName);
 
@@ -23,10 +24,10 @@ class TeslaAPI extends GetxService {
 
     if (response.statusCode == 200) {
       List<Vehicle> vehicles = parseResponse(response, Vehicle.fromJsonList);
-      return vehicles.first;
+      return vehicles;
     } else if (response.statusCode == 401) {
       await Get.find<AuthService>().refreshToken();
-      return getVehicle();
+      return getVehicles();
     } else {
       return null;
     }
@@ -35,11 +36,15 @@ class TeslaAPI extends GetxService {
   Future<bool> wakeUp({int currentTryCount = 0}) async {
     String apiName = 'api/1/vehicles/${Globals.vehicleId}/wake_up';
 
+    Get.find<CarController>().setIsOnline(false);
+
     Uri uri = _getUriByAPIName(apiName);
 
     http.Response response = await http.post(uri, headers: _initHeaders());
 
     if (response.statusCode == 200) {
+      Get.find<CarController>().setIsOnline(false);
+
       Vehicle vehicle = parseResponse(response, Vehicle.fromJson);
       if (vehicle.state == "online") {
         return true;

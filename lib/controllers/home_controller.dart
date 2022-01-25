@@ -12,6 +12,7 @@ class HomeController extends GetxController {
   Rx<ChargeState?> chargeState = Rx<ChargeState?>(null);
   TeslaAPI api = Get.find<TeslaAPI>();
   Rx<SentryModeState> sentryModeState = Rx(SentryModeState.unknown);
+  Rx<List<Vehicle>?> vehicles = Rx(null);
 
   HomeController() {
     Get.put(CarController());
@@ -20,9 +21,8 @@ class HomeController extends GetxController {
   @override
   void onInit() async {
     // Load Vehicle Settings.
-    loadVehicle().then((value) async {
+    loadVehicles().then((value) async {
       await loadChargeState();
-      await api.wakeUp();
     });
 
     // Init
@@ -36,16 +36,28 @@ class HomeController extends GetxController {
     super.onInit();
   }
 
-  Future loadVehicle() async {
-    Vehicle? vehicle = await api.getVehicle();
-    if (vehicle != null) {
-      Globals.vehicleId = vehicle.id;
-      await writeStorageKey('vehicleId', vehicle.id.toString());
-
+  Future loadVehicles() async {
+    // Load Vehicles from API
+    vehicles.value = await api.getVehicles();
+    if (vehicles.value != null && vehicles.value!.isNotEmpty) {
+      // Auto select first vehicle
+      Vehicle vehicle;
+      if (vehicles.value!.length == 1) {
+        vehicle = vehicles.value!.first;
+      } else {
+        if (Globals.vehicleId == null) {
+          vehicle = vehicles.value!.first;
+        } else {
+          vehicle = vehicles.value!
+              .firstWhere((element) => (element.id == Globals.vehicleId));
+        }
+      }
+      carChanged(vehicle.id);
       CarController carContorller = Get.find<CarController>();
       carContorller.vehicleId.value = vehicle.id;
-      carContorller.vehicleName.value =
-          HtmlUnescape().convert(vehicle.displayName);
+      carContorller.vehicleName.value = HtmlUnescape().convert(
+        vehicle.displayName,
+      );
     }
   }
 
@@ -129,7 +141,7 @@ class HomeController extends GetxController {
   }
 
   Future refreshState() async {
-    return loadVehicle().then((value) async {
+    return loadVehicles().then((value) async {
       await loadChargeState();
 
       // Wake up the car
@@ -145,6 +157,26 @@ class HomeController extends GetxController {
         return "Off";
       case SentryModeState.on:
         return "Engaged";
+    }
+  }
+
+  carChanged(
+    int? vehicleId, {
+    bool reloadData = false,
+  }) async {
+    // Set selected vehicle id
+    Globals.vehicleId = vehicleId;
+    await writeStorageKey('vehicleId', vehicleId.toString());
+
+    // Set selected Vehicle name
+    String vehicleName =
+        vehicles.value!.firstWhere((x) => x.id == vehicleId).displayName;
+    await writeStorageKey('vehicleName', vehicleName.toString());
+
+    if (reloadData) {
+      // Reload data if car changed
+      await loadChargeState();
+      await api.wakeUp();
     }
   }
 }

@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
+import '../globals.dart';
+
 class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
   HomeScreen({Key? key}) : super(key: key) {
     WidgetsBinding.instance!.addObserver(this);
@@ -59,7 +61,33 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(Get.find<CarController>().vehicleName.value),
+                controller.vehicles.value?.length == 1
+                    ? Text(
+                        Get.find<CarController>().vehicleName.value,
+                      )
+                    : DropdownButtonHideUnderline(
+                        child: DropdownButton<int>(
+                          style: Get.theme.textTheme.headline6,
+                          iconSize:
+                              controller.vehicles.value?.length == 1 ? 0.0 : 24,
+                          value: Globals.vehicleId,
+                          items: controller.vehicles.value
+                              ?.map(
+                                (veh) => DropdownMenuItem<int>(
+                                  child: Text(
+                                    veh.displayName,
+                                  ),
+                                  value: veh.id,
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (int? newVehicleId) =>
+                              controller.carChanged(
+                            newVehicleId,
+                            reloadData: true,
+                          ),
+                        ),
+                      ),
                 const BatteryWidget(),
                 IconButton(
                     onPressed: controller.goToSettings,
