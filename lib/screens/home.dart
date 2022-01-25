@@ -60,9 +60,7 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(Get.find<CarController>().vehicleName.value),
-                BatteryWidget(
-                  chargeState: controller.chargeState.value,
-                ),
+                const BatteryWidget(),
                 IconButton(
                     onPressed: controller.goToSettings,
                     icon: const Icon(Icons.settings))

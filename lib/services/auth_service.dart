@@ -301,7 +301,7 @@ class AuthService extends GetxService {
     );
   }
 
-  Future<void> performChangeToken(TextEditingController accessTokenController,
+  Future<bool> performChangeToken(TextEditingController accessTokenController,
       TextEditingController refreshTokenController) async {
     String accessTokenValue = accessTokenController.value.text;
     Globals.apiAccessToken = accessTokenValue;
@@ -316,7 +316,9 @@ class AuthService extends GetxService {
     String? accessToken = await refreshToken();
     if (accessToken != null) {
       Get.find<AppController>().isLoggedIn.value = true;
-      Get.offAllNamed('/home');
+      return true;
+    } else {
+      return false;
     }
   }
 }
