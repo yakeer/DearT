@@ -52,8 +52,6 @@ class HomeController extends GetxController {
   Future loadChargeState() async {
     ChargeState? result = await api.chargeState();
     chargeState.value = result;
-
-    update();
   }
 
   void turnOnSentry() async {

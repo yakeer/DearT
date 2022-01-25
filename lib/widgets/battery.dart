@@ -1,22 +1,24 @@
-import 'package:deart/models/charge_state.dart';
+import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/utils/unit_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class BatteryWidget extends StatelessWidget {
-  final ChargeState? chargeState;
-  const BatteryWidget({Key? key, required this.chargeState}) : super(key: key);
+class BatteryWidget extends GetView<HomeController> {
+  const BatteryWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => switchMode(),
-      child: Row(
-        children: [
-          Icon(_getIcon()),
-          Text(
-            '${mileToKM(chargeState?.batteryRange) ?? 'N/A'}km (${chargeState?.batteryLevel ?? 'N/A'}%)',
-          ),
-        ],
+    return GetX<HomeController>(
+      builder: (controller) => GestureDetector(
+        onTap: () => switchMode(),
+        child: Row(
+          children: [
+            Icon(_getIcon()),
+            Text(
+              '${mileToKM(controller.chargeState.value?.batteryRange) ?? 'N/A'}km (${controller.chargeState.value?.batteryLevel ?? 'N/A'}%)',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -24,8 +26,9 @@ class BatteryWidget extends StatelessWidget {
   void switchMode() {}
 
   IconData _getIcon() {
-    if (chargeState != null) {
-      if (chargeState!.batteryLevel > 0 && chargeState!.batteryLevel <= 20) {
+    if (controller.chargeState.value != null) {
+      if (controller.chargeState.value!.batteryLevel > 0 &&
+          controller.chargeState.value!.batteryLevel <= 20) {
         return Icons.battery_alert_outlined;
       } else {
         return Icons.battery_std_outlined;
