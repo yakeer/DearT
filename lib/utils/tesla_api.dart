@@ -12,7 +12,7 @@ import 'package:deart/models/vehicle.dart';
 class TeslaAPI extends GetxService {
   final String baseURL = Constants.baseURL;
 
-  Future<Vehicle?> getVehicle() async {
+  Future<List<Vehicle>?> getVehicles() async {
     String apiName = 'api/1/vehicles';
     Uri uri = _getUriByAPIName(apiName);
 
@@ -23,10 +23,10 @@ class TeslaAPI extends GetxService {
 
     if (response.statusCode == 200) {
       List<Vehicle> vehicles = parseResponse(response, Vehicle.fromJsonList);
-      return vehicles.first;
+      return vehicles;
     } else if (response.statusCode == 401) {
       await Get.find<AuthService>().refreshToken();
-      return getVehicle();
+      return getVehicles();
     } else {
       return null;
     }

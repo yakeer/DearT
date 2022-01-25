@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 
 class AppController extends GetxController {
   RxBool isLoggedIn = RxBool(false);
+  Rx<int?> selectedVehicleId = Rx(null);
+  Rx<String?> selectedVehicleName = Rx(null);
 
   @override
   void onReady() async {
@@ -24,6 +26,12 @@ class AppController extends GetxController {
       String? vehicleIdText = await readStorageKey('vehicleId');
       if (vehicleIdText != null) {
         Globals.vehicleId = int.tryParse(vehicleIdText);
+        selectedVehicleId.value = Globals.vehicleId;
+      }
+
+      String? vehicleName = await readStorageKey('vehicleName');
+      if (vehicleName != null) {
+        selectedVehicleName.value = vehicleName;
       }
 
       if (Globals.apiAccessTokenExpiryTime != null) {

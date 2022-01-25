@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:deart/constants.dart';
 import 'package:deart/controllers/app_controller.dart';
-import 'package:deart/controllers/login_controller.dart';
 import 'package:deart/globals.dart';
 import 'package:deart/models/internal/login_page_data.dart';
 import 'package:deart/models/refresh_token_response.dart';
