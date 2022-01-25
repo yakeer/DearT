@@ -6,6 +6,7 @@ import 'package:deart/models/vehicle.dart';
 import 'package:deart/utils/storage_utils.dart';
 import 'package:deart/utils/tesla_api.dart';
 import 'package:get/get.dart';
+import 'package:html_unescape/html_unescape.dart';
 
 class HomeController extends GetxController {
   Rx<ChargeState?> chargeState = Rx<ChargeState?>(null);
@@ -43,7 +44,8 @@ class HomeController extends GetxController {
 
       CarController carContorller = Get.find<CarController>();
       carContorller.vehicleId.value = vehicle.id;
-      carContorller.vehicleName.value = vehicle.displayName;
+      carContorller.vehicleName.value =
+          HtmlUnescape().convert(vehicle.displayName);
     }
   }
 
