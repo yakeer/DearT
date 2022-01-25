@@ -11,7 +11,7 @@ var appPages = [
   ),
   GetPage(
     name: '/home',
-    page: () => const HomeScreen(),
+    page: () => HomeScreen(),
   ),
   GetPage(
     name: '/login',

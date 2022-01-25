@@ -21,7 +21,6 @@ class BatteryWidget extends StatelessWidget {
     );
   }
 
-  // TODO
   void switchMode() {}
 
   IconData _getIcon() {

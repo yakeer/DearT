@@ -13,13 +13,14 @@ class DearTIconButtton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
       child: Center(
         child: SizedBox.fromSize(
           size: const Size(80, 80), // button width and height
           child: ClipOval(
             child: Material(
+              color: Colors.transparent,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
