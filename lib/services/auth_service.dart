@@ -19,27 +19,29 @@ Random _rnd = Random();
 
 class AuthService extends GetxService {
   void login(BuildContext context) async {
-    Get.find<LoginController>().isLoading.value = true;
+    // Get.find<LoginController>().isLoading.value = true;
 
     LoginPageData? loginPageData = await getLoginPage();
 
-    await showModalBottomSheet(
-      context: context,
-      isDismissible: true,
-      builder: (context) => LoginWebView(loginPageData!),
-      useRootNavigator: true,
-      isScrollControlled: true,
-    );
+    Get.to(LoginWebView(loginPageData!));
 
-    loginPageData =
-        await exchangeAuthorizationCodeForBearerToken(loginPageData!);
+    // await showModalBottomSheet(
+    //   context: context,
+    //   isDismissible: true,
+    //   builder: (context) => LoginWebView(loginPageData!),
+    //   useRootNavigator: true,
+    //   isScrollControlled: true,
+    // );
 
-    loginPageData = await exchangeBearerTokenForAccessToken(loginPageData);
+    // loginPageData =
+    //     await exchangeAuthorizationCodeForBearerToken(loginPageData);
 
-    if (loginPageData.loginSuccess) {
-      Get.find<AppController>().isLoggedIn.value = true;
-      Get.offAllNamed('/home');
-    }
+    // loginPageData = await exchangeBearerTokenForAccessToken(loginPageData);
+
+    // if (loginPageData.loginSuccess) {
+    //   Get.find<AppController>().isLoggedIn.value = true;
+    //   Get.offAllNamed('/home');
+    // }
   }
 
   Future<LoginPageData?> getLoginPage() async {
