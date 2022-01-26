@@ -66,14 +66,15 @@ class UserController extends GetxController {
 
       selectedVehicle.value = vehicle;
 
-      carChanged(vehicle.id);
+      carChanged(vehicle.id, vehicle.displayName);
     }
 
     return vehicle;
   }
 
   carChanged(
-    int? vehicleId, {
+    int vehicleId,
+    String vehicleName, {
     bool reloadData = false,
   }) async {
     // Set selected vehicle id
@@ -89,6 +90,8 @@ class UserController extends GetxController {
     await writeStorageKey('vehicleName', vehicleName.toString());
 
     if (reloadData) {
+      Get.find<VehicleController>().changeVehicle(vehicleId, vehicleName);
+
       // Reload data if car changed
       Get.find<VehicleController>().refreshState();
     }

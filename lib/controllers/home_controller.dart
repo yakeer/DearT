@@ -71,12 +71,20 @@ class HomeController extends GetxController {
     ]);
   }
 
+  String cleanName(String rawValue) {
+    String result = const HtmlEscape().convert(rawValue);
+    result = result.replaceAll('&#34;', '"');
+    result = result.replaceAll('&#38;', '\'');
+
+    return result;
+  }
+
   void subscribeToVehicle() {
     subscriptions.add(
       Get.find<UserController>().selectedVehicle.listenAndPump((data) {
         if (data != null) {
           vehicleId.value = data.id;
-          vehicleName.value = const HtmlEscape().convert(data.displayName);
+          vehicleName.value = cleanName(data.displayName);
         }
       }),
     );
