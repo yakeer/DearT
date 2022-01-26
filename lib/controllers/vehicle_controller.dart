@@ -37,6 +37,11 @@ class VehicleController extends GetxController {
     super.onReady();
   }
 
+  void changeVehicle(int vehicleId, String vehicleName) {
+    this.vehicleId.value = vehicleId;
+    this.vehicleName.value = vehicleName;
+  }
+
   void setVehicleParameters(Vehicle vehicle) {
     vehicleId.value = vehicle.id;
     vehicleName.value = HtmlUnescape().convert(

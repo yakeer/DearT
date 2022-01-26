@@ -27,8 +27,7 @@ class MainAppBar extends GetView<HomeController>
                 : DropdownButtonHideUnderline(
                     child: DropdownButton<int>(
                       style: Get.theme.textTheme.headline6,
-                      iconSize:
-                          controller.vehicles.value?.length == 1 ? 0.0 : 24,
+                      iconSize: 24,
                       value: controller.vehicleId.value,
                       items: controller.vehicles.value
                           ?.map(
@@ -40,11 +39,18 @@ class MainAppBar extends GetView<HomeController>
                             ),
                           )
                           .toList(),
-                      onChanged: (int? newVehicleId) =>
+                      onChanged: (int? newVehicleId) {
+                        if (newVehicleId != null) {
                           Get.find<UserController>().carChanged(
-                        newVehicleId,
-                        reloadData: true,
-                      ),
+                            newVehicleId,
+                            controller.vehicles.value!
+                                .firstWhere(
+                                    (element) => element.id == newVehicleId)
+                                .displayName,
+                            reloadData: true,
+                          );
+                        }
+                      },
                     ),
                   ),
             const BatteryWidget(),
