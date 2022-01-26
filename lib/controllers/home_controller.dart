@@ -5,6 +5,7 @@ import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/models/enums/sentry_mode_state.dart';
 import 'package:deart/models/vehicle.dart';
 import 'package:deart/utils/tesla_api.dart';
+import 'package:deart/utils/ui_utils.dart';
 import 'package:deart/utils/unit_utils.dart';
 import 'package:get/get.dart';
 import 'package:quick_actions/quick_actions.dart';
@@ -95,61 +96,36 @@ class HomeController extends GetxController {
   }
 
   void turnOnSentry() async {
-    Get.snackbar(
-      'Sentry Mode',
-      'Activating...',
-      snackPosition: SnackPosition.BOTTOM,
-      isDismissible: true,
-    );
+    var snackBar = openSnackbar('Sentry Mode', 'Activating...');
 
     Get.find<VehicleController>().toggleSentry(true);
 
-    Get.snackbar(
-      'Sentry Mode',
-      'Activated succesfully.',
-      snackPosition: SnackPosition.BOTTOM,
-      isDismissible: true,
-    );
+    openSnackbar('Sentry Mode', 'Activated succesfully.',
+        currentSnackbar: snackBar);
   }
 
   void turnOffSentry() async {
-    Get.snackbar(
-      'Sentry Mode',
-      'Deactivating...',
-      snackPosition: SnackPosition.BOTTOM,
-      isDismissible: true,
-    );
+    var snackBar = openSnackbar('Sentry Mode', 'Deactivating...');
 
     Get.find<VehicleController>().toggleSentry(false);
 
-    Get.snackbar(
+    openSnackbar(
       'Sentry Mode',
       'Deactivated succesfully.',
-      snackPosition: SnackPosition.BOTTOM,
-      isDismissible: true,
+      currentSnackbar: snackBar,
     );
   }
 
   void horn() async {
     await api.horn();
 
-    Get.snackbar(
-      'Beep beep',
-      'Don\'t disturb your neighbors!',
-      snackPosition: SnackPosition.BOTTOM,
-      isDismissible: true,
-    );
+    openSnackbar('Beep beep', 'Don\'t disturb your neighbors!');
   }
 
   void flashLights() async {
     await api.flashLights();
 
-    Get.snackbar(
-      'Blink Blink',
-      'It\'s too shiny!',
-      snackPosition: SnackPosition.BOTTOM,
-      isDismissible: true,
-    );
+    openSnackbar('Blink Blink', 'It\'s too shiny!');
   }
 
   void goToSettings() {

@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:deart/constants.dart';
 import 'package:deart/controllers/app_controller.dart';
 import 'package:deart/controllers/user_controller.dart';
+import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/globals.dart';
 import 'package:deart/models/internal/login_page_data.dart';
 import 'package:deart/models/refresh_token_response.dart';
@@ -115,18 +116,18 @@ class AuthService extends GetxService {
 
         if (dto.refreshToken != null) {
           Globals.apiRefreshToken = dto.refreshToken;
-          writeStorageKey('refreshToken', dto.refreshToken!);
+          await writeStorageKey('refreshToken', dto.refreshToken!);
         }
 
         if (dto.accessToken != null) {
           accessToken = dto.accessToken;
           Globals.apiAccessToken = dto.accessToken;
-          writeStorageKey('accessToken', dto.accessToken!);
+          await writeStorageKey('accessToken', dto.accessToken!);
         }
 
         if (dto.idToken != null) {
           Globals.apiIdToken = dto.idToken;
-          writeStorageKey('idToken', dto.idToken!);
+          await writeStorageKey('idToken', dto.idToken!);
         }
 
         if (dto.expiresIn != null) {
@@ -135,7 +136,7 @@ class AuthService extends GetxService {
 
           Globals.apiAccessTokenExpiryTime = expiryTime;
 
-          writeStorageKey(
+          await writeStorageKey(
             'accessTokenExpiryTime',
             expiryTime.toIso8601String(),
           );
@@ -212,7 +213,7 @@ class AuthService extends GetxService {
       Globals.apiAccessToken = loginPageData.accessToken;
       Globals.apiRefreshToken = loginPageData.refreshToken;
 
-      writeStorageKey('refreshToken', Globals.apiRefreshToken!);
+      await writeStorageKey('refreshToken', Globals.apiRefreshToken!);
 
       await refreshToken();
 
@@ -224,6 +225,8 @@ class AuthService extends GetxService {
 
   Future logout() async {
     Get.find<AppController>().isLoggedIn.value = false;
+    Get.delete<VehicleController>();
+    Get.delete<UserController>();
 
     await deleteStorageKey('accessToken');
     await deleteStorageKey('refreshToken');
