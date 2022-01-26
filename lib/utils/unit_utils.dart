@@ -1,7 +1,3 @@
-double? mileToKM(double? miles) {
-  if (miles != null) {
-    return (miles * 1.609).roundToDouble();
-  } else {
-    return 0;
-  }
+double mileToKM(double miles) {
+  return (miles * 1.609).roundToDouble();
 }

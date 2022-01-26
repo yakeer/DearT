@@ -1,5 +1,5 @@
 import 'package:deart/constants.dart';
-import 'package:deart/controllers/car_controller.dart';
+import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/models/charge_state.dart';
 import 'package:deart/models/command_result.dart';
 import 'package:deart/models/vehicle_data.dart';
@@ -36,14 +36,14 @@ class TeslaAPI extends GetxService {
   Future<bool> wakeUp({int currentTryCount = 0}) async {
     String apiName = 'api/1/vehicles/${Globals.vehicleId}/wake_up';
 
-    Get.find<CarController>().setIsOnline(false);
+    Get.find<VehicleController>().setIsOnline(false);
 
     Uri uri = _getUriByAPIName(apiName);
 
     http.Response response = await http.post(uri, headers: _initHeaders());
 
     if (response.statusCode == 200) {
-      Get.find<CarController>().setIsOnline(false);
+      Get.find<VehicleController>().setIsOnline(false);
 
       Vehicle vehicle = parseResponse(response, Vehicle.fromJson);
       if (vehicle.state == "online") {

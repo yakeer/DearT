@@ -9,32 +9,34 @@ class WelcomeController extends GetxController {
   @override
   void onInit() {
     initServices();
+
     // Init App Controller
     Get.create<AppController>(
       () => AppController(),
       permanent: true,
     );
 
-    Get.find<AppController>().isLoggedIn.listen((loggedIn) {
-      if (loggedIn) {
-        Get.offAllNamed('/home');
-      } else {
-        Get.offAllNamed(
-          '/login',
-        );
-      }
-    });
-
     super.onInit();
   }
 
-  // @override
-  // void onReady() async {
-  //   super.onReady();
-  // }
+  @override
+  void onReady() async {
+    // Listen to LoggedIn Stream to navigate to login page.
+    Get.find<AppController>().isLoggedIn.listen((loggedIn) {
+      if (!loggedIn) {
+        Get.offAllNamed(
+          '/login',
+        );
+      } else {
+        Get.offAllNamed('/home');
+      }
+    });
+
+    super.onReady();
+  }
 
   void initServices() {
-    Get.create(() => TeslaAPI(), permanent: true);
-    Get.create(() => AuthService(), permanent: true);
+    Get.put(TeslaAPI(), permanent: true);
+    Get.put(AuthService(), permanent: true);
   }
 }

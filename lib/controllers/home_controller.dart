@@ -1,155 +1,146 @@
-import 'package:deart/controllers/car_controller.dart';
-import 'package:deart/globals.dart';
-import 'package:deart/models/charge_state.dart';
+import 'dart:async';
+
+import 'package:deart/controllers/user_controller.dart';
+import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/models/enums/sentry_mode_state.dart';
 import 'package:deart/models/vehicle.dart';
-import 'package:deart/utils/storage_utils.dart';
 import 'package:deart/utils/tesla_api.dart';
+import 'package:deart/utils/ui_utils.dart';
+import 'package:deart/utils/unit_utils.dart';
 import 'package:get/get.dart';
-import 'package:html_unescape/html_unescape.dart';
+import 'package:quick_actions/quick_actions.dart';
 
 class HomeController extends GetxController {
-  Rx<ChargeState?> chargeState = Rx<ChargeState?>(null);
   TeslaAPI api = Get.find<TeslaAPI>();
-  Rx<SentryModeState> sentryModeState = Rx(SentryModeState.unknown);
+  Rx<int?> vehicleId = Rx(null);
+  RxString vehicleName = ''.obs;
+  RxDouble batteryRange = 0.0.obs;
+  RxInt batteryLevel = 0.obs;
+  RxString sentryModeStateText = 'Unknown'.obs;
+  RxDouble insideTemperature = 0.0.obs;
+  RxDouble outsideTemperature = 0.0.obs;
+  RxBool carLocked = false.obs;
   Rx<List<Vehicle>?> vehicles = Rx(null);
 
-  HomeController() {
-    Get.put(CarController());
-  }
+  final List<StreamSubscription> subscriptions = [];
 
   @override
-  void onInit() async {
-    // Load Vehicle Settings.
-    loadVehicles().then((value) async {
-      await loadChargeState();
+  void onInit() {
+    Get.find<UserController>().vehicles.listenAndPump((data) {
+      if (data != null) {
+        vehicles.value = data;
+      }
     });
 
-    // Init
-    sentryModeState.value = Get.find<CarController>().sentryModeState.value;
+    initQuickActions();
 
-    // And listen for changes.
-    Get.find<CarController>().sentryModeState.listen((state) {
-      sentryModeState.value = state;
-    });
-
+    subscribeToVehicle();
     super.onInit();
   }
 
-  Future loadVehicles() async {
-    // Load Vehicles from API
-    vehicles.value = await api.getVehicles();
-    if (vehicles.value != null && vehicles.value!.isNotEmpty) {
-      // Auto select first vehicle
-      Vehicle vehicle;
-      if (vehicles.value!.length == 1) {
-        vehicle = vehicles.value!.first;
-      } else {
-        if (Globals.vehicleId == null) {
-          vehicle = vehicles.value!.first;
-        } else {
-          vehicle = vehicles.value!
-              .firstWhere((element) => (element.id == Globals.vehicleId));
-        }
+  void initQuickActions() {
+    const QuickActions quickActions = QuickActions();
+    quickActions.initialize((shortcutType) {
+      switch (shortcutType) {
+        case 'sentry_on':
+          turnOnSentry();
+          break;
+        case 'sentry_off':
+          turnOffSentry();
+          break;
+        case 'horn':
+          horn();
+          break;
       }
-      carChanged(vehicle.id);
-      CarController carContorller = Get.find<CarController>();
-      carContorller.vehicleId.value = vehicle.id;
-      carContorller.vehicleName.value = HtmlUnescape().convert(
-        vehicle.displayName,
-      );
-    }
+    });
+
+    quickActions.setShortcutItems(<ShortcutItem>[
+      const ShortcutItem(
+        type: 'sentry_on',
+        localizedTitle: 'Arm Sentry',
+      ),
+      const ShortcutItem(
+        type: 'sentry_off',
+        localizedTitle: 'Disarm Sentry',
+      ),
+      const ShortcutItem(
+        type: 'horn',
+        localizedTitle: 'Horn',
+      )
+    ]);
   }
 
-  Future loadChargeState() async {
-    ChargeState? result = await api.chargeState();
-    chargeState.value = result;
+  void subscribeToVehicle() {
+    subscriptions.add(
+      Get.find<UserController>().selectedVehicle.listenAndPump((data) {
+        if (data != null) {
+          vehicleId.value = data.id;
+          vehicleName.value = data.displayName;
+        }
+      }),
+    );
+
+    subscriptions.add(
+      Get.find<VehicleController>().vehicleData.listenAndPump((vehicleData) {
+        if (vehicleData != null) {
+          batteryLevel.value = vehicleData.chargeState.batteryLevel;
+          batteryRange.value = mileToKM(vehicleData.chargeState.batteryRange);
+
+          insideTemperature.value = vehicleData.climateState.insideTemp;
+          outsideTemperature.value = vehicleData.climateState.outsideTemp;
+
+          carLocked.value = vehicleData.vehicleState.locked;
+        }
+      }),
+    );
+
+    subscriptions.add(
+      Get.find<VehicleController>()
+          .sentryModeState
+          .listenAndPump((sentryModeState) {
+        sentryModeStateText.value = getSentryModeStateText(sentryModeState);
+      }),
+    );
   }
 
   void turnOnSentry() async {
-    Get.snackbar(
-      'Sentry Mode',
-      'Activating...',
-      snackPosition: SnackPosition.BOTTOM,
-      isDismissible: true,
-    );
+    var snackBar = openSnackbar('Sentry Mode', 'Activating...');
 
-    bool success = await api.toggleSentry(true);
+    Get.find<VehicleController>().toggleSentry(true);
 
-    Get.snackbar(
-      'Sentry Mode',
-      'Activated succesfully.',
-      snackPosition: SnackPosition.BOTTOM,
-      isDismissible: true,
-    );
-
-    if (success) {
-      Get.find<CarController>().setSentryState(SentryModeState.on);
-    } else {
-      Get.find<CarController>().setSentryState(SentryModeState.unknown);
-    }
+    openSnackbar('Sentry Mode', 'Activated succesfully.',
+        currentSnackbar: snackBar);
   }
 
   void turnOffSentry() async {
-    Get.snackbar(
-      'Sentry Mode',
-      'Deactivating...',
-      snackPosition: SnackPosition.BOTTOM,
-      isDismissible: true,
-    );
+    var snackBar = openSnackbar('Sentry Mode', 'Deactivating...');
 
-    bool success = await api.toggleSentry(false);
+    Get.find<VehicleController>().toggleSentry(false);
 
-    Get.snackbar(
+    openSnackbar(
       'Sentry Mode',
       'Deactivated succesfully.',
-      snackPosition: SnackPosition.BOTTOM,
-      isDismissible: true,
+      currentSnackbar: snackBar,
     );
-
-    if (success) {
-      Get.find<CarController>().setSentryState(SentryModeState.off);
-    } else {
-      Get.find<CarController>().setSentryState(SentryModeState.unknown);
-    }
   }
 
   void horn() async {
     await api.horn();
 
-    Get.snackbar(
-      'Beep beep',
-      'Don\'t disturb your neighbors!',
-      snackPosition: SnackPosition.BOTTOM,
-      isDismissible: true,
-    );
+    openSnackbar('Beep beep', 'Don\'t disturb your neighbors!');
   }
 
   void flashLights() async {
     await api.flashLights();
 
-    Get.snackbar(
-      'Blink Blink',
-      'It\'s too shiny!',
-      snackPosition: SnackPosition.BOTTOM,
-      isDismissible: true,
-    );
+    openSnackbar('Blink Blink', 'It\'s too shiny!');
   }
 
   void goToSettings() {
     Get.toNamed('/settings');
   }
 
-  Future refreshState() async {
-    return loadVehicles().then((value) async {
-      await loadChargeState();
-
-      // Wake up the car
-      await api.wakeUp();
-    });
-  }
-
-  String sentryModeStateText(SentryModeState sentryModeState) {
+  String getSentryModeStateText(SentryModeState sentryModeState) {
     switch (sentryModeState) {
       case SentryModeState.unknown:
         return "Unknown";
@@ -160,23 +151,13 @@ class HomeController extends GetxController {
     }
   }
 
-  carChanged(
-    int? vehicleId, {
-    bool reloadData = false,
-  }) async {
-    // Set selected vehicle id
-    Globals.vehicleId = vehicleId;
-    await writeStorageKey('vehicleId', vehicleId.toString());
-
-    // Set selected Vehicle name
-    String vehicleName =
-        vehicles.value!.firstWhere((x) => x.id == vehicleId).displayName;
-    await writeStorageKey('vehicleName', vehicleName.toString());
-
-    if (reloadData) {
-      // Reload data if car changed
-      await loadChargeState();
-      await api.wakeUp();
+  @override
+  void onClose() {
+    // Close subscriptions.
+    for (var element in subscriptions) {
+      element.cancel();
     }
+
+    super.onClose();
   }
 }

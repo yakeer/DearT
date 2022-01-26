@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:deart/controllers/app_controller.dart';
+import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/models/internal/login_page_data.dart';
 import 'package:deart/services/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -65,6 +66,12 @@ class _LoginWebViewState extends State<LoginWebView> {
 
                 loginPageData = await Get.find<AuthService>()
                     .exchangeBearerTokenForAccessToken(loginPageData);
+
+                UserController userController = Get.put(
+                  UserController(null),
+                  permanent: true,
+                );
+                await userController.initVehicles();
 
                 if (loginPageData.loginSuccess) {
                   Get.find<AppController>().isLoggedIn.value = true;

@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:deart/constants.dart';
 import 'package:deart/controllers/app_controller.dart';
+import 'package:deart/controllers/user_controller.dart';
+import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/globals.dart';
 import 'package:deart/models/internal/login_page_data.dart';
 import 'package:deart/models/refresh_token_response.dart';
@@ -114,18 +116,18 @@ class AuthService extends GetxService {
 
         if (dto.refreshToken != null) {
           Globals.apiRefreshToken = dto.refreshToken;
-          writeStorageKey('refreshToken', dto.refreshToken!);
+          await writeStorageKey('refreshToken', dto.refreshToken!);
         }
 
         if (dto.accessToken != null) {
           accessToken = dto.accessToken;
           Globals.apiAccessToken = dto.accessToken;
-          writeStorageKey('accessToken', dto.accessToken!);
+          await writeStorageKey('accessToken', dto.accessToken!);
         }
 
         if (dto.idToken != null) {
           Globals.apiIdToken = dto.idToken;
-          writeStorageKey('idToken', dto.idToken!);
+          await writeStorageKey('idToken', dto.idToken!);
         }
 
         if (dto.expiresIn != null) {
@@ -134,11 +136,14 @@ class AuthService extends GetxService {
 
           Globals.apiAccessTokenExpiryTime = expiryTime;
 
-          writeStorageKey(
+          await writeStorageKey(
             'accessTokenExpiryTime',
             expiryTime.toIso8601String(),
           );
         }
+      } else {
+        Get.snackbar(
+            'Failed to Refresh Token', 'Status code ${response.statusCode}');
       }
     }
 
@@ -208,7 +213,7 @@ class AuthService extends GetxService {
       Globals.apiAccessToken = loginPageData.accessToken;
       Globals.apiRefreshToken = loginPageData.refreshToken;
 
-      writeStorageKey('refreshToken', Globals.apiRefreshToken!);
+      await writeStorageKey('refreshToken', Globals.apiRefreshToken!);
 
       await refreshToken();
 
@@ -220,6 +225,8 @@ class AuthService extends GetxService {
 
   Future logout() async {
     Get.find<AppController>().isLoggedIn.value = false;
+    Get.delete<VehicleController>();
+    Get.delete<UserController>();
 
     await deleteStorageKey('accessToken');
     await deleteStorageKey('refreshToken');
@@ -253,55 +260,6 @@ class AuthService extends GetxService {
     return Uri.parse(url);
   }
 
-  void changeToken() {
-    TextEditingController accessTokenController = TextEditingController();
-    TextEditingController refreshTokenController = TextEditingController();
-
-    // set up the buttons
-    Widget cancelButton = TextButton(
-      child: const Text("Cancel"),
-      onPressed: () {
-        Get.back();
-      },
-    );
-
-    Widget okButton = TextButton(
-      child: const Text("Ok"),
-      onPressed: () async {
-        await performChangeToken(accessTokenController, refreshTokenController);
-      },
-    );
-
-    var dialog = AlertDialog(
-      title: const Text('Enter Token:'),
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text('Access Token:'),
-          TextField(
-            controller: accessTokenController,
-          ),
-          const Text('Refresh Token:'),
-          TextField(
-            controller: refreshTokenController,
-          ),
-        ],
-      ),
-      actions: [
-        cancelButton,
-        okButton,
-      ],
-    );
-
-    showDialog(
-      context: Get.context!,
-      builder: (context) {
-        return dialog;
-      },
-    );
-  }
-
   Future<bool> performChangeToken(TextEditingController accessTokenController,
       TextEditingController refreshTokenController) async {
     String accessTokenValue = accessTokenController.value.text;
@@ -316,7 +274,14 @@ class AuthService extends GetxService {
 
     String? accessToken = await refreshToken();
     if (accessToken != null) {
+      UserController userController = Get.put(
+        UserController(null),
+        permanent: true,
+      );
+      await userController.initVehicles();
+
       Get.find<AppController>().isLoggedIn.value = true;
+
       return true;
     } else {
       return false;
