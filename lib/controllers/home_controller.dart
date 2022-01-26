@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/controllers/vehicle_controller.dart';
@@ -75,7 +76,7 @@ class HomeController extends GetxController {
       Get.find<UserController>().selectedVehicle.listenAndPump((data) {
         if (data != null) {
           vehicleId.value = data.id;
-          vehicleName.value = data.displayName;
+          vehicleName.value = const HtmlEscape().convert(data.displayName);
         }
       }),
     );
