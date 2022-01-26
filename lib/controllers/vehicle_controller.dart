@@ -119,7 +119,11 @@ class VehicleController extends GetxController {
     bool success = await api.toggleSentry(activate);
 
     if (success) {
-      setSentryState(SentryModeState.on);
+      if (activate) {
+        setSentryState(SentryModeState.on);
+      } else {
+        setSentryState(SentryModeState.off);
+      }
     } else {
       setSentryState(SentryModeState.unknown);
     }
