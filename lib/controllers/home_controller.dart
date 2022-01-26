@@ -7,6 +7,7 @@ import 'package:deart/models/vehicle.dart';
 import 'package:deart/utils/tesla_api.dart';
 import 'package:deart/utils/unit_utils.dart';
 import 'package:get/get.dart';
+import 'package:quick_actions/quick_actions.dart';
 
 class HomeController extends GetxController {
   TeslaAPI api = Get.find<TeslaAPI>();
@@ -27,8 +28,42 @@ class HomeController extends GetxController {
       }
     });
 
+    initQuickActions();
+
     subscribeToVehicle();
     super.onInit();
+  }
+
+  void initQuickActions() {
+    const QuickActions quickActions = QuickActions();
+    quickActions.initialize((shortcutType) {
+      switch (shortcutType) {
+        case 'sentry_on':
+          turnOnSentry();
+          break;
+        case 'sentry_off':
+          turnOffSentry();
+          break;
+        case 'horn':
+          horn();
+          break;
+      }
+    });
+
+    quickActions.setShortcutItems(<ShortcutItem>[
+      const ShortcutItem(
+        type: 'sentry_on',
+        localizedTitle: 'Arm Sentry',
+      ),
+      const ShortcutItem(
+        type: 'sentry_off',
+        localizedTitle: 'Disarm Sentry',
+      ),
+      const ShortcutItem(
+        type: 'horn',
+        localizedTitle: 'Horn',
+      )
+    ]);
   }
 
   void subscribeToVehicle() {
