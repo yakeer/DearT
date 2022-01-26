@@ -74,7 +74,7 @@ class HomeController extends GetxController {
   String cleanName(String rawValue) {
     String result = const HtmlEscape().convert(rawValue);
     result = result.replaceAll('&#34;', '"');
-    result = result.replaceAll('&#38;', '\'');
+    result = result.replaceAll('&#39;', '\'');
 
     return result;
   }
