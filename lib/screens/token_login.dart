@@ -1,5 +1,4 @@
 import 'package:deart/controllers/login_controller.dart';
-import 'package:deart/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';

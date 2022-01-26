@@ -17,6 +17,9 @@ class HomeController extends GetxController {
   RxDouble batteryRange = 0.0.obs;
   RxInt batteryLevel = 0.obs;
   RxString sentryModeStateText = 'Unknown'.obs;
+  RxDouble insideTemperature = 0.0.obs;
+  RxDouble outsideTemperature = 0.0.obs;
+  RxBool carLocked = false.obs;
   Rx<List<Vehicle>?> vehicles = Rx(null);
 
   final List<StreamSubscription> subscriptions = [];
@@ -82,6 +85,11 @@ class HomeController extends GetxController {
         if (vehicleData != null) {
           batteryLevel.value = vehicleData.chargeState.batteryLevel;
           batteryRange.value = mileToKM(vehicleData.chargeState.batteryRange);
+
+          insideTemperature.value = vehicleData.climateState.insideTemp;
+          outsideTemperature.value = vehicleData.climateState.outsideTemp;
+
+          carLocked.value = vehicleData.vehicleState.locked;
         }
       }),
     );

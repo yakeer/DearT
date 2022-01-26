@@ -27,7 +27,7 @@ class AppController extends GetxController {
       int? vehicleId = await loadVehicleIdFromStorage();
 
       UserController userController = Get.put(
-        UserController(null),
+        UserController(vehicleId),
         permanent: true,
       );
       await userController.initVehicles();

@@ -57,7 +57,9 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
           body: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.max,
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -88,10 +90,48 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SvgPicture.asset(
-                    'assets/images/upper_view.svg',
-                    semanticsLabel: 'Upper view',
+                  padding: const EdgeInsets.all(8.0),
+                  child: Expanded(
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          child: Row(
+                            children: [
+                              const Icon(Icons.thermostat),
+                              Text('${controller.outsideTemperature}\u2103')
+                            ],
+                          ),
+                          left: 15,
+                          top: 245,
+                        ),
+                        Center(
+                          child: SvgPicture.asset(
+                            'assets/images/upper_view.svg',
+                            semanticsLabel: 'Upper view',
+                          ),
+                        ),
+                        Positioned(
+                          child: Row(
+                            children: [
+                              const Icon(Icons.thermostat),
+                              Text('${controller.insideTemperature}\u2103')
+                            ],
+                          ),
+                          left: Get.mediaQuery.size.width / 2 - 45,
+                          top: 245,
+                        ),
+                        Positioned(
+                          child: Icon(
+                            controller.carLocked.value
+                                ? Icons.lock
+                                : Icons.lock_open,
+                            size: 36,
+                          ),
+                          left: Get.mediaQuery.size.width / 2 - 28,
+                          top: 45,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Padding(
@@ -111,11 +151,6 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
               ],
             ),
           ),
-          // floatingActionButton: FloatingActionButton(
-          //   onPressed: _incrementCounter,
-          //   tooltip: 'Increment',
-          //   child: const Icon(Icons.add),
-          // ), // This trailing comma makes auto-formatting nicer for build methods.
         ),
       ),
     );

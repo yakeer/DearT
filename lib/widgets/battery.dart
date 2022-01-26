@@ -14,7 +14,7 @@ class BatteryWidget extends GetView<HomeController> {
           children: [
             Icon(_getIcon()),
             Text(
-              '${controller.batteryRange}km (${controller.batteryLevel}%)',
+              '${controller.batteryRange.round()}km (${controller.batteryLevel}%)',
             ),
           ],
         ),

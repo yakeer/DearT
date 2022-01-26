@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:deart/controllers/app_controller.dart';
-import 'package:deart/controllers/home_controller.dart';
-import 'package:deart/globals.dart';
 import 'package:deart/models/enums/sentry_mode_state.dart';
 import 'package:deart/models/vehicle.dart';
 import 'package:deart/models/vehicle_data.dart';
