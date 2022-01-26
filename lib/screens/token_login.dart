@@ -88,23 +88,7 @@ class TokenLoginScreen extends GetView<LoginController> {
                   Padding(
                     padding: const EdgeInsets.all(32.0),
                     child: ElevatedButton(
-                      onPressed: () async {
-                        if (controller.formKey.currentState!.validate()) {
-                          Get.back();
-                          Get.snackbar(
-                            'Tokens saved successfully',
-                            'Logging you in...',
-                            snackPosition: SnackPosition.BOTTOM,
-                            isDismissible: true,
-                          );
-                          if (await Get.find<AuthService>().performChangeToken(
-                            controller.accessTokenController,
-                            controller.refreshTokenController,
-                          )) {
-                            Get.offAllNamed('/home');
-                          }
-                        }
-                      },
+                      onPressed: () => controller.saveToken(),
                       child: const Text('Save'),
                     ),
                   )

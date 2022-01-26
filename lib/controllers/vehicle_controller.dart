@@ -1,14 +1,17 @@
 import 'dart:async';
 
 import 'package:deart/controllers/app_controller.dart';
+import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/globals.dart';
 import 'package:deart/models/enums/sentry_mode_state.dart';
+import 'package:deart/models/vehicle.dart';
 import 'package:deart/models/vehicle_data.dart';
 import 'package:deart/utils/storage_utils.dart';
 import 'package:deart/utils/tesla_api.dart';
 import 'package:get/get.dart';
+import 'package:html_unescape/html_unescape.dart';
 
-class CarController extends GetxController {
+class VehicleController extends GetxController {
   Rx<int?> vehicleId = Rx(null);
   RxString vehicleName = RxString('N/A');
   Rx<SentryModeState> sentryModeState = Rx(SentryModeState.unknown);
@@ -19,21 +22,44 @@ class CarController extends GetxController {
 
   final List<StreamSubscription> subscriptions = [];
 
-  @override
-  void onInit() {
-    _loadVehicleData();
-    _loadSentryState();
-    super.onInit();
-  }
-
-  void _loadVehicleData() async {
-    if (Globals.vehicleId == null) {
-      await Get.find<AppController>().loadVehicleIdFromStorage();
+  VehicleController(int? vehicleId, {Vehicle? vehicle}) : super() {
+    this.vehicleId.value = vehicleId;
+    if (vehicle != null) {
+      setVehicleParameters(vehicle);
     }
-    vehicleData.value = await api.vehicleData();
   }
 
-  void _loadSentryState() async {
+  @override
+  void onReady() async {
+    _loadVehicleData().then((value) async {
+      await _loadSentryState();
+      Get.find<AppController>().isDataLoaded.value = true;
+    });
+
+    super.onReady();
+  }
+
+  void setVehicleParameters(Vehicle vehicle) {
+    vehicleId.value = vehicle.id;
+    vehicleName.value = HtmlUnescape().convert(
+      vehicle.displayName,
+    );
+  }
+
+  Future _loadVehicleData() async {
+    vehicleData.value = await api.vehicleData();
+
+    vehicleData.trigger(vehicleData.value);
+    // vehicleData.update((val) {
+    //   // if (val != null) {
+    //   //   if (Get.isRegistered<HomeController>()) {
+    //   //     Get.find<HomeController>().subscribeToVehicle();
+    //   //   }
+    //   // }
+    // });
+  }
+
+  Future _loadSentryState() async {
     String? stateFromStorage = await readStorageKey('sentryModeState');
     if (stateFromStorage != null) {
       sentryModeState.value = SentryModeState.values
@@ -89,6 +115,20 @@ class CarController extends GetxController {
         }
         break;
     }
+  }
+
+  Future toggleSentry(bool activate) async {
+    bool success = await api.toggleSentry(activate);
+
+    if (success) {
+      setSentryState(SentryModeState.on);
+    } else {
+      setSentryState(SentryModeState.unknown);
+    }
+  }
+
+  Future refreshState() async {
+    return _loadVehicleData();
   }
 
   @override

@@ -10,17 +10,23 @@ class WelcomeScreen extends GetView<WelcomeController> {
     Get.put(WelcomeController());
 
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            "Welcome to ${controller.appName}",
-            style: const TextStyle(
-              fontSize: 36,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              controller.appName.value,
+              style: const TextStyle(
+                fontSize: 36,
+              ),
             ),
-          ),
-        ],
+            const Padding(
+              padding: EdgeInsets.all(24.0),
+              child: CircularProgressIndicator(),
+            )
+          ],
+        ),
       ),
     );
   }

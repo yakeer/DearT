@@ -1,12 +1,10 @@
-import 'package:deart/controllers/car_controller.dart';
+import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/controllers/home_controller.dart';
-import 'package:deart/widgets/battery.dart';
+import 'package:deart/widgets/main_app_bar.dart';
 import 'package:deart/widgets/theme/deart_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-
-import '../globals.dart';
 
 class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
   HomeScreen({Key? key}) : super(key: key) {
@@ -26,7 +24,7 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       // user returned to our app
-      controller.refreshState();
+      Get.find<VehicleController>().refreshState();
     } else if (state == AppLifecycleState.inactive) {
       // app is inactive
     } else if (state == AppLifecycleState.paused) {
@@ -53,48 +51,9 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
         color: Colors.white,
         strokeWidth: 3,
         triggerMode: RefreshIndicatorTriggerMode.anywhere,
-        onRefresh: () => controller.refreshState(),
+        onRefresh: () => Get.find<VehicleController>().refreshState(),
         child: Scaffold(
-          appBar: AppBar(
-            // Here we take the value from the MyHomePage object that was created by
-            // the App.build method, and use it to set our appbar title.
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                controller.vehicles.value?.length == 1
-                    ? Text(
-                        Get.find<CarController>().vehicleName.value,
-                      )
-                    : DropdownButtonHideUnderline(
-                        child: DropdownButton<int>(
-                          style: Get.theme.textTheme.headline6,
-                          iconSize:
-                              controller.vehicles.value?.length == 1 ? 0.0 : 24,
-                          value: Globals.vehicleId,
-                          items: controller.vehicles.value
-                              ?.map(
-                                (veh) => DropdownMenuItem<int>(
-                                  child: Text(
-                                    veh.displayName,
-                                  ),
-                                  value: veh.id,
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (int? newVehicleId) =>
-                              controller.carChanged(
-                            newVehicleId,
-                            reloadData: true,
-                          ),
-                        ),
-                      ),
-                const BatteryWidget(),
-                IconButton(
-                    onPressed: controller.goToSettings,
-                    icon: const Icon(Icons.settings))
-              ],
-            ),
-          ),
+          appBar: const MainAppBar(),
           body: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Column(
@@ -144,9 +103,7 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
                         'Sentry Mode State: ',
                       ),
                       Text(
-                        '${controller.sentryModeStateText(
-                          controller.sentryModeState.value,
-                        )}.',
+                        '${controller.sentryModeStateText}',
                       ),
                     ],
                   ),
