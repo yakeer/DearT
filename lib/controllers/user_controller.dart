@@ -90,6 +90,11 @@ class UserController extends GetxController {
     await writeStorageKey('vehicleName', vehicleName.toString());
 
     if (reloadData) {
+      Vehicle? vehicle =
+          vehicles.value?.firstWhere((element) => element.id == vehicleId);
+      if (vehicle != null) {
+        selectedVehicle.value = vehicle;
+      }
       Get.find<VehicleController>().changeVehicle(vehicleId, vehicleName);
 
       // Reload data if car changed

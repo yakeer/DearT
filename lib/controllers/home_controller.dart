@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/controllers/vehicle_controller.dart';
@@ -13,6 +12,7 @@ import 'package:deart/utils/ui_utils.dart';
 import 'package:deart/utils/unit_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:html_unescape/html_unescape.dart';
 import 'package:quick_actions/quick_actions.dart';
 
 class HomeController extends GetxController {
@@ -101,9 +101,9 @@ class HomeController extends GetxController {
   }
 
   String cleanName(String rawValue) {
-    String result = const HtmlEscape().convert(rawValue);
-    result = result.replaceAll('&#34;', '"');
-    result = result.replaceAll('&#39;', '\'');
+    String result = HtmlUnescape().convert(rawValue);
+    result = result.replaceAll(r'&#34;', '"');
+    result = result.replaceAll(r'&#39;', '\'');
 
     return result;
   }
