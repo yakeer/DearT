@@ -51,35 +51,39 @@ class VehiclePage extends GetView<HomeController> {
                           'assets/images/upper_view.svg',
                           semanticsLabel: 'Upper view',
                         ),
-                        Positioned(
-                          right: 73,
+                        Positioned.fill(
                           bottom: 60,
-                          child: OutlinedButton(
-                            onPressed: () => openSnackbar(
-                              'Trunk',
-                              'Long press to open',
-                              currentSnackbar: controller.snackBar,
-                            ),
-                            onLongPress: () => controller.openTrunk(),
-                            child: Text(
-                              controller.isTrunkOpen.value ? 'Close' : 'Open',
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          right: 73,
-                          top: 40,
-                          child: Visibility(
-                            visible: !controller.isFrunkOpen.value,
+                          child: Align(
+                            alignment: Alignment.bottomCenter,
                             child: OutlinedButton(
                               onPressed: () => openSnackbar(
-                                'Frunk',
+                                'Trunk',
                                 'Long press to open',
                                 currentSnackbar: controller.snackBar,
                               ),
-                              onLongPress: () => controller.openFrunk(),
-                              child: const Text(
-                                'Open',
+                              onLongPress: () => controller.openTrunk(),
+                              child: Text(
+                                controller.isTrunkOpen.value ? 'Close' : 'Open',
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned.fill(
+                          top: 40,
+                          child: Align(
+                            alignment: Alignment.topCenter,
+                            child: Visibility(
+                              visible: !controller.isFrunkOpen.value,
+                              child: OutlinedButton(
+                                onPressed: () => openSnackbar(
+                                  'Frunk',
+                                  'Long press to open',
+                                  currentSnackbar: controller.snackBar,
+                                ),
+                                onLongPress: () => controller.openFrunk(),
+                                child: const Text(
+                                  'Open',
+                                ),
                               ),
                             ),
                           ),
