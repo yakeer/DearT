@@ -53,13 +53,6 @@ class VehicleController extends GetxController {
     vehicleData.value = await api.vehicleData();
 
     vehicleData.trigger(vehicleData.value);
-    // vehicleData.update((val) {
-    //   // if (val != null) {
-    //   //   if (Get.isRegistered<HomeController>()) {
-    //   //     Get.find<HomeController>().subscribeToVehicle();
-    //   //   }
-    //   // }
-    // });
   }
 
   Future _loadSentryState() async {
@@ -132,6 +125,68 @@ class VehicleController extends GetxController {
     } else {
       setSentryState(SentryModeState.unknown);
     }
+  }
+
+  Future<bool> horn() async {
+    return await api.horn();
+  }
+
+  Future<bool> flashLights() async {
+    return await api.flashLights();
+  }
+
+  Future<bool> doorLock() async {
+    bool success = await api.doorLock(vehicleId.value!);
+
+    await _loadVehicleData();
+
+    return success;
+  }
+
+  Future<bool> doorUnlock() async {
+    bool success = await api.doorUnlock(vehicleId.value!);
+
+    await _loadVehicleData();
+
+    return success;
+  }
+
+  Future<bool> openTrunk() async {
+    bool success = await api.openTrunk(vehicleId.value!);
+
+    await _loadVehicleData();
+
+    return success;
+  }
+
+  Future<bool> openFrunk() async {
+    bool success = await api.openFrunk(vehicleId.value!);
+
+    await _loadVehicleData();
+
+    return success;
+  }
+
+  Future<bool> openChargePort() async {
+    bool success = await api.openChargePort(vehicleId.value!);
+
+    Future.delayed(
+      const Duration(seconds: 1),
+      () async => await _loadVehicleData(),
+    );
+
+    return success;
+  }
+
+  Future<bool> closeChargePort() async {
+    bool success = await api.closeChargePort(vehicleId.value!);
+
+    Future.delayed(
+      const Duration(seconds: 1),
+      () async => await _loadVehicleData(),
+    );
+
+    return success;
   }
 
   Future refreshState() async {

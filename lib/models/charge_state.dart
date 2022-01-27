@@ -10,7 +10,10 @@ class ChargeState {
   @JsonKey(name: 'battery_range')
   final double batteryRange;
 
-  ChargeState(this.batteryLevel, this.batteryRange);
+  @JsonKey(name: 'charge_port_door_open')
+  final bool chargePortDoorOpen;
+
+  ChargeState(this.batteryLevel, this.batteryRange, this.chargePortDoorOpen);
 
   factory ChargeState.fromJson(Map<String, dynamic> json) =>
       _$ChargeStateFromJson(json);

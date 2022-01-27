@@ -5,9 +5,13 @@ import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/models/enums/sentry_mode_state.dart';
 import 'package:deart/models/vehicle.dart';
+import 'package:deart/screens/charge_page.dart';
+import 'package:deart/screens/climate_page.dart';
+import 'package:deart/screens/vehicle_page.dart';
 import 'package:deart/utils/tesla_api.dart';
 import 'package:deart/utils/ui_utils.dart';
 import 'package:deart/utils/unit_utils.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quick_actions/quick_actions.dart';
 
@@ -15,15 +19,28 @@ class HomeController extends GetxController {
   TeslaAPI api = Get.find<TeslaAPI>();
   Rx<int?> vehicleId = Rx(null);
   RxString vehicleName = ''.obs;
-  RxDouble batteryRange = 0.0.obs;
-  RxInt batteryLevel = 0.obs;
+
   RxString sentryModeStateText = 'Unknown'.obs;
-  RxDouble insideTemperature = 0.0.obs;
-  RxDouble outsideTemperature = 0.0.obs;
+
   RxBool carLocked = false.obs;
   Rx<List<Vehicle>?> vehicles = Rx(null);
 
+  // Indications
+  RxDouble insideTemperature = 0.0.obs;
+  RxDouble outsideTemperature = 0.0.obs;
+  RxDouble batteryRange = 0.0.obs;
+  RxInt batteryLevel = 0.obs;
+  RxBool isTrunkOpen = false.obs;
+  RxBool isFrunkOpen = false.obs;
+  RxBool isChargePortOpen = false.obs;
+
+  // Pages Slide
+  PageController pageController = PageController();
+  RxInt selectedPage = 0.obs;
+  List<Widget> pages = const [VehiclePage(), ClimatePage(), ChargePage()];
+
   final List<StreamSubscription> subscriptions = [];
+  SnackbarController? snackBar;
 
   @override
   void onInit() {
@@ -41,7 +58,10 @@ class HomeController extends GetxController {
 
   void initQuickActions() {
     const QuickActions quickActions = QuickActions();
-    quickActions.initialize((shortcutType) {
+
+    quickActions.initialize((shortcutType) async {
+      await refreshState();
+
       switch (shortcutType) {
         case 'sentry_on':
           turnOnSentry();
@@ -52,23 +72,32 @@ class HomeController extends GetxController {
         case 'horn':
           horn();
           break;
+        case 'toggle_charge_port':
+          await toggleChargePort();
+          break;
       }
     });
 
-    quickActions.setShortcutItems(<ShortcutItem>[
-      const ShortcutItem(
-        type: 'sentry_on',
-        localizedTitle: 'Arm Sentry',
-      ),
-      const ShortcutItem(
-        type: 'sentry_off',
-        localizedTitle: 'Disarm Sentry',
-      ),
-      const ShortcutItem(
-        type: 'horn',
-        localizedTitle: 'Horn',
-      )
-    ]);
+    quickActions.setShortcutItems(
+      <ShortcutItem>[
+        const ShortcutItem(
+          type: 'sentry_on',
+          localizedTitle: 'Arm Sentry',
+        ),
+        const ShortcutItem(
+          type: 'sentry_off',
+          localizedTitle: 'Disarm Sentry',
+        ),
+        const ShortcutItem(
+          type: 'horn',
+          localizedTitle: 'Horn',
+        ),
+        const ShortcutItem(
+          type: 'toggle_charge_port',
+          localizedTitle: 'Toggle Charge Port',
+        ),
+      ],
+    );
   }
 
   String cleanName(String rawValue) {
@@ -99,6 +128,11 @@ class HomeController extends GetxController {
           outsideTemperature.value = vehicleData.climateState.outsideTemp;
 
           carLocked.value = vehicleData.vehicleState.locked;
+
+          isFrunkOpen.value = vehicleData.vehicleState.frontTrunk > 0;
+          isTrunkOpen.value = vehicleData.vehicleState.rearTrunk > 0;
+
+          isChargePortOpen.value = vehicleData.chargeState.chargePortDoorOpen;
         }
       }),
     );
@@ -113,18 +147,18 @@ class HomeController extends GetxController {
   }
 
   void turnOnSentry() async {
-    var snackBar = openSnackbar('Sentry Mode', 'Activating...');
+    openSnackbar('Sentry Mode', 'Activating...');
 
-    Get.find<VehicleController>().toggleSentry(true);
+    await Get.find<VehicleController>().toggleSentry(true);
 
     openSnackbar('Sentry Mode', 'Activated succesfully.',
         currentSnackbar: snackBar);
   }
 
   void turnOffSentry() async {
-    var snackBar = openSnackbar('Sentry Mode', 'Deactivating...');
+    openSnackbar('Sentry Mode', 'Deactivating...', currentSnackbar: snackBar);
 
-    Get.find<VehicleController>().toggleSentry(false);
+    await Get.find<VehicleController>().toggleSentry(false);
 
     openSnackbar(
       'Sentry Mode',
@@ -133,16 +167,75 @@ class HomeController extends GetxController {
     );
   }
 
+  void lock() async {
+    openSnackbar('Lock', 'Locking...', currentSnackbar: snackBar);
+
+    await Get.find<VehicleController>().doorLock();
+
+    openSnackbar('Lock', 'Car is now locked.', currentSnackbar: snackBar);
+  }
+
+  void unlock() async {
+    openSnackbar('Unlock', 'Unlocking...', currentSnackbar: snackBar);
+
+    await Get.find<VehicleController>().doorUnlock();
+
+    openSnackbar('Unlock', 'Car is now unlocked.', currentSnackbar: snackBar);
+  }
+
+  void openTrunk() async {
+    openSnackbar('Trunk', 'Opening...', currentSnackbar: snackBar);
+
+    await Get.find<VehicleController>().openTrunk();
+
+    openSnackbar('Trunk', 'Trunk is now opened.', currentSnackbar: snackBar);
+  }
+
+  void openFrunk() async {
+    openSnackbar('Frunk', 'Opening...', currentSnackbar: snackBar);
+
+    await Get.find<VehicleController>().openFrunk();
+
+    openSnackbar('Frunk', 'Frunk is now opened.', currentSnackbar: snackBar);
+  }
+
   void horn() async {
     await api.horn();
 
-    openSnackbar('Beep beep', 'Don\'t disturb your neighbors!');
+    openSnackbar('Beep beep', 'Don\'t disturb your neighbors!',
+        currentSnackbar: snackBar);
   }
 
   void flashLights() async {
     await api.flashLights();
 
-    openSnackbar('Blink Blink', 'It\'s too shiny!');
+    openSnackbar('Blink Blink', 'It\'s too shiny!', currentSnackbar: snackBar);
+  }
+
+  Future<bool> toggleChargePort() async {
+    if (isChargePortOpen.value) {
+      return closeChargePort();
+    } else {
+      return openChargePort();
+    }
+  }
+
+  Future<bool> openChargePort() async {
+    bool success = await Get.find<VehicleController>().openChargePort();
+
+    openSnackbar('Charge Port', 'Charge port is now opened.',
+        currentSnackbar: snackBar);
+
+    return success;
+  }
+
+  Future<bool> closeChargePort() async {
+    bool success = await Get.find<VehicleController>().closeChargePort();
+
+    openSnackbar('Charge Port', 'Charge port is now closed.',
+        currentSnackbar: snackBar);
+
+    return success;
   }
 
   void goToSettings() {
@@ -158,6 +251,14 @@ class HomeController extends GetxController {
       case SentryModeState.on:
         return "Engaged";
     }
+  }
+
+  Future refreshState() async {
+    await Get.find<VehicleController>().refreshState();
+  }
+
+  void onPageChanged(int pageNumber) {
+    selectedPage.value = pageNumber;
   }
 
   @override

@@ -11,4 +11,6 @@ VehicleState _$VehicleStateFromJson(Map<String, dynamic> json) => VehicleState(
       (json['odometer'] as num).toDouble(),
       json['dashcam_state'] as String,
       json['car_version'] as String,
+      json['rt'] as int,
+      json['ft'] as int,
     );

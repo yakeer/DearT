@@ -1,9 +1,9 @@
+import 'package:deart/constants.dart';
 import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/widgets/main_app_bar.dart';
 import 'package:deart/widgets/theme/deart_icon_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
@@ -51,7 +51,7 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
         color: Colors.white,
         strokeWidth: 3,
         triggerMode: RefreshIndicatorTriggerMode.anywhere,
-        onRefresh: () => Get.find<VehicleController>().refreshState(),
+        onRefresh: () => controller.refreshState(),
         child: Scaffold(
           appBar: const MainAppBar(),
           body: SingleChildScrollView(
@@ -89,62 +89,18 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        child: Row(
-                          children: [
-                            const Icon(Icons.thermostat),
-                            Text('${controller.outsideTemperature}\u2103')
-                          ],
-                        ),
-                        left: 15,
-                        top: 245,
-                      ),
-                      Center(
-                        child: SvgPicture.asset(
-                          'assets/images/upper_view.svg',
-                          semanticsLabel: 'Upper view',
-                        ),
-                      ),
-                      Positioned(
-                        child: Row(
-                          children: [
-                            const Icon(Icons.thermostat),
-                            Text('${controller.insideTemperature}\u2103')
-                          ],
-                        ),
-                        left: Get.mediaQuery.size.width / 2 - 45,
-                        top: 245,
-                      ),
-                      Positioned(
-                        child: Icon(
-                          controller.carLocked.value
-                              ? Icons.lock
-                              : Icons.lock_open,
-                          size: 36,
-                        ),
-                        left: Get.mediaQuery.size.width / 2 - 28,
-                        top: 45,
-                      ),
-                    ],
+                SizedBox(
+                  height: Constants.pageControllerHeight,
+                  child: PageView(
+                    controller: controller.pageController,
+                    scrollDirection: Axis.horizontal,
+                    onPageChanged: controller.onPageChanged,
+                    children: controller.pages,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Sentry Mode State: ',
-                      ),
-                      Text(
-                        '${controller.sentryModeStateText}',
-                      ),
-                    ],
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: _buildPageIndicator(),
                 ),
               ],
             ),
@@ -152,5 +108,46 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
         ),
       ),
     );
+  }
+
+  Widget _indicator(bool isActive) {
+    return SizedBox(
+      height: 10,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        margin: const EdgeInsets.symmetric(horizontal: 4.0),
+        height: isActive ? 10 : 8.0,
+        width: isActive ? 12 : 8.0,
+        decoration: BoxDecoration(
+          boxShadow: [
+            isActive
+                ? BoxShadow(
+                    color: const Color(0XFF2FB7B2).withOpacity(0.72),
+                    blurRadius: 4.0,
+                    spreadRadius: 1.0,
+                    offset: const Offset(
+                      0.0,
+                      0.0,
+                    ),
+                  )
+                : const BoxShadow(
+                    color: Colors.transparent,
+                  )
+          ],
+          shape: BoxShape.circle,
+          color: isActive ? const Color(0XFF6BC4C9) : const Color(0XFFEAEAEA),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildPageIndicator() {
+    List<Widget> list = [];
+    for (int i = 0; i < controller.pages.length; i++) {
+      list.add(i == controller.selectedPage.value
+          ? _indicator(true)
+          : _indicator(false));
+    }
+    return list;
   }
 }

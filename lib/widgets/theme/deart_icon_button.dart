@@ -26,12 +26,15 @@ class DearTIconButtton extends StatelessWidget {
                 children: <Widget>[
                   Icon(
                     icon,
-                    size: 48,
+                    size: 36,
                   ), // icon
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 16,
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 12,
+                      ),
                     ),
                   ), // text
                 ],
