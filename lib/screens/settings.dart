@@ -30,12 +30,30 @@ class SettingsScreen extends GetView<SettingsController> {
                   switchValue: controller.wakeUp.value,
                   onToggle: (bool value) {},
                 ),
+                SettingsTile(
+                  title: 'App Version ',
+                  trailing: Text('${controller.appVersion}'),
+                ),
+                SettingsTile(
+                  title: 'Car Version ',
+                  trailing: Text('${controller.carVersion}'),
+                )
               ],
             ),
             SettingsSection(
               title: 'Account',
               titleTextStyle: Get.theme.textTheme.headline6,
               tiles: [
+                SettingsTile(
+                  title: 'Access Token',
+                  trailing: const Text('Copy'),
+                  onPressed: (context) => controller.copyAccessToken(),
+                ),
+                SettingsTile(
+                  title: 'Refresh Token',
+                  trailing: const Text('Copy'),
+                  onPressed: (context) => controller.copyRefreshToken(),
+                ),
                 SettingsTile(
                   title: 'Logout',
                   onPressed: (context) => controller.logout(),

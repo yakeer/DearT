@@ -14,7 +14,14 @@ class VehicleState {
   @JsonKey(name: 'car_version')
   final String carVersion;
 
-  VehicleState(this.locked, this.odometer, this.dashcamState, this.carVersion);
+  @JsonKey(name: 'ft')
+  final int frontTrunk;
+
+  @JsonKey(name: 'rt')
+  final int rearTrunk;
+
+  VehicleState(this.locked, this.odometer, this.dashcamState, this.carVersion,
+      this.rearTrunk, this.frontTrunk);
 
   factory VehicleState.fromJson(Map<String, dynamic> json) =>
       _$VehicleStateFromJson(json);

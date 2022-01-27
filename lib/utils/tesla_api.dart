@@ -51,9 +51,9 @@ class TeslaAPI extends GetxService {
       } else {
         currentTryCount++;
         if (currentTryCount < 10) {
-          return Future.delayed(
+          return await Future.delayed(
             const Duration(seconds: 10),
-            () => wakeUp(currentTryCount: currentTryCount),
+            () async => await wakeUp(currentTryCount: currentTryCount),
           );
         } else {
           return false;
@@ -134,7 +134,7 @@ class TeslaAPI extends GetxService {
       return vehicleData;
     } else if (response.statusCode == 408) {
       if (await wakeUp()) {
-        return vehicleData();
+        return await vehicleData();
       } else {
         return null;
       }
@@ -156,7 +156,97 @@ class TeslaAPI extends GetxService {
       return commandResult.result;
     } else if (response.statusCode == 408) {
       if (await wakeUp()) {
-        return horn();
+        return await horn();
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> doorLock(int vehicleId) async {
+    String apiName = 'api/1/vehicles/$vehicleId/command/door_lock';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.post(uri, headers: _initHeaders());
+
+    if (response.statusCode == 200) {
+      CommandResult commandResult =
+          parseResponse(response, CommandResult.fromJson);
+      return commandResult.result;
+    } else if (response.statusCode == 408) {
+      if (await wakeUp()) {
+        return await doorLock(vehicleId);
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> doorUnlock(int vehicleId) async {
+    String apiName = 'api/1/vehicles/$vehicleId/command/door_unlock';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.post(uri, headers: _initHeaders());
+
+    if (response.statusCode == 200) {
+      CommandResult commandResult =
+          parseResponse(response, CommandResult.fromJson);
+      return commandResult.result;
+    } else if (response.statusCode == 408) {
+      if (await wakeUp()) {
+        return await doorUnlock(vehicleId);
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> openTrunk(int vehicleId) async {
+    String apiName = 'api/1/vehicles/$vehicleId/command/actuate_trunk';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http
+        .post(uri, headers: _initHeaders(), body: {'which_trunk': 'rear'});
+
+    if (response.statusCode == 200) {
+      CommandResult commandResult =
+          parseResponse(response, CommandResult.fromJson);
+      return commandResult.result;
+    } else if (response.statusCode == 408) {
+      if (await wakeUp()) {
+        return await openTrunk(vehicleId);
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> openFrunk(int vehicleId) async {
+    String apiName = 'api/1/vehicles/$vehicleId/command/actuate_trunk';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http
+        .post(uri, headers: _initHeaders(), body: {'which_trunk': 'front'});
+
+    if (response.statusCode == 200) {
+      CommandResult commandResult =
+          parseResponse(response, CommandResult.fromJson);
+      return commandResult.result;
+    } else if (response.statusCode == 408) {
+      if (await wakeUp()) {
+        return await openFrunk(vehicleId);
       } else {
         return false;
       }
@@ -186,6 +276,58 @@ class TeslaAPI extends GetxService {
       return false;
     }
   }
+
+  //#region Charging
+  Future<bool> openChargePort(int vehicleId) async {
+    String apiName = 'api/1/vehicles/$vehicleId/command/charge_port_door_open';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.post(
+      uri,
+      headers: _initHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      CommandResult commandResult =
+          parseResponse(response, CommandResult.fromJson);
+      return commandResult.result;
+    } else if (response.statusCode == 408) {
+      if (await wakeUp()) {
+        return await openChargePort(vehicleId);
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> closeChargePort(int vehicleId) async {
+    String apiName = 'api/1/vehicles/$vehicleId/command/charge_port_door_close';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.post(
+      uri,
+      headers: _initHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      CommandResult commandResult =
+          parseResponse(response, CommandResult.fromJson);
+      return commandResult.result;
+    } else if (response.statusCode == 408) {
+      if (await wakeUp()) {
+        return await closeChargePort(vehicleId);
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+  //#endregion
 
   Map<String, String> _initHeaders() {
     Map<String, String> headers = {};

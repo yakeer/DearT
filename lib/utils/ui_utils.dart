@@ -6,10 +6,12 @@ SnackbarController openSnackbar(
   SnackbarController? currentSnackbar,
 }) {
   if (currentSnackbar != null) {
-    currentSnackbar.close(withAnimations: true);
+    if (Get.isSnackbarOpen) {
+      currentSnackbar.close(withAnimations: true);
+    }
   }
 
-  return Get.snackbar(
+  currentSnackbar = Get.snackbar(
     title,
     message,
     snackPosition: SnackPosition.BOTTOM,
@@ -17,4 +19,6 @@ SnackbarController openSnackbar(
     animationDuration: const Duration(milliseconds: 100),
     instantInit: true,
   );
+
+  return currentSnackbar;
 }
