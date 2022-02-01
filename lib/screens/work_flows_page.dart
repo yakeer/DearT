@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
-class ChargePage extends GetView<HomeController> {
-  const ChargePage({Key? key}) : super(key: key);
+class WorkFlowsPage extends GetView<HomeController> {
+  const WorkFlowsPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

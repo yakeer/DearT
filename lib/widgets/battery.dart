@@ -25,6 +25,10 @@ class BatteryWidget extends GetView<HomeController> {
   void switchMode() {}
 
   IconData _getIcon() {
+    if (controller.isCharging.value) {
+      return Icons.battery_charging_full;
+    }
+
     if (controller.batteryLevel > 0) {
       if (controller.batteryLevel > 0 && controller.batteryLevel <= 20) {
         return Icons.battery_alert_outlined;

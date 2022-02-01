@@ -16,6 +16,7 @@ class VehicleData {
   @JsonKey(name: 'climate_state')
   final ClimateState climateState;
 
+  /// "online"
   final String state;
 
   VehicleData(
