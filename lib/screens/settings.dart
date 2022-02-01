@@ -24,12 +24,6 @@ class SettingsScreen extends GetView<SettingsController> {
               title: 'General',
               titleTextStyle: Get.theme.textTheme.headline6,
               tiles: [
-                SettingsTile.switchTile(
-                  title: 'Wake up',
-                  leading: const Icon(Icons.nights_stay_outlined),
-                  switchValue: controller.wakeUp.value,
-                  onToggle: (bool value) {},
-                ),
                 SettingsTile(
                   title: 'App Version ',
                   trailing: Text('${controller.appVersion}'),
@@ -38,6 +32,23 @@ class SettingsScreen extends GetView<SettingsController> {
                   title: 'Car Version ',
                   trailing: Text('${controller.carVersion}'),
                 )
+              ],
+            ),
+            SettingsSection(
+              title: 'Automations',
+              titleTextStyle: Get.theme.textTheme.headline6,
+              tiles: [
+                SettingsTile.switchTile(
+                  title: 'Activate Sentry when charging',
+                  switchValue: controller.activateSentryWhenCharging.value,
+                  onToggle: (bool value) {
+                    controller.changeToggle(
+                      'activateSentry',
+                      controller.activateSentryWhenCharging,
+                      value,
+                    );
+                  },
+                ),
               ],
             ),
             SettingsSection(

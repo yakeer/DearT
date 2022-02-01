@@ -89,19 +89,34 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: Constants.pageControllerHeight,
-                  child: PageView(
-                    controller: controller.pageController,
-                    scrollDirection: Axis.horizontal,
-                    onPageChanged: controller.onPageChanged,
-                    children: controller.pages,
+                Visibility(
+                  visible: controller.isInitialDataLoaded.value,
+                  child: SizedBox(
+                    height: Constants.pageControllerHeight,
+                    child: PageView(
+                      controller: controller.pageController,
+                      scrollDirection: Axis.horizontal,
+                      onPageChanged: controller.onPageChanged,
+                      children: controller.pages,
+                    ),
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: _buildPageIndicator(),
+                Visibility(
+                  visible: controller.isInitialDataLoaded.value,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: _buildPageIndicator(),
+                  ),
                 ),
+                Visibility(
+                  visible: !controller.isInitialDataLoaded.value,
+                  child: SizedBox(
+                    height: Constants.pageControllerHeight,
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                )
               ],
             ),
           ),

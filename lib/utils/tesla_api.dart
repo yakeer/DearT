@@ -150,19 +150,7 @@ class TeslaAPI extends GetxService {
 
     http.Response response = await http.post(uri, headers: _initHeaders());
 
-    if (response.statusCode == 200) {
-      CommandResult commandResult =
-          parseResponse(response, CommandResult.fromJson);
-      return commandResult.result;
-    } else if (response.statusCode == 408) {
-      if (await wakeUp()) {
-        return await horn();
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
+    return await handleCommandResponse(response, () => horn());
   }
 
   Future<bool> doorLock(int vehicleId) async {
@@ -172,19 +160,7 @@ class TeslaAPI extends GetxService {
 
     http.Response response = await http.post(uri, headers: _initHeaders());
 
-    if (response.statusCode == 200) {
-      CommandResult commandResult =
-          parseResponse(response, CommandResult.fromJson);
-      return commandResult.result;
-    } else if (response.statusCode == 408) {
-      if (await wakeUp()) {
-        return await doorLock(vehicleId);
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
+    return await handleCommandResponse(response, () => doorLock(vehicleId));
   }
 
   Future<bool> doorUnlock(int vehicleId) async {
@@ -194,19 +170,7 @@ class TeslaAPI extends GetxService {
 
     http.Response response = await http.post(uri, headers: _initHeaders());
 
-    if (response.statusCode == 200) {
-      CommandResult commandResult =
-          parseResponse(response, CommandResult.fromJson);
-      return commandResult.result;
-    } else if (response.statusCode == 408) {
-      if (await wakeUp()) {
-        return await doorUnlock(vehicleId);
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
+    return await handleCommandResponse(response, () => doorUnlock(vehicleId));
   }
 
   Future<bool> openTrunk(int vehicleId) async {
@@ -327,7 +291,67 @@ class TeslaAPI extends GetxService {
       return false;
     }
   }
+
+  Future<bool> startCharging(int vehicleId) async {
+    String apiName = 'api/1/vehicles/$vehicleId/command/charge_start';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.post(
+      uri,
+      headers: _initHeaders(),
+    );
+
+    return await handleCommandResponse(
+        response, () => startCharging(vehicleId));
+  }
+
+  Future<bool> stopCharging(int vehicleId) async {
+    String apiName = 'api/1/vehicles/$vehicleId/command/charge_stop';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.post(
+      uri,
+      headers: _initHeaders(),
+    );
+
+    return await handleCommandResponse(response, () => stopCharging(vehicleId));
+  }
+
+  Future<bool> unlockCharger(int vehicleId) async {
+    String apiName = 'api/1/vehicles/$vehicleId/command/charge_port_door_open';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.post(
+      uri,
+      headers: _initHeaders(),
+    );
+
+    return await handleCommandResponse(
+        response, () => unlockCharger(vehicleId));
+  }
   //#endregion
+
+  Future<bool> handleCommandResponse(
+    http.Response response,
+    Future<bool> Function() retryFunction,
+  ) async {
+    if (response.statusCode == 200) {
+      CommandResult commandResult =
+          parseResponse(response, CommandResult.fromJson);
+      return commandResult.result;
+    } else if (response.statusCode == 408) {
+      if (await wakeUp()) {
+        return await retryFunction();
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
 
   Map<String, String> _initHeaders() {
     Map<String, String> headers = {};

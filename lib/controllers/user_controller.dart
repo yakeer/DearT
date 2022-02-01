@@ -1,5 +1,6 @@
 import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/globals.dart';
+import 'package:deart/models/internal/vehicle_preference.dart';
 import 'package:deart/models/vehicle.dart';
 import 'package:deart/utils/storage_utils.dart';
 import 'package:deart/utils/tesla_api.dart';
@@ -10,31 +11,9 @@ class UserController extends GetxController {
   Rx<Vehicle?> selectedVehicle = Rx(null);
   Rx<List<Vehicle>?> vehicles = Rx(null);
   TeslaAPI api = Get.find<TeslaAPI>();
+  Rx<List<VehiclePreference>> preferences = Rx([]);
 
   UserController(this.selectedVehicleId) : super();
-
-  // @override
-  // void onReady() async {
-  //   // if (selectedVehicleId == null) {
-  //   //   // Load the vehicles and select the first.
-  //   //   Vehicle? vehicle = await loadVehicles();
-  //   //   Get.put(VehicleController(vehicle!.id, vehicle: vehicle),
-  //   //       permanent: true);
-  //   // } else {
-  //   //   // Init Vehicle Controller so everything will load in the meanwhile
-  //   //   Get.put(VehicleController(selectedVehicleId!), permanent: true);
-
-  //   //   // Load the vehicle objects (for vehicle name) etc...;
-  //   //   Vehicle? vehicle = await loadVehicles();
-  //   //   if (vehicle != null) {
-  //   //     Get.find<VehicleController>().setVehicleParameters(vehicle);
-  //   //   }
-  //   // }
-
-  //   // Init Vehicle Controller so everything will load in the meanwhile
-
-  //   super.onReady();
-  // }
 
   Future initVehicles() async {
     Get.put(VehicleController(selectedVehicleId), permanent: true);
@@ -44,6 +23,15 @@ class UserController extends GetxController {
     if (vehicle != null) {
       Get.find<VehicleController>().setVehicleParameters(vehicle);
     }
+
+    await initSettings();
+  }
+
+  Future initSettings() async {
+    preferences.value.add(VehiclePreference(
+        'activateSentry',
+        await readPreference<bool>(
+            selectedVehicleId!, 'activateSentry', true)));
   }
 
   Future<Vehicle?> loadVehicles() async {
@@ -70,6 +58,17 @@ class UserController extends GetxController {
     }
 
     return vehicle;
+  }
+
+  T? getPreference<T>(String prefName) {
+    VehiclePreference? pref = preferences.value
+        .firstWhereOrNull((element) => element.name == prefName);
+
+    if (pref != null) {
+      return pref.value as T;
+    } else {
+      return null;
+    }
   }
 
   carChanged(

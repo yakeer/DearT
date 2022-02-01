@@ -4,7 +4,6 @@ import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/models/enums/sentry_mode_state.dart';
 import 'package:deart/models/vehicle.dart';
-import 'package:deart/screens/charge_page.dart';
 import 'package:deart/screens/climate_page.dart';
 import 'package:deart/screens/vehicle_page.dart';
 import 'package:deart/utils/tesla_api.dart';
@@ -20,6 +19,8 @@ class HomeController extends GetxController {
   Rx<int?> vehicleId = Rx(null);
   RxString vehicleName = ''.obs;
 
+  RxBool isInitialDataLoaded = false.obs;
+
   RxString sentryModeStateText = 'Unknown'.obs;
 
   RxBool carLocked = false.obs;
@@ -33,11 +34,16 @@ class HomeController extends GetxController {
   RxBool isTrunkOpen = false.obs;
   RxBool isFrunkOpen = false.obs;
   RxBool isChargePortOpen = false.obs;
+  RxBool isChargerPluggedIn = false.obs;
+  RxBool isCharging = false.obs;
+  RxBool isChargerLocked = false.obs;
+  Rx<int?> chargingCurrent = Rx(null);
+  Rx<int?> chargingCurrentMax = Rx(null);
 
   // Pages Slide
-  PageController pageController = PageController();
+  PageController pageController = PageController(initialPage: 0);
   RxInt selectedPage = 0.obs;
-  List<Widget> pages = const [VehiclePage(), ClimatePage(), ChargePage()];
+  List<Widget> pages = const [VehiclePage(), ClimatePage()];
 
   final List<StreamSubscription> subscriptions = [];
   SnackbarController? snackBar;
@@ -53,6 +59,7 @@ class HomeController extends GetxController {
     initQuickActions();
 
     subscribeToVehicle();
+
     super.onInit();
   }
 
@@ -121,6 +128,13 @@ class HomeController extends GetxController {
     subscriptions.add(
       Get.find<VehicleController>().vehicleData.listenAndPump((vehicleData) {
         if (vehicleData != null) {
+          if (!isInitialDataLoaded.value) {
+            isInitialDataLoaded.value = true;
+          }
+
+          // Refresh Sentry State
+          Get.find<VehicleController>().loadSentryState(vehicleData);
+
           batteryLevel.value = vehicleData.chargeState.batteryLevel;
           batteryRange.value = mileToKM(vehicleData.chargeState.batteryRange);
 
@@ -133,6 +147,31 @@ class HomeController extends GetxController {
           isTrunkOpen.value = vehicleData.vehicleState.rearTrunk > 0;
 
           isChargePortOpen.value = vehicleData.chargeState.chargePortDoorOpen;
+          if (vehicleData.chargeState.chargePortDoorOpen &&
+              (vehicleData.chargeState.chargerPilotCurrent != null &&
+                  vehicleData.chargeState.chargerPilotCurrent! > 0)) {
+            isChargerPluggedIn.value = true;
+          } else {
+            isChargerPluggedIn.value = false;
+          }
+
+          if (isChargerPluggedIn.value &&
+              vehicleData.chargeState.chargingState == "Charging") {
+            isCharging.value = true;
+          } else {
+            isCharging.value = false;
+          }
+
+          if (isChargerPluggedIn.value &&
+              vehicleData.chargeState.chargePortLatch == 'Engaged') {
+            isChargerLocked.value = true;
+          } else {
+            isChargerLocked.value = false;
+          }
+
+          chargingCurrent.value = vehicleData.chargeState.chargerActualCurrent;
+          chargingCurrentMax.value =
+              vehicleData.chargeState.chargeCurrentRequestMax;
         }
       }),
     );
@@ -236,6 +275,59 @@ class HomeController extends GetxController {
         currentSnackbar: snackBar);
 
     return success;
+  }
+
+  Future<bool> startCharging() async {
+    isCharging.value = true;
+
+    bool success = await Get.find<VehicleController>().startCharging();
+
+    // Get Charger Current after 5 and 10 seconds, because it takes.
+    Future.delayed(const Duration(seconds: 5), () => refreshState());
+
+    Future.delayed(const Duration(seconds: 10), () => refreshState());
+
+    openSnackbar('Charging', 'Charging started.', currentSnackbar: snackBar);
+
+    return success;
+  }
+
+  Future<bool> stopCharging() async {
+    isCharging.value = false;
+
+    bool success = await Get.find<VehicleController>().stopCharging();
+
+    Future.delayed(const Duration(seconds: 5), () => refreshState());
+
+    openSnackbar('Charging', 'Charging stopped.', currentSnackbar: snackBar);
+
+    return success;
+  }
+
+  Future<bool> unlockCharger() async {
+    isCharging.value = false;
+
+    bool success = await Get.find<VehicleController>().unlockCharger();
+
+    openSnackbar('Charging', 'Charger unlocked.', currentSnackbar: snackBar);
+
+    return success;
+  }
+
+  Future<bool> stopChargeAndUnlock() async {
+    isCharging.value = false;
+    isChargerLocked.value = false;
+
+    bool unlockSuccess = false;
+    bool stopChargeSuccess = await Get.find<VehicleController>().stopCharging();
+    if (stopChargeSuccess) {
+      unlockSuccess = await Get.find<VehicleController>().unlockCharger();
+    }
+
+    openSnackbar('Charging Stopped', 'Charger unlocked.',
+        currentSnackbar: snackBar);
+
+    return stopChargeSuccess && unlockSuccess;
   }
 
   void goToSettings() {

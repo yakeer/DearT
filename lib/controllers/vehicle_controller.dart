@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:deart/controllers/app_controller.dart';
+import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/models/enums/sentry_mode_state.dart';
 import 'package:deart/models/vehicle.dart';
 import 'package:deart/models/vehicle_data.dart';
@@ -30,11 +31,28 @@ class VehicleController extends GetxController {
   @override
   void onReady() async {
     _loadVehicleData().then((value) async {
-      await _loadSentryState();
+      // if (value != null) {
+      //   await loadSentryState(value);
+
+      //   performAutomations(value);
+      // }
+
       Get.find<AppController>().isDataLoaded.value = true;
     });
 
     super.onReady();
+  }
+
+  Future performAutomations(VehicleData vehicleData) async {
+    // Check if car is charging
+    if (vehicleData.chargeState.chargingState == "Charging") {
+      if (Get.find<UserController>().getPreference<bool>('activateSentry') ??
+          false) {
+        if (sentryModeState.value != SentryModeState.on) {
+          await toggleSentry(true);
+        }
+      }
+    }
   }
 
   void changeVehicle(int vehicleId, String vehicleName) {
@@ -47,29 +65,38 @@ class VehicleController extends GetxController {
     vehicleName.value = HtmlUnescape().convert(
       vehicle.displayName,
     );
+    isOnline.value = vehicle.state == "online";
   }
 
   Future _loadVehicleData() async {
     vehicleData.value = await api.vehicleData();
+    if (vehicleData.value != null) {
+      await loadSentryState(vehicleData.value!);
+
+      performAutomations(vehicleData.value!);
+    }
 
     vehicleData.trigger(vehicleData.value);
   }
 
-  Future _loadSentryState() async {
+  Future loadSentryState(VehicleData vehicleData) async {
     String? stateFromStorage = await readStorageKey('sentryModeState');
     if (stateFromStorage != null) {
       sentryModeState.value = SentryModeState.values
           .firstWhere((element) => element.toString() == stateFromStorage);
     } else {
-      setSentryState(SentryModeState.unknown);
+      // If the car is not online, and this is the first time we try to determine,
+      // then sentry must be off in this situation. because sentry keeps the car online.
+      if (isOnline.value != null && !isOnline.value!) {
+        setSentryState(SentryModeState.off);
+      } else {
+        setSentryState(SentryModeState.unknown);
+      }
     }
 
-    subscriptions.add(vehicleData.listen((data) async {
-      // Check Odometer if was on.
-      if (sentryModeState.value == SentryModeState.on) {
-        await checkOdometer(data);
-      }
-    }));
+    if (sentryModeState.value == SentryModeState.on) {
+      await checkOdometer(vehicleData);
+    }
   }
 
   Future<void> checkOdometer(VehicleData? vehicleData) async {
@@ -180,6 +207,39 @@ class VehicleController extends GetxController {
 
   Future<bool> closeChargePort() async {
     bool success = await api.closeChargePort(vehicleId.value!);
+
+    Future.delayed(
+      const Duration(seconds: 1),
+      () async => await _loadVehicleData(),
+    );
+
+    return success;
+  }
+
+  Future<bool> startCharging() async {
+    bool success = await api.startCharging(vehicleId.value!);
+
+    Future.delayed(
+      const Duration(seconds: 3),
+      () async => await _loadVehicleData(),
+    );
+
+    return success;
+  }
+
+  Future<bool> stopCharging() async {
+    bool success = await api.stopCharging(vehicleId.value!);
+
+    Future.delayed(
+      const Duration(seconds: 3),
+      () async => await _loadVehicleData(),
+    );
+
+    return success;
+  }
+
+  Future<bool> unlockCharger() async {
+    bool success = await api.unlockCharger(vehicleId.value!);
 
     Future.delayed(
       const Duration(seconds: 1),
