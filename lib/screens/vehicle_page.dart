@@ -45,39 +45,48 @@ class VehiclePage extends GetView<HomeController> {
                                   : Icons.lock,
                             ),
                           ),
-                          Visibility(
-                            visible: !controller.isChargerPluggedIn.value,
-                            child: ElevatedButton.icon(
-                              onPressed: () =>
-                                  !controller.isChargePortOpen.value
-                                      ? controller.openChargePort()
-                                      : controller.closeChargePort(),
-                              label: Text(
-                                controller.isChargePortOpen.value
-                                    ? 'Close Port'
-                                    : 'Open Port',
-                              ),
-                              icon: const Icon(
-                                Icons.battery_charging_full_rounded,
-                              ),
-                            ),
-                          ),
-                          Visibility(
-                            visible: controller.isChargerPluggedIn.value,
-                            child: Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    Padding(
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Visibility(
+                                    visible:
+                                        !controller.isChargerPluggedIn.value,
+                                    child: const Padding(
+                                      padding: EdgeInsets.only(bottom: 8.0),
+                                      child: Text('Charge your Tesla:'),
+                                    ),
+                                  ),
+                                  Visibility(
+                                    visible:
+                                        controller.isChargerPluggedIn.value,
+                                    child: Padding(
                                       padding:
                                           const EdgeInsets.only(bottom: 8.0),
                                       child: Text(
                                           'Plugged in (${controller.chargingCurrent}A/${controller.chargingCurrentMax}A)'),
                                     ),
-                                    ElevatedButton(
+                                  ),
+                                  ElevatedButton.icon(
+                                    onPressed: () =>
+                                        !controller.isChargePortOpen.value
+                                            ? controller.openChargePort()
+                                            : controller.closeChargePort(),
+                                    label: Text(
+                                      controller.isChargePortOpen.value
+                                          ? 'Close Port'
+                                          : 'Open Port',
+                                    ),
+                                    icon: const Icon(
+                                      Icons.battery_charging_full_rounded,
+                                    ),
+                                  ),
+                                  Visibility(
+                                    visible:
+                                        controller.isChargerPluggedIn.value,
+                                    child: ElevatedButton(
                                       onPressed: () =>
                                           !controller.isCharging.value
                                               ? controller.startCharging()
@@ -88,26 +97,26 @@ class VehiclePage extends GetView<HomeController> {
                                             : 'Start',
                                       ),
                                     ),
-                                    Visibility(
-                                      visible: controller.isCharging.value,
-                                      child: ElevatedButton(
-                                        onPressed: () =>
-                                            controller.stopChargeAndUnlock(),
-                                        child: const Text('Stop + Unlock'),
-                                      ),
+                                  ),
+                                  Visibility(
+                                    visible: controller.isCharging.value,
+                                    child: ElevatedButton(
+                                      onPressed: () =>
+                                          controller.stopChargeAndUnlock(),
+                                      child: const Text('Stop + Unlock'),
                                     ),
-                                    Visibility(
-                                      visible: !controller.isCharging.value &&
-                                          controller.isChargerLocked.value,
-                                      child: ElevatedButton.icon(
-                                        onPressed: () =>
-                                            controller.unlockCharger(),
-                                        icon: const Icon(Icons.exit_to_app),
-                                        label: const Text('Unlock'),
-                                      ),
-                                    )
-                                  ],
-                                ),
+                                  ),
+                                  Visibility(
+                                    visible: !controller.isCharging.value &&
+                                        controller.isChargerLocked.value,
+                                    child: ElevatedButton.icon(
+                                      onPressed: () =>
+                                          controller.unlockCharger(),
+                                      icon: const Icon(Icons.exit_to_app),
+                                      label: const Text('Unlock'),
+                                    ),
+                                  )
+                                ],
                               ),
                             ),
                           ),
@@ -118,55 +127,42 @@ class VehiclePage extends GetView<HomeController> {
                   Flexible(
                     flex: 4,
                     fit: FlexFit.tight,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Stack(
-                        children: [
-                          SvgPicture.asset(
+                    child: Column(
+                      children: [
+                        Visibility(
+                          visible: !controller.isFrunkOpen.value,
+                          child: TextButton(
+                            onPressed: () => openSnackbar(
+                              'Frunk',
+                              'Long press to open',
+                              currentSnackbar: controller.snackBar,
+                            ),
+                            onLongPress: () => controller.openFrunk(),
+                            child: const Text(
+                              'Open Frunk',
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          child: SvgPicture.asset(
                             'assets/images/upper_view.svg',
                             semanticsLabel: 'Upper view',
                           ),
-                          Positioned.fill(
-                            bottom: 60,
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: TextButton(
-                                onPressed: () => openSnackbar(
-                                  'Trunk',
-                                  'Long press to open',
-                                  currentSnackbar: controller.snackBar,
-                                ),
-                                onLongPress: () => controller.openTrunk(),
-                                child: Text(
-                                  controller.isTrunkOpen.value
-                                      ? 'Close'
-                                      : 'Open',
-                                ),
-                              ),
-                            ),
+                        ),
+                        TextButton(
+                          onPressed: () => openSnackbar(
+                            'Trunk',
+                            'Long press to open',
+                            currentSnackbar: controller.snackBar,
                           ),
-                          Positioned.fill(
-                            top: Get.mediaQuery.size.height - 800,
-                            child: Align(
-                              alignment: Alignment.topCenter,
-                              child: Visibility(
-                                visible: !controller.isFrunkOpen.value,
-                                child: TextButton(
-                                  onPressed: () => openSnackbar(
-                                    'Frunk',
-                                    'Long press to open',
-                                    currentSnackbar: controller.snackBar,
-                                  ),
-                                  onLongPress: () => controller.openFrunk(),
-                                  child: const Text(
-                                    'Open',
-                                  ),
-                                ),
-                              ),
-                            ),
+                          onLongPress: () => controller.openTrunk(),
+                          child: Text(
+                            controller.isTrunkOpen.value
+                                ? 'Close Trunk'
+                                : 'Open Trunk',
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
