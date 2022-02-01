@@ -29,7 +29,7 @@ class VehiclePage extends GetView<HomeController> {
                       padding: const EdgeInsets.symmetric(vertical: 24),
                       child: Column(
                         mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           ElevatedButton.icon(
@@ -131,7 +131,7 @@ class VehiclePage extends GetView<HomeController> {
                       children: [
                         Visibility(
                           visible: !controller.isFrunkOpen.value,
-                          child: TextButton(
+                          child: OutlinedButton(
                             onPressed: () => openSnackbar(
                               'Frunk',
                               'Long press to open',
@@ -149,7 +149,7 @@ class VehiclePage extends GetView<HomeController> {
                             semanticsLabel: 'Upper view',
                           ),
                         ),
-                        TextButton(
+                        OutlinedButton(
                           onPressed: () => openSnackbar(
                             'Trunk',
                             'Long press to open',
