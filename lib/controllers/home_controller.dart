@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/controllers/vehicle_controller.dart';
+import 'package:deart/controllers/work_flow_controller.dart';
 import 'package:deart/models/enums/sentry_mode_state.dart';
+import 'package:deart/models/internal/work_flow_preset.dart';
 import 'package:deart/models/vehicle.dart';
 import 'package:deart/screens/climate_page.dart';
 import 'package:deart/screens/vehicle_page.dart';
@@ -39,6 +41,14 @@ class HomeController extends GetxController {
   RxBool isChargerLocked = false.obs;
   Rx<int?> chargingCurrent = Rx(null);
   Rx<int?> chargingCurrentMax = Rx(null);
+
+  // Climate
+  RxDouble acTemperatureCurrent = 20.0.obs;
+  RxDouble acTemperatureSet = 20.0.obs;
+  RxInt acTemperatureSetInt = 40.obs;
+  RxDouble acMinTemperatureAvailable = 15.0.obs;
+  RxDouble acMaxTemperatureAvailable = 28.0.obs;
+  RxBool isClimateOn = false.obs;
 
   // Pages Slide
   PageController pageController = PageController(initialPage: 0);
@@ -172,6 +182,22 @@ class HomeController extends GetxController {
           chargingCurrent.value = vehicleData.chargeState.chargerActualCurrent;
           chargingCurrentMax.value =
               vehicleData.chargeState.chargeCurrentRequestMax;
+
+          // AC
+          acTemperatureCurrent.value =
+              vehicleData.climateState.driverTempSetting;
+          acTemperatureSet.value = acTemperatureCurrent.value;
+
+          acMinTemperatureAvailable.value =
+              vehicleData.climateState.minAvailableTemp;
+
+          acMaxTemperatureAvailable.value =
+              vehicleData.climateState.maxAvailableTemp;
+
+          acTemperatureSetInt.value =
+              (acTemperatureCurrent.value * 2.0).toInt();
+
+          isClimateOn.value = vehicleData.climateState.isClimateOn;
         }
       }),
     );
@@ -328,6 +354,85 @@ class HomeController extends GetxController {
         currentSnackbar: snackBar);
 
     return stopChargeSuccess && unlockSuccess;
+  }
+
+  Future<bool> setACTemperature() async {
+    isCharging.value = false;
+
+    bool success = await Get.find<VehicleController>()
+        .setACTemperature(acTemperatureSet.value);
+
+    if (success) {
+      acTemperatureCurrent.value = acTemperatureSet.value;
+    }
+
+    openSnackbar(
+      'A/C',
+      'Temperature set to ${acTemperatureSet.value}',
+      currentSnackbar: snackBar,
+    );
+
+    return success;
+  }
+
+  Future<bool> acStart() async {
+    isCharging.value = false;
+
+    bool success = await Get.find<VehicleController>().acStart();
+
+    if (success) {
+      acTemperatureCurrent.value = acTemperatureSet.value;
+    }
+
+    openSnackbar(
+      'A/C',
+      'Turned on to ${acTemperatureSet.value} C',
+      currentSnackbar: snackBar,
+    );
+
+    return success;
+  }
+
+  Future<bool> acStop() async {
+    isCharging.value = false;
+
+    bool success = await Get.find<VehicleController>().acStop();
+
+    if (success) {
+      acTemperatureCurrent.value = acTemperatureSet.value;
+    }
+
+    openSnackbar(
+      'A/C',
+      'Turned off',
+      currentSnackbar: snackBar,
+    );
+
+    return success;
+  }
+
+  Future<bool> startWorkFlow(WorkFlowPreset preset) async {
+    if (Get.isRegistered<VehicleController>() &&
+        Get.isRegistered<WorkFlowController>()) {
+      bool success =
+          await Get.find<WorkFlowController>().startWorkFlow(preset: preset);
+
+      if (success) {
+        openSnackbar(
+          'WorkFlow',
+          '$preset workflow finished successfully.',
+          currentSnackbar: snackBar,
+        );
+      } else {
+        openSnackbar(
+          'WorkFlow',
+          '$preset workflow failed!',
+          currentSnackbar: snackBar,
+        );
+      }
+    }
+
+    return false;
   }
 
   void goToSettings() {

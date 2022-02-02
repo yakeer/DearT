@@ -1,5 +1,6 @@
 import 'package:deart/models/charge_state.dart';
 import 'package:deart/models/climate_state.dart';
+import 'package:deart/models/drive_state.dart';
 import 'package:deart/models/vehicle_config.dart';
 import 'package:deart/models/vehicle_state.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -8,6 +9,9 @@ part 'vehicle_data.g.dart';
 
 @JsonSerializable(createToJson: false)
 class VehicleData {
+  @JsonKey(name: 'drive_state')
+  final DriveState driveState;
+
   @JsonKey(name: 'charge_state')
   final ChargeState chargeState;
 
@@ -24,6 +28,7 @@ class VehicleData {
   final String state;
 
   VehicleData(
+    this.driveState,
     this.chargeState,
     this.vehicleState,
     this.state,

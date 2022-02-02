@@ -7,6 +7,7 @@ part of 'vehicle_data.dart';
 // **************************************************************************
 
 VehicleData _$VehicleDataFromJson(Map<String, dynamic> json) => VehicleData(
+      DriveState.fromJson(json['drive_state'] as Map<String, dynamic>),
       ChargeState.fromJson(json['charge_state'] as Map<String, dynamic>),
       VehicleState.fromJson(json['vehicle_state'] as Map<String, dynamic>),
       json['state'] as String,

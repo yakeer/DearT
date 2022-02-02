@@ -19,6 +19,9 @@ class VehicleController extends GetxController {
   Rx<VehicleData?> vehicleData = Rx(null);
   Rx<bool?> isOnline = Rx(null);
   Rx<CarModel> carModel = Rx(CarModel.model3WhiteBlack);
+  RxDouble acTemperatureSet = 0.0.obs;
+  RxDouble carLongitude = 0.0.obs;
+  RxDouble carLatitude = 0.0.obs;
 
   TeslaAPI api = Get.find<TeslaAPI>();
 
@@ -58,6 +61,11 @@ class VehicleController extends GetxController {
     }
   }
 
+  Future getCarLocation(VehicleData vehicleData) async {
+    carLongitude.value = vehicleData.driveState.longitude;
+    carLatitude.value = vehicleData.driveState.latitude;
+  }
+
   void changeVehicle(int vehicleId, String vehicleName) {
     this.vehicleId.value = vehicleId;
     this.vehicleName.value = vehicleName;
@@ -77,6 +85,8 @@ class VehicleController extends GetxController {
       await loadSentryState(vehicleData.value!);
 
       performAutomations(vehicleData.value!);
+
+      getCarLocation(vehicleData.value!);
 
       _loadCarModel(vehicleData.value!.vehicleConfig);
     }
@@ -287,6 +297,103 @@ class VehicleController extends GetxController {
 
     Future.delayed(
       const Duration(seconds: 1),
+      () async => await _loadVehicleData(),
+    );
+
+    return success;
+  }
+
+  Future<bool> setACTemperature(double temperature) async {
+    bool success = await api.setACTemperature(
+      vehicleId.value!,
+      temperature,
+    );
+
+    Future.delayed(
+      const Duration(seconds: 3),
+      () async => await _loadVehicleData(),
+    );
+
+    return success;
+  }
+
+  Future<bool> acStart() async {
+    bool success = await api.acStart(
+      vehicleId.value!,
+    );
+
+    Future.delayed(
+      const Duration(seconds: 3),
+      () async => await _loadVehicleData(),
+    );
+
+    return success;
+  }
+
+  Future<bool> acStop() async {
+    bool success = await api.acStop(
+      vehicleId.value!,
+    );
+
+    Future.delayed(
+      const Duration(seconds: 3),
+      () async => await _loadVehicleData(),
+    );
+
+    return success;
+  }
+
+  Future<bool> toggleSteeringWheelHeater(bool setOn) async {
+    bool success = await api.toggleSteeringWheelHeater(
+      vehicleId.value!,
+      setOn,
+    );
+
+    Future.delayed(
+      const Duration(seconds: 3),
+      () async => await _loadVehicleData(),
+    );
+
+    return success;
+  }
+
+  Future<bool> toggleSeatHeater(int seatNumber, int level) async {
+    bool success = await api.toggleSeatHeater(
+      vehicleId.value!,
+      seatNumber,
+      level,
+    );
+
+    Future.delayed(
+      const Duration(seconds: 3),
+      () async => await _loadVehicleData(),
+    );
+
+    return success;
+  }
+
+  Future<bool> ventWindows() async {
+    bool success = await api.ventWindows(
+      vehicleId.value!,
+    );
+
+    Future.delayed(
+      const Duration(seconds: 3),
+      () async => await _loadVehicleData(),
+    );
+
+    return success;
+  }
+
+  Future<bool> closeWindows() async {
+    bool success = await api.closeWindows(
+      vehicleId.value!,
+      carLongitude.value,
+      carLatitude.value,
+    );
+
+    Future.delayed(
+      const Duration(seconds: 3),
       () async => await _loadVehicleData(),
     );
 

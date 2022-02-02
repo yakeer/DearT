@@ -1,0 +1,4 @@
+enum WorkFlowPreset {
+  preheat,
+  precool,
+}
