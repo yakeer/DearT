@@ -71,6 +71,14 @@ class UserController extends GetxController {
     }
   }
 
+  void setPreference<T>(String prefName, T value) {
+    VehiclePreference? pref = preferences.value
+        .firstWhereOrNull((element) => element.name == prefName);
+    if (pref != null) {
+      pref.value = value;
+    }
+  }
+
   carChanged(
     int vehicleId,
     String vehicleName, {
