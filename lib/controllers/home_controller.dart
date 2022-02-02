@@ -41,6 +41,7 @@ class HomeController extends GetxController {
   RxBool isChargerLocked = false.obs;
   Rx<int?> chargingCurrent = Rx(null);
   Rx<int?> chargingCurrentMax = Rx(null);
+  RxDouble timeToFullCharge = 0.0.obs;
 
   // Climate
   RxDouble acTemperatureCurrent = 20.0.obs;
@@ -182,6 +183,8 @@ class HomeController extends GetxController {
           chargingCurrent.value = vehicleData.chargeState.chargerActualCurrent;
           chargingCurrentMax.value =
               vehicleData.chargeState.chargeCurrentRequestMax;
+
+          timeToFullCharge.value = vehicleData.chargeState.timeToFullCharge;
 
           // AC
           acTemperatureCurrent.value =
@@ -448,6 +451,14 @@ class HomeController extends GetxController {
       case SentryModeState.on:
         return "Engaged";
     }
+  }
+
+  String getDurationString(double hoursDuration) {
+    Duration duration = Duration(minutes: (hoursDuration * 60).toInt());
+
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    return "${twoDigits(duration.inHours)}h ${twoDigitMinutes}m";
   }
 
   Future refreshState() async {

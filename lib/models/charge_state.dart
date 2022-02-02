@@ -33,6 +33,9 @@ class ChargeState {
   @JsonKey(name: 'charge_port_latch')
   final String chargePortLatch;
 
+  @JsonKey(name: 'time_to_full_charge')
+  final double timeToFullCharge;
+
   ChargeState(
     this.batteryLevel,
     this.batteryRange,
@@ -42,7 +45,7 @@ class ChargeState {
     this.chargeCurrentRequest,
     this.chargeCurrentRequestMax,
     this.chargerPilotCurrent,
-    this.chargePortLatch,
+    this.chargePortLatch, this.timeToFullCharge,
   );
 
   factory ChargeState.fromJson(Map<String, dynamic> json) =>

@@ -107,8 +107,7 @@ class VehicleController extends GetxController {
       } else {
         carModel.value = CarModel.model3BlueBlack;
       }
-    } else if (vehicleConfig.exteriorColor.contains('Gray') ||
-        vehicleConfig.exteriorColor.contains('Grey')) {
+    } else if (vehicleConfig.exteriorColor.contains('MidnightSilver')) {
       if (vehicleConfig.interiorTrimType.contains('White')) {
         carModel.value = CarModel.model3GrayWhite;
       } else {
