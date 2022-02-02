@@ -56,11 +56,15 @@ class SettingsController extends GetxController {
   }
 
   changeToggle(String prefName, RxBool toggleVariable, bool value) async {
-    toggleVariable.value = value;
-
     int vehicleId = Get.find<VehicleController>().vehicleId.value!;
 
+    Get.find<UserController>().setPreference(prefName, value);
+
     await writePreference(vehicleId, prefName, value);
+
+    toggleVariable.value = value;
+
+    // initPreferences();
   }
 
   Future<String> getAppVersion() async {

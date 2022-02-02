@@ -1,4 +1,5 @@
 import 'package:deart/controllers/user_controller.dart';
+import 'package:deart/controllers/work_flow_controller.dart';
 import 'package:deart/globals.dart';
 import 'package:deart/services/auth_service.dart';
 import 'package:deart/utils/storage_utils.dart';
@@ -30,6 +31,12 @@ class AppController extends GetxController {
         UserController(vehicleId),
         permanent: true,
       );
+
+      Get.put(
+        WorkFlowController(),
+        permanent: true,
+      );
+
       await userController.initVehicles();
     }
     return isLoggedIn;

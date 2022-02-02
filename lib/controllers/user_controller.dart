@@ -31,7 +31,7 @@ class UserController extends GetxController {
     preferences.value.add(VehiclePreference(
         'activateSentry',
         await readPreference<bool>(
-            selectedVehicleId!, 'activateSentry', true)));
+            selectedVehicleId!, 'activateSentry', false)));
   }
 
   Future<Vehicle?> loadVehicles() async {
@@ -68,6 +68,14 @@ class UserController extends GetxController {
       return pref.value as T;
     } else {
       return null;
+    }
+  }
+
+  void setPreference<T>(String prefName, T value) {
+    VehiclePreference? pref = preferences.value
+        .firstWhereOrNull((element) => element.name == prefName);
+    if (pref != null) {
+      pref.value = value;
     }
   }
 

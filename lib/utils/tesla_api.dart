@@ -334,6 +334,165 @@ class TeslaAPI extends GetxService {
   }
   //#endregion
 
+  //#region Climate
+
+  Future<bool> setACTemperature(int vehicleId, double temperature) async {
+    String apiName = 'api/1/vehicles/$vehicleId/command/set_temps';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response =
+        await http.post(uri, headers: _initHeaders(), body: {
+      'driver_temp': temperature.toString(),
+      'passenger_temp': temperature.toString(),
+    });
+
+    return await handleCommandResponse(
+        response, () => setACTemperature(vehicleId, temperature));
+  }
+
+  Future<bool> acStart(int vehicleId) async {
+    String apiName =
+        'api/1/vehicles/$vehicleId/command/auto_conditioning_start';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.post(
+      uri,
+      headers: _initHeaders(),
+    );
+
+    return await handleCommandResponse(
+      response,
+      () => acStart(
+        vehicleId,
+      ),
+    );
+  }
+
+  Future<bool> acStop(int vehicleId) async {
+    String apiName = 'api/1/vehicles/$vehicleId/command/auto_conditioning_stop';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.post(
+      uri,
+      headers: _initHeaders(),
+    );
+
+    return await handleCommandResponse(
+      response,
+      () => acStop(
+        vehicleId,
+      ),
+    );
+  }
+
+  Future<bool> toggleSeatHeater(
+      int vehicleId, int seatNumber, int level) async {
+    // Seats:
+    // 0 - Front Left
+    // 1 - Front right
+    // 2 - Rear left
+    // 4 - Rear center
+    // 5 - Rear right
+    String apiName =
+        'api/1/vehicles/$vehicleId/command/remote_seat_heater_request';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.post(
+      uri,
+      headers: _initHeaders(),
+      body: {
+        'heater': seatNumber.toString(),
+        'level': level.toString(),
+      },
+    );
+
+    return await handleCommandResponse(
+      response,
+      () => toggleSeatHeater(
+        vehicleId,
+        seatNumber,
+        level,
+      ),
+    );
+  }
+
+  Future<bool> toggleSteeringWheelHeater(int vehicleId, bool setOn) async {
+    String apiName =
+        'api/1/vehicles/$vehicleId/command/remote_steering_wheel_heater_request';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.post(
+      uri,
+      headers: _initHeaders(),
+      body: {
+        'on': setOn.toString(),
+      },
+    );
+
+    return await handleCommandResponse(
+      response,
+      () => toggleSteeringWheelHeater(
+        vehicleId,
+        setOn,
+      ),
+    );
+  }
+
+  Future<bool> ventWindows(int vehicleId) async {
+    String apiName = 'api/1/vehicles/$vehicleId/command/window_control';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.post(
+      uri,
+      headers: _initHeaders(),
+      body: {
+        'command': 'vent',
+        'lon': 0.toString(),
+        'lat': 0.toString(),
+      },
+    );
+
+    return await handleCommandResponse(
+      response,
+      () => ventWindows(
+        vehicleId,
+      ),
+    );
+  }
+
+  Future<bool> closeWindows(
+      int vehicleId, double longitude, double latitude) async {
+    String apiName = 'api/1/vehicles/$vehicleId/command/window_control';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.post(
+      uri,
+      headers: _initHeaders(),
+      body: {
+        'command': 'close',
+        'lon': longitude.toString(),
+        'lat': latitude.toString(),
+      },
+    );
+
+    return await handleCommandResponse(
+      response,
+      () => closeWindows(
+        vehicleId,
+        longitude,
+        latitude,
+      ),
+    );
+  }
+  //#endregion
+
   Future<bool> handleCommandResponse(
     http.Response response,
     Future<bool> Function() retryFunction,
