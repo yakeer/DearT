@@ -86,6 +86,16 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/upper_view.svg
+    - assets/images/model3_black_black_uv.png
+    - assets/images/model3_black_white_uv.png
+    - assets/images/model3_blue_black_uv.png
+    - assets/images/model3_blue_white_uv.png
+    - assets/images/model3_gray_black_uv.png
+    - assets/images/model3_gray_white_uv.png
+    - assets/images/model3_red_black_uv.png
+    - assets/images/model3_red_white_uv.png
+    - assets/images/model3_white_black_uv.png
+    - assets/images/model3_white_white_uv.png
     # - images/a_dot_burr.jpeg
     # - images/a_dot_ham.jpeg
 

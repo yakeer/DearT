@@ -1,8 +1,8 @@
 import 'package:deart/constants.dart';
 import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/utils/ui_utils.dart';
+import 'package:deart/widgets/car_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 class VehiclePage extends GetView<HomeController> {
@@ -143,11 +143,12 @@ class VehiclePage extends GetView<HomeController> {
                             ),
                           ),
                         ),
-                        Flexible(
-                          child: SvgPicture.asset(
-                            'assets/images/upper_view.svg',
-                            semanticsLabel: 'Upper view',
-                          ),
+                        const Flexible(
+                          // child: SvgPicture.asset(
+                          //   'assets/images/upper_view.svg',
+                          //   semanticsLabel: 'Upper view',
+                          // ),
+                          child: CarImageWidget(),
                         ),
                         OutlinedButton(
                           onPressed: () => openSnackbar(

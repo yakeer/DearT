@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:deart/controllers/app_controller.dart';
 import 'package:deart/controllers/user_controller.dart';
+import 'package:deart/models/enums/car_model.dart';
 import 'package:deart/models/enums/sentry_mode_state.dart';
 import 'package:deart/models/vehicle.dart';
+import 'package:deart/models/vehicle_config.dart';
 import 'package:deart/models/vehicle_data.dart';
 import 'package:deart/utils/storage_utils.dart';
 import 'package:deart/utils/tesla_api.dart';
@@ -16,6 +18,7 @@ class VehicleController extends GetxController {
   Rx<SentryModeState> sentryModeState = Rx(SentryModeState.unknown);
   Rx<VehicleData?> vehicleData = Rx(null);
   Rx<bool?> isOnline = Rx(null);
+  Rx<CarModel> carModel = Rx(CarModel.model3WhiteBlack);
 
   TeslaAPI api = Get.find<TeslaAPI>();
 
@@ -74,9 +77,50 @@ class VehicleController extends GetxController {
       await loadSentryState(vehicleData.value!);
 
       performAutomations(vehicleData.value!);
+
+      _loadCarModel(vehicleData.value!.vehicleConfig);
     }
 
     vehicleData.trigger(vehicleData.value);
+  }
+
+  Future<void> _loadCarModel(VehicleConfig vehicleConfig) {
+    if (vehicleConfig.exteriorColor.contains('Black')) {
+      if (vehicleConfig.interiorTrimType.contains('White')) {
+        carModel.value = CarModel.model3BlackWhite;
+      } else {
+        carModel.value = CarModel.model3BlackBlack;
+      }
+    } else if (vehicleConfig.exteriorColor.contains('Blue')) {
+      if (vehicleConfig.interiorTrimType.contains('White')) {
+        carModel.value = CarModel.model3BlueWhite;
+      } else {
+        carModel.value = CarModel.model3BlueBlack;
+      }
+    } else if (vehicleConfig.exteriorColor.contains('Gray') ||
+        vehicleConfig.exteriorColor.contains('Grey')) {
+      if (vehicleConfig.interiorTrimType.contains('White')) {
+        carModel.value = CarModel.model3GrayWhite;
+      } else {
+        carModel.value = CarModel.model3GrayBlack;
+      }
+    } else if (vehicleConfig.exteriorColor.contains('Red')) {
+      if (vehicleConfig.interiorTrimType.contains('White')) {
+        carModel.value = CarModel.model3RedWhite;
+      } else {
+        carModel.value = CarModel.model3RedBlack;
+      }
+    } else if (vehicleConfig.exteriorColor.contains('White')) {
+      if (vehicleConfig.interiorTrimType.contains('White')) {
+        carModel.value = CarModel.model3WhiteWhite;
+      } else {
+        carModel.value = CarModel.model3WhiteBlack;
+      }
+    } else {
+      carModel.value = CarModel.model3WhiteBlack;
+    }
+
+    return Future.value();
   }
 
   Future loadSentryState(VehicleData vehicleData) async {

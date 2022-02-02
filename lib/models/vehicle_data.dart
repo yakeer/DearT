@@ -1,5 +1,6 @@
 import 'package:deart/models/charge_state.dart';
 import 'package:deart/models/climate_state.dart';
+import 'package:deart/models/vehicle_config.dart';
 import 'package:deart/models/vehicle_state.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -16,6 +17,9 @@ class VehicleData {
   @JsonKey(name: 'climate_state')
   final ClimateState climateState;
 
+  @JsonKey(name: 'vehicle_config')
+  final VehicleConfig vehicleConfig;
+
   /// "online"
   final String state;
 
@@ -24,6 +28,7 @@ class VehicleData {
     this.vehicleState,
     this.state,
     this.climateState,
+    this.vehicleConfig,
   );
 
   factory VehicleData.fromJson(Map<String, dynamic> json) =>

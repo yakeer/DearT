@@ -112,8 +112,17 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
                   visible: !controller.isInitialDataLoaded.value,
                   child: SizedBox(
                     height: Constants.pageControllerHeight,
-                    child: const Center(
-                      child: CircularProgressIndicator(),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          CircularProgressIndicator(),
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text('Waking up car...'),
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 )
