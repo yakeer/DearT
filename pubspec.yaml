@@ -41,6 +41,7 @@ dependencies:
   package_info_plus: ^1.3.0
   numberpicker: ^2.1.1
   intl: ^0.17.0
+  flutter_siri_suggestions: ^2.0.0
 
   #Storage
   shared_preferences: ^2.0.12
