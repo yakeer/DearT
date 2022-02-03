@@ -12,6 +12,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsController extends GetxController {
   RxBool activateSentryWhenCharging = RxBool(false);
+  RxBool showBatteryLevelInAppBar = RxBool(false);
+
   RxString appVersion = ''.obs;
   RxString carVersion = ''.obs;
 
@@ -49,6 +51,11 @@ class SettingsController extends GetxController {
         (prefs) {
           activateSentryWhenCharging.value = prefs
               .firstWhere((element) => element.name == 'activateSentry')
+              .value as bool;
+
+          showBatteryLevelInAppBar.value = prefs
+              .firstWhere(
+                  (element) => element.name == 'showBatteryLevelInAppBar')
               .value as bool;
         },
       ),

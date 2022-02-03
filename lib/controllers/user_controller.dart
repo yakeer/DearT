@@ -32,6 +32,10 @@ class UserController extends GetxController {
         'activateSentry',
         await readPreference<bool>(
             selectedVehicleId!, 'activateSentry', false)));
+    preferences.value.add(VehiclePreference(
+        'showBatteryLevelInAppBar',
+        await readPreference<bool>(
+            selectedVehicleId!, 'showBatteryLevelInAppBar', false)));
   }
 
   Future<Vehicle?> loadVehicles() async {
