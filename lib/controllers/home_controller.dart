@@ -8,10 +8,12 @@ import 'package:deart/models/internal/work_flow_preset.dart';
 import 'package:deart/models/vehicle.dart';
 import 'package:deart/screens/climate_page.dart';
 import 'package:deart/screens/vehicle_page.dart';
+import 'package:deart/utils/siri_utils.dart';
 import 'package:deart/utils/tesla_api.dart';
 import 'package:deart/utils/ui_utils.dart';
 import 'package:deart/utils/unit_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_siri_suggestions/flutter_siri_suggestions.dart';
 import 'package:get/get.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:intl/intl.dart';
@@ -77,12 +79,58 @@ class HomeController extends GetxController {
 
     initPreferences();
 
+    initSiriShortcuts();
+
     super.onInit();
   }
 
   void initPreferences() {
     showBatteryLevel.value = Get.find<UserController>()
         .getPreference<bool>('showBatteryLevelInAppBar')!;
+  }
+
+  void initSiriShortcuts() async {
+    await initSiriActivities();
+
+    // Awaken from Siri Suggestion
+    FlutterSiriSuggestions.instance.configure(
+        onLaunch: (Map<String, dynamic> message) async {
+      // message = {title: "Open App 👨‍💻", key: "mainActivity", userInfo: {}}
+      // Do what you want :)
+      await refreshState();
+
+      switch (message["key"]) {
+        case "sentryOnActivity":
+          turnOnSentry();
+          break;
+        case "sentryOffActivity":
+          turnOnSentry();
+          break;
+        case "unlockDoorsActivity":
+          unlock();
+          break;
+        case "lockDoorsActivity":
+          lock();
+          break;
+        case "openChargePortActivity":
+          openChargePort();
+          break;
+        case "closeChargePortActivity":
+          closeChargePort();
+          break;
+        case "unlockChargerActivity":
+          unlockCharger();
+          break;
+        case "startChargingActivity":
+          startCharging();
+          break;
+        case "stopChargingActivity":
+          stopCharging();
+          break;
+        default:
+          break;
+      }
+    });
   }
 
   void initQuickActions() {
