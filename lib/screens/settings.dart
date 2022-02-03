@@ -31,6 +31,17 @@ class SettingsScreen extends GetView<SettingsController> {
                 SettingsTile(
                   title: 'Car Version ',
                   trailing: Text('${controller.carVersion}'),
+                ),
+                SettingsTile.switchTile(
+                  title: 'Prefer Battery %',
+                  switchValue: controller.showBatteryLevelInAppBar.value,
+                  onToggle: (bool value) {
+                    controller.changeToggle(
+                      'showBatteryLevelInAppBar',
+                      controller.showBatteryLevelInAppBar,
+                      value,
+                    );
+                  },
                 )
               ],
             ),

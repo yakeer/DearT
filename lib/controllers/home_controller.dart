@@ -14,6 +14,7 @@ import 'package:deart/utils/unit_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:html_unescape/html_unescape.dart';
+import 'package:intl/intl.dart';
 import 'package:quick_actions/quick_actions.dart';
 
 class HomeController extends GetxController {
@@ -56,6 +57,9 @@ class HomeController extends GetxController {
   RxInt selectedPage = 0.obs;
   List<Widget> pages = const [VehiclePage(), ClimatePage()];
 
+  // Battery Widget
+  RxBool showBatteryLevel = RxBool(false);
+
   final List<StreamSubscription> subscriptions = [];
   SnackbarController? snackBar;
 
@@ -71,7 +75,14 @@ class HomeController extends GetxController {
 
     subscribeToVehicle();
 
+    initPreferences();
+
     super.onInit();
+  }
+
+  void initPreferences() {
+    showBatteryLevel.value = Get.find<UserController>()
+        .getPreference<bool>('showBatteryLevelInAppBar')!;
   }
 
   void initQuickActions() {
@@ -459,6 +470,12 @@ class HomeController extends GetxController {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     return "${twoDigits(duration.inHours)}h ${twoDigitMinutes}m";
+  }
+
+  String getFinishTime(double hoursDuration) {
+    Duration duration = Duration(minutes: (hoursDuration * 60).toInt());
+    DateTime finishTime = DateTime.now().add(duration);
+    return DateFormat.Hm().format(finishTime);
   }
 
   Future refreshState() async {

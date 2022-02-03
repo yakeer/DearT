@@ -74,7 +74,7 @@ class VehiclePage extends GetView<HomeController> {
                                   child: Padding(
                                     padding: const EdgeInsets.only(bottom: 8.0),
                                     child: Text(
-                                      'Time left: ${controller.getDurationString(controller.timeToFullCharge.value)}',
+                                      'Finishing at ${controller.getFinishTime(controller.timeToFullCharge.value)}',
                                     ),
                                   ),
                                 ),
