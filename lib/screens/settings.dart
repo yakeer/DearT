@@ -60,6 +60,13 @@ class SettingsScreen extends GetView<SettingsController> {
                     );
                   },
                 ),
+              ],
+            ),
+            SettingsSection(
+              platform: TargetPlatform.iOS,
+              title: 'iOS',
+              titleTextStyle: Get.theme.textTheme.headline6,
+              tiles: [
                 SettingsTile(
                   platform: TargetPlatform.iOS,
                   title: 'Install Siri Shortcuts',

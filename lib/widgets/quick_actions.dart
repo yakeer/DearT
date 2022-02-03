@@ -32,22 +32,13 @@ class QuickActionsWidget extends GetView<HomeController> {
           //   icon: Icons.flourescent_outlined,
           //   label: 'Flash',
           // ),
-          Visibility(
-            visible: controller.carLocked.value,
-            child: DearTIconButtton(
-              onTap: controller.unlock,
-              icon: Icons.lock_open,
-              label: 'Unlock',
-            ),
+          DearTIconButtton(
+            onTap: controller.carLocked.value
+                ? controller.unlock
+                : controller.lock,
+            icon: controller.carLocked.value ? Icons.lock_open : Icons.lock,
+            label: controller.carLocked.value ? 'Unlock' : 'Lock',
           ),
-          Visibility(
-            visible: !controller.carLocked.value,
-            child: DearTIconButtton(
-              onTap: controller.lock,
-              icon: Icons.lock,
-              label: 'Lock',
-            ),
-          )
         ],
       ),
     );

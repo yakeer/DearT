@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/controllers/vehicle_controller.dart';
@@ -86,7 +87,9 @@ class HomeController extends GetxController {
 
     initPreferences();
 
-    initSiriShortcuts();
+    if (Platform.isIOS) {
+      initSiriShortcuts();
+    }
 
     super.onInit();
   }
@@ -136,109 +139,6 @@ class HomeController extends GetxController {
           break;
       }
     });
-
-    await addSiriActivities();
-  }
-
-  Future<void> addSiriActivities() async {
-    await FlutterSiriSuggestions.instance.buildActivity(
-      const FlutterSiriActivity(
-        "Turn Sentry On",
-        "sentryOn",
-        isEligibleForSearch: true,
-        isEligibleForPrediction: true,
-        contentDescription: "Activate Sentry Mode on my Tesla",
-        suggestedInvocationPhrase: "activate sentry mode on my car",
-      ),
-    );
-
-    await FlutterSiriSuggestions.instance.buildActivity(
-      const FlutterSiriActivity(
-        "Turn Sentry Off",
-        "sentryOff",
-        isEligibleForSearch: true,
-        isEligibleForPrediction: true,
-        contentDescription: "Deactivate Sentry Mode on my Tesla",
-        suggestedInvocationPhrase: "deactivate sentry mode on my car",
-      ),
-    );
-
-    await FlutterSiriSuggestions.instance.buildActivity(
-      const FlutterSiriActivity(
-        "Unlock My Car",
-        "unlockDoors",
-        isEligibleForSearch: true,
-        isEligibleForPrediction: true,
-        contentDescription: "Unlock my Tesla",
-        suggestedInvocationPhrase: "unlock car",
-      ),
-    );
-
-    await FlutterSiriSuggestions.instance.buildActivity(
-      const FlutterSiriActivity(
-        "Lock My Car",
-        "lockDoors",
-        isEligibleForSearch: true,
-        isEligibleForPrediction: true,
-        contentDescription: "Lock my Tesla",
-        suggestedInvocationPhrase: "lock car",
-      ),
-    );
-
-    await FlutterSiriSuggestions.instance.buildActivity(
-      const FlutterSiriActivity(
-        "Open Charge Port",
-        "openChargePort",
-        isEligibleForSearch: true,
-        isEligibleForPrediction: true,
-        contentDescription: "Open Charge Port",
-        suggestedInvocationPhrase: "open charge port",
-      ),
-    );
-
-    await FlutterSiriSuggestions.instance.buildActivity(
-      const FlutterSiriActivity(
-        "Close Charge Port",
-        "closeChargePort",
-        isEligibleForSearch: true,
-        isEligibleForPrediction: true,
-        contentDescription: "Close Charge Port",
-        suggestedInvocationPhrase: "close charge port",
-      ),
-    );
-
-    await FlutterSiriSuggestions.instance.buildActivity(
-      const FlutterSiriActivity(
-        "Unlock Charger",
-        "unlockCharger",
-        isEligibleForSearch: true,
-        isEligibleForPrediction: true,
-        contentDescription: "Unlock Charger",
-        suggestedInvocationPhrase: "unlock charger",
-      ),
-    );
-
-    await FlutterSiriSuggestions.instance.buildActivity(
-      const FlutterSiriActivity(
-        "Start Charging",
-        "startCharging",
-        isEligibleForSearch: true,
-        isEligibleForPrediction: true,
-        contentDescription: "Start Charging",
-        suggestedInvocationPhrase: "start charging",
-      ),
-    );
-
-    await FlutterSiriSuggestions.instance.buildActivity(
-      const FlutterSiriActivity(
-        "Stop Charging",
-        "stopCharging",
-        isEligibleForSearch: true,
-        isEligibleForPrediction: true,
-        contentDescription: "Stop Charging",
-        suggestedInvocationPhrase: "stop charging",
-      ),
-    );
   }
 
   void initQuickActions() {
