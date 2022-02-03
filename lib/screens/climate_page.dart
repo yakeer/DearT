@@ -1,6 +1,7 @@
 import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/models/internal/work_flow_preset.dart';
 import 'package:deart/widgets/car_image.dart';
+import 'package:deart/widgets/theme/deart_elevated_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:numberpicker/numberpicker.dart';
@@ -65,13 +66,13 @@ class ClimatePage extends GetView<HomeController> {
                                   itemWidth: 50,
                                   axis: Axis.horizontal,
                                 ),
-                                ElevatedButton(
-                                  onPressed:
-                                      controller.acTemperatureCurrent.value !=
-                                              controller.acTemperatureSet.value
-                                          ? () => controller.setACTemperature()
-                                          : null,
-                                  child: const Text('Set'),
+                                DearTElevatedButtton(
+                                  disabled:
+                                      controller.acTemperatureCurrent.value ==
+                                          controller.acTemperatureSet.value,
+                                  onPressed: controller.setACTemperature,
+                                  label: 'Set',
+                                  icon: Icons.tune,
                                 ),
                               ],
                             ),
@@ -89,16 +90,34 @@ class ClimatePage extends GetView<HomeController> {
                                 ),
                                 Visibility(
                                   visible: !controller.isClimateOn.value,
-                                  child: ElevatedButton(
-                                    onPressed: () => controller.acStart(),
-                                    child: const Text('Turn On'),
+                                  child: DearTElevatedButtton(
+                                    onPressed: controller.acStart,
+                                    label: 'Turn On',
+                                    icon: Icons.ac_unit,
                                   ),
                                 ),
                                 Visibility(
                                   visible: controller.isClimateOn.value,
-                                  child: ElevatedButton(
-                                    onPressed: () => controller.acStop(),
-                                    child: const Text('Turn Off'),
+                                  child: DearTElevatedButtton(
+                                    onPressed: controller.acStop,
+                                    label: 'Turn Off',
+                                    icon: Icons.ac_unit,
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: !controller.anyWindowOpen(),
+                                  child: DearTElevatedButtton(
+                                    onPressed: controller.ventWindows,
+                                    label: 'Vent Windows',
+                                    icon: Icons.sensor_window_outlined,
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: controller.anyWindowOpen(),
+                                  child: DearTElevatedButtton(
+                                    onPressed: controller.closeWindows,
+                                    label: 'Close Windows',
+                                    icon: Icons.sensor_window,
                                   ),
                                 ),
                               ],
@@ -120,15 +139,17 @@ class ClimatePage extends GetView<HomeController> {
                                     'Automations:',
                                     style: Get.theme.textTheme.caption,
                                   ),
-                                  ElevatedButton(
-                                    onPressed: () => controller
+                                  DearTElevatedButtton(
+                                    onPressed: () async => await controller
                                         .startWorkFlow(WorkFlowPreset.preheat),
-                                    child: const Text('Preheat Cabin'),
+                                    label: 'Preheat Cabin',
+                                    icon: Icons.hot_tub,
                                   ),
-                                  ElevatedButton(
-                                    onPressed: () => controller
+                                  DearTElevatedButtton(
+                                    onPressed: () async => await controller
                                         .startWorkFlow(WorkFlowPreset.precool),
-                                    child: const Text('Precool Cabin'),
+                                    label: 'Precool Cabin',
+                                    icon: Icons.ac_unit,
                                   )
                                 ],
                               ),

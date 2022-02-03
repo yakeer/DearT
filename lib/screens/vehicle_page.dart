@@ -2,6 +2,7 @@ import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/models/internal/work_flow_preset.dart';
 import 'package:deart/utils/ui_utils.dart';
 import 'package:deart/widgets/car_image.dart';
+import 'package:deart/widgets/theme/deart_elevated_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -58,19 +59,24 @@ class VehiclePage extends GetView<HomeController> {
                                   padding: EdgeInsets.only(bottom: 8.0),
                                   child: Text('Automations:'),
                                 ),
-                                ElevatedButton.icon(
-                                  onPressed: () => controller
+                                DearTElevatedButtton(
+                                  onPressed: () async => await controller
                                       .startWorkFlow(WorkFlowPreset.findMyCar),
-                                  label: const Text('Find My Car'),
-                                  icon: const Icon(Icons.radar),
+                                  label: 'Find My Car',
+                                  icon: Icons.radar,
                                 ),
-                                ElevatedButton.icon(
-                                  onPressed: () => controller.flashLights(),
-                                  label: const Text('Flash Lights'),
-                                  icon: const Icon(
-                                    Icons.flourescent_outlined,
-                                  ),
+                                DearTElevatedButtton(
+                                  label: 'Flash Lights',
+                                  icon: Icons.flourescent_outlined,
+                                  onPressed: controller.flashLights,
                                 ),
+                                // ElevatedButton.icon(
+                                //   onPressed: () => controller.flashLights(),
+                                //   label: const Text('Flash Lights'),
+                                //   icon: const Icon(
+                                //     Icons.flourescent_outlined,
+                                //   ),
+                                // ),
                               ],
                             ),
                           ),
@@ -106,49 +112,43 @@ class VehiclePage extends GetView<HomeController> {
                                     ),
                                   ),
                                 ),
-                                ElevatedButton.icon(
-                                  onPressed: () =>
-                                      !controller.isChargePortOpen.value
-                                          ? controller.openChargePort()
-                                          : controller.closeChargePort(),
-                                  label: Text(
-                                    controller.isChargePortOpen.value
-                                        ? 'Close Port'
-                                        : 'Open Port',
-                                  ),
-                                  icon: const Icon(
-                                    Icons.ev_station_outlined,
-                                  ),
+                                DearTElevatedButtton(
+                                  onPressed: !controller.isChargePortOpen.value
+                                      ? controller.openChargePort
+                                      : controller.closeChargePort,
+                                  label: controller.isChargePortOpen.value
+                                      ? 'Close Port'
+                                      : 'Open Port',
+                                  icon: Icons.ev_station_outlined,
                                 ),
                                 Visibility(
                                   visible: controller.isChargerPluggedIn.value,
-                                  child: ElevatedButton(
-                                    onPressed: () =>
-                                        !controller.isCharging.value
-                                            ? controller.startCharging()
-                                            : controller.stopCharging(),
-                                    child: Text(
-                                      controller.isCharging.value
-                                          ? 'Stop'
-                                          : 'Start',
-                                    ),
+                                  child: DearTElevatedButtton(
+                                    onPressed: !controller.isCharging.value
+                                        ? controller.startCharging
+                                        : controller.stopCharging,
+                                    label: controller.isCharging.value
+                                        ? 'Stop'
+                                        : 'Start',
+                                    icon: controller.isCharging.value
+                                        ? Icons.stop
+                                        : Icons.play_arrow,
                                   ),
                                 ),
                                 Visibility(
                                   visible: controller.isCharging.value,
-                                  child: ElevatedButton(
-                                    onPressed: () =>
-                                        controller.stopChargeAndUnlock(),
-                                    child: const Text('Stop + Unlock'),
-                                  ),
+                                  child: DearTElevatedButtton(
+                                      onPressed: controller.stopChargeAndUnlock,
+                                      label: 'Stop + Unlock',
+                                      icon: Icons.lock_open),
                                 ),
                                 Visibility(
                                   visible: !controller.isCharging.value &&
                                       controller.isChargerLocked.value,
-                                  child: ElevatedButton.icon(
-                                    onPressed: () => controller.unlockCharger(),
-                                    icon: const Icon(Icons.exit_to_app),
-                                    label: const Text('Unlock'),
+                                  child: DearTElevatedButtton(
+                                    onPressed: controller.unlockCharger,
+                                    icon: Icons.exit_to_app,
+                                    label: 'Unlock',
                                   ),
                                 )
                               ],
@@ -222,18 +222,8 @@ class VehiclePage extends GetView<HomeController> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Center(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        'Car is ${controller.carLocked.value ? 'locked' : 'unlocked'}.',
-                      ),
-                    ),
-                    Text(
-                      'Sentry Mode State: ${controller.sentryModeStateText}',
-                    ),
-                  ],
+                child: Text(
+                  'Sentry Mode State: ${controller.sentryModeStateText}',
                 ),
               ),
             ),

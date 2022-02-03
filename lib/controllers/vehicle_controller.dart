@@ -193,7 +193,7 @@ class VehicleController extends GetxController {
     }
   }
 
-  Future toggleSentry(bool activate) async {
+  Future<bool> toggleSentry(bool activate) async {
     bool success = await api.toggleSentry(activate);
 
     if (success) {
@@ -205,6 +205,8 @@ class VehicleController extends GetxController {
     } else {
       setSentryState(SentryModeState.unknown);
     }
+
+    return success;
   }
 
   Future<bool> horn() async {
@@ -256,7 +258,7 @@ class VehicleController extends GetxController {
   Future<bool> openChargePort() async {
     bool success = await api.openChargePort(vehicleId.value!);
 
-    Future.delayed(
+    await Future.delayed(
       const Duration(seconds: 1),
       () async => await _loadVehicleData(),
     );
@@ -267,7 +269,7 @@ class VehicleController extends GetxController {
   Future<bool> closeChargePort() async {
     bool success = await api.closeChargePort(vehicleId.value!);
 
-    Future.delayed(
+    await Future.delayed(
       const Duration(seconds: 1),
       () async => await _loadVehicleData(),
     );
@@ -278,8 +280,8 @@ class VehicleController extends GetxController {
   Future<bool> startCharging() async {
     bool success = await api.startCharging(vehicleId.value!);
 
-    Future.delayed(
-      const Duration(seconds: 3),
+    await Future.delayed(
+      const Duration(seconds: 1),
       () async => await _loadVehicleData(),
     );
 
@@ -289,8 +291,8 @@ class VehicleController extends GetxController {
   Future<bool> stopCharging() async {
     bool success = await api.stopCharging(vehicleId.value!);
 
-    Future.delayed(
-      const Duration(seconds: 3),
+    await Future.delayed(
+      const Duration(seconds: 1),
       () async => await _loadVehicleData(),
     );
 
@@ -300,7 +302,7 @@ class VehicleController extends GetxController {
   Future<bool> unlockCharger() async {
     bool success = await api.unlockCharger(vehicleId.value!);
 
-    Future.delayed(
+    await Future.delayed(
       const Duration(seconds: 1),
       () async => await _loadVehicleData(),
     );
@@ -327,8 +329,8 @@ class VehicleController extends GetxController {
       vehicleId.value!,
     );
 
-    Future.delayed(
-      const Duration(seconds: 3),
+    await Future.delayed(
+      const Duration(seconds: 1),
       () async => await _loadVehicleData(),
     );
 
@@ -340,8 +342,8 @@ class VehicleController extends GetxController {
       vehicleId.value!,
     );
 
-    Future.delayed(
-      const Duration(seconds: 3),
+    await Future.delayed(
+      const Duration(seconds: 1),
       () async => await _loadVehicleData(),
     );
 
@@ -382,8 +384,8 @@ class VehicleController extends GetxController {
       vehicleId.value!,
     );
 
-    Future.delayed(
-      const Duration(seconds: 3),
+    await Future.delayed(
+      const Duration(seconds: 1),
       () async => await _loadVehicleData(),
     );
 
@@ -397,8 +399,8 @@ class VehicleController extends GetxController {
       carLatitude.value,
     );
 
-    Future.delayed(
-      const Duration(seconds: 3),
+    await Future.delayed(
+      const Duration(seconds: 1),
       () async => await _loadVehicleData(),
     );
 

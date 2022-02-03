@@ -15,8 +15,46 @@ class MainAppBar extends GetView<HomeController>
   Widget build(BuildContext context) {
     return GetX<HomeController>(
       builder: (controller) => AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
+        leading: Visibility(
+          visible: controller.isInitialDataLoaded.value &&
+              (!controller.carLocked.value ||
+                  controller.anyDoorOpen() ||
+                  controller.anyWindowOpen()),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Visibility(
+                visible: !controller.carLocked.value,
+                child: const Icon(
+                  Icons.lock_open,
+                  color: Colors.orange,
+                ),
+              ),
+              Visibility(
+                visible:
+                    controller.carLocked.value && controller.anyWindowOpen(),
+                child: const Icon(
+                  Icons.sensor_window,
+                  color: Colors.orange,
+                ),
+              ),
+              Visibility(
+                visible: controller.carLocked.value && controller.anyDoorOpen(),
+                child: const Icon(
+                  Icons.door_back_door,
+                  color: Colors.red,
+                ),
+              ),
+            ],
+          ),
+        ),
+        leadingWidth: controller.isInitialDataLoaded.value &&
+                (!controller.carLocked.value ||
+                    controller.anyDoorOpen() ||
+                    controller.anyWindowOpen())
+            ? 30
+            : 0,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
