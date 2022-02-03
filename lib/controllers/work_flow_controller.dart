@@ -165,7 +165,7 @@ class WorkFlowController extends GetxController {
 
   Future<bool> startWorkFlow(
       {WorkFlow? workFlow, WorkFlowPreset? preset}) async {
-    bool success = false;
+    bool success = true;
 
     workFlow ??=
         workFlows.value.firstWhere((element) => element.preset == preset);

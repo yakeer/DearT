@@ -60,6 +60,13 @@ class SettingsScreen extends GetView<SettingsController> {
                     );
                   },
                 ),
+                SettingsTile(
+                  platform: TargetPlatform.iOS,
+                  title: 'Install Siri Shortcuts',
+                  onPressed: (context) async {
+                    Get.toNamed('/siri-shortcuts');
+                  },
+                ),
               ],
             ),
             SettingsSection(

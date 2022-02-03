@@ -8,7 +8,6 @@ import 'package:deart/models/internal/work_flow_preset.dart';
 import 'package:deart/models/vehicle.dart';
 import 'package:deart/screens/climate_page.dart';
 import 'package:deart/screens/vehicle_page.dart';
-import 'package:deart/utils/siri_utils.dart';
 import 'package:deart/utils/tesla_api.dart';
 import 'package:deart/utils/ui_utils.dart';
 import 'package:deart/utils/unit_utils.dart';
@@ -97,9 +96,7 @@ class HomeController extends GetxController {
         .getPreference<bool>('showBatteryLevelInAppBar')!;
   }
 
-  void initSiriShortcuts() async {
-    await initSiriActivities();
-
+  Future<void> initSiriShortcuts() async {
     // Awaken from Siri Suggestion
     FlutterSiriSuggestions.instance.configure(
         onLaunch: (Map<String, dynamic> message) async {
@@ -108,37 +105,140 @@ class HomeController extends GetxController {
       await refreshState();
 
       switch (message["key"]) {
-        case "sentryOnActivity":
+        case "sentryOn":
           turnOnSentry();
           break;
-        case "sentryOffActivity":
+        case "sentryOff":
           turnOnSentry();
           break;
-        case "unlockDoorsActivity":
+        case "unlockDoors":
           unlock();
           break;
-        case "lockDoorsActivity":
+        case "lockDoors":
           lock();
           break;
-        case "openChargePortActivity":
+        case "openChargePort":
           openChargePort();
           break;
-        case "closeChargePortActivity":
+        case "closeChargePort":
           closeChargePort();
           break;
-        case "unlockChargerActivity":
+        case "unlockCharger":
           unlockCharger();
           break;
-        case "startChargingActivity":
+        case "startCharging":
           startCharging();
           break;
-        case "stopChargingActivity":
+        case "stopCharging":
           stopCharging();
           break;
         default:
           break;
       }
     });
+
+    await addSiriActivities();
+  }
+
+  Future<void> addSiriActivities() async {
+    await FlutterSiriSuggestions.instance.buildActivity(
+      const FlutterSiriActivity(
+        "Turn Sentry On",
+        "sentryOn",
+        isEligibleForSearch: true,
+        isEligibleForPrediction: true,
+        contentDescription: "Activate Sentry Mode on my Tesla",
+        suggestedInvocationPhrase: "activate sentry mode on my car",
+      ),
+    );
+
+    await FlutterSiriSuggestions.instance.buildActivity(
+      const FlutterSiriActivity(
+        "Turn Sentry Off",
+        "sentryOff",
+        isEligibleForSearch: true,
+        isEligibleForPrediction: true,
+        contentDescription: "Deactivate Sentry Mode on my Tesla",
+        suggestedInvocationPhrase: "deactivate sentry mode on my car",
+      ),
+    );
+
+    await FlutterSiriSuggestions.instance.buildActivity(
+      const FlutterSiriActivity(
+        "Unlock My Car",
+        "unlockDoors",
+        isEligibleForSearch: true,
+        isEligibleForPrediction: true,
+        contentDescription: "Unlock my Tesla",
+        suggestedInvocationPhrase: "unlock car",
+      ),
+    );
+
+    await FlutterSiriSuggestions.instance.buildActivity(
+      const FlutterSiriActivity(
+        "Lock My Car",
+        "lockDoors",
+        isEligibleForSearch: true,
+        isEligibleForPrediction: true,
+        contentDescription: "Lock my Tesla",
+        suggestedInvocationPhrase: "lock car",
+      ),
+    );
+
+    await FlutterSiriSuggestions.instance.buildActivity(
+      const FlutterSiriActivity(
+        "Open Charge Port",
+        "openChargePort",
+        isEligibleForSearch: true,
+        isEligibleForPrediction: true,
+        contentDescription: "Open Charge Port",
+        suggestedInvocationPhrase: "open charge port",
+      ),
+    );
+
+    await FlutterSiriSuggestions.instance.buildActivity(
+      const FlutterSiriActivity(
+        "Close Charge Port",
+        "closeChargePort",
+        isEligibleForSearch: true,
+        isEligibleForPrediction: true,
+        contentDescription: "Close Charge Port",
+        suggestedInvocationPhrase: "close charge port",
+      ),
+    );
+
+    await FlutterSiriSuggestions.instance.buildActivity(
+      const FlutterSiriActivity(
+        "Unlock Charger",
+        "unlockCharger",
+        isEligibleForSearch: true,
+        isEligibleForPrediction: true,
+        contentDescription: "Unlock Charger",
+        suggestedInvocationPhrase: "unlock charger",
+      ),
+    );
+
+    await FlutterSiriSuggestions.instance.buildActivity(
+      const FlutterSiriActivity(
+        "Start Charging",
+        "startCharging",
+        isEligibleForSearch: true,
+        isEligibleForPrediction: true,
+        contentDescription: "Start Charging",
+        suggestedInvocationPhrase: "start charging",
+      ),
+    );
+
+    await FlutterSiriSuggestions.instance.buildActivity(
+      const FlutterSiriActivity(
+        "Stop Charging",
+        "stopCharging",
+        isEligibleForSearch: true,
+        isEligibleForPrediction: true,
+        contentDescription: "Stop Charging",
+        suggestedInvocationPhrase: "stop charging",
+      ),
+    );
   }
 
   void initQuickActions() {
@@ -193,7 +293,7 @@ class HomeController extends GetxController {
     return result;
   }
 
-  void subscribeToVehicle() {
+  void subscribeToVehicle() async {
     subscriptions.add(
       Get.find<UserController>().selectedVehicle.listenAndPump((data) {
         if (data != null) {
@@ -555,19 +655,30 @@ class HomeController extends GetxController {
       if (success) {
         openSnackbar(
           'WorkFlow',
-          '$preset workflow finished successfully.',
+          '${getWorkFlowName(preset)} finished successfully.',
           currentSnackbar: snackBar,
         );
       } else {
         openSnackbar(
           'WorkFlow',
-          '$preset workflow failed!',
+          '${getWorkFlowName(preset)} workflow failed!',
           currentSnackbar: snackBar,
         );
       }
     }
 
     return false;
+  }
+
+  String getWorkFlowName(WorkFlowPreset preset) {
+    switch (preset) {
+      case WorkFlowPreset.preheat:
+        return 'Preheat';
+      case WorkFlowPreset.precool:
+        return 'Precool';
+      case WorkFlowPreset.findMyCar:
+        return 'Find My Car';
+    }
   }
 
   void goToSettings() {

@@ -24,7 +24,7 @@ class AuthService extends GetxService {
 
     LoginPageData? loginPageData = await getLoginPage();
 
-    Get.to(LoginWebView(loginPageData!));
+    Get.to(() => TeslaLoginScreen(loginPageData!));
 
     // await showModalBottomSheet(
     //   context: context,
