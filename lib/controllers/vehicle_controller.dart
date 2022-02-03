@@ -218,7 +218,10 @@ class VehicleController extends GetxController {
   Future<bool> doorLock() async {
     bool success = await api.doorLock(vehicleId.value!);
 
-    await _loadVehicleData();
+    Future.delayed(
+      const Duration(seconds: 1),
+      () async => await _loadVehicleData(),
+    );
 
     return success;
   }
@@ -226,7 +229,10 @@ class VehicleController extends GetxController {
   Future<bool> doorUnlock() async {
     bool success = await api.doorUnlock(vehicleId.value!);
 
-    await _loadVehicleData();
+    Future.delayed(
+      const Duration(seconds: 1),
+      () async => await _loadVehicleData(),
+    );
 
     return success;
   }

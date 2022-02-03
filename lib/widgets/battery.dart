@@ -1,6 +1,5 @@
 import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/controllers/user_controller.dart';
-import 'package:deart/models/internal/vehicle_preference.dart';
 import 'package:deart/utils/storage_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

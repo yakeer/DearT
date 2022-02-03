@@ -7,10 +7,13 @@ class WorkFlowAction {
 
   late List<dynamic> arguments;
 
+  int? delayInSeconds;
+
   WorkFlowAction(
     this.sequence,
     this.type, {
     List<dynamic>? arguments,
+    this.delayInSeconds,
   }) {
     if (arguments != null) {
       this.arguments = arguments;

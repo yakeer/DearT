@@ -18,6 +18,7 @@ class WorkFlowController extends GetxController {
   void _initPresets() {
     workFlows.value.add(_initPreheat());
     workFlows.value.add(_initPrecool());
+    workFlows.value.add(_initFindMyCar());
   }
 
   WorkFlow _initPreheat() {
@@ -80,12 +81,84 @@ class WorkFlowController extends GetxController {
     workFlow.actions.add(WorkFlowAction(5, WorkFlowActionType.ventWindows));
 
     workFlow.actions.add(
-        WorkFlowAction(6, WorkFlowActionType.closeWindows, arguments: [60]));
+        WorkFlowAction(6, WorkFlowActionType.closeWindows, delayInSeconds: 60));
 
     workFlow.actions.add(WorkFlowAction(7, WorkFlowActionType.stopCharging));
 
     workFlow.actions
         .add(WorkFlowAction(8, WorkFlowActionType.unlockChargePort));
+
+    return workFlow;
+  }
+
+  WorkFlow _initFindMyCar() {
+    WorkFlow workFlow = WorkFlow(preset: WorkFlowPreset.findMyCar);
+
+    // Flash Immdietly
+    workFlow.actions.add(
+      WorkFlowAction(
+        1,
+        WorkFlowActionType.flash,
+      ),
+    );
+
+    // Flash twice after 5 seconds
+    workFlow.actions.add(
+      WorkFlowAction(
+        2,
+        WorkFlowActionType.flash,
+        delayInSeconds: 5,
+      ),
+    );
+
+    workFlow.actions.add(
+      WorkFlowAction(
+        3,
+        WorkFlowActionType.flash,
+        delayInSeconds: 6,
+      ),
+    );
+
+    // Honk horn & flasg 4 times after 10 seconds
+    workFlow.actions.add(
+      WorkFlowAction(
+        4,
+        WorkFlowActionType.horn,
+        delayInSeconds: 11,
+      ),
+    );
+
+    workFlow.actions.add(
+      WorkFlowAction(
+        5,
+        WorkFlowActionType.flash,
+        delayInSeconds: 12,
+      ),
+    );
+
+    workFlow.actions.add(
+      WorkFlowAction(
+        6,
+        WorkFlowActionType.flash,
+        delayInSeconds: 13,
+      ),
+    );
+
+    workFlow.actions.add(
+      WorkFlowAction(
+        7,
+        WorkFlowActionType.flash,
+        delayInSeconds: 14,
+      ),
+    );
+
+    workFlow.actions.add(
+      WorkFlowAction(
+        8,
+        WorkFlowActionType.flash,
+        delayInSeconds: 15,
+      ),
+    );
 
     return workFlow;
   }
@@ -116,35 +189,39 @@ class WorkFlowController extends GetxController {
 
     var vehicleController = Get.find<VehicleController>();
 
+    Future<bool> Function() actionToExecute;
+
     switch (workFlowAction.type) {
       case WorkFlowActionType.sentryOn:
-        success = await vehicleController.toggleSentry(true);
+        actionToExecute =
+            () async => await vehicleController.toggleSentry(true);
         break;
       case WorkFlowActionType.sentryOff:
-        success = await vehicleController.toggleSentry(false);
+        actionToExecute =
+            () async => await vehicleController.toggleSentry(false);
         break;
       case WorkFlowActionType.horn:
-        success = await vehicleController.horn();
+        actionToExecute = () async => await vehicleController.horn();
         break;
       case WorkFlowActionType.flash:
-        success = await vehicleController.flashLights();
+        actionToExecute = () async => await vehicleController.flashLights();
         break;
       case WorkFlowActionType.setTemperature:
-        success = await vehicleController.setACTemperature(
-          workFlowAction.arguments[0],
-        );
+        actionToExecute = () async => await vehicleController.setACTemperature(
+              workFlowAction.arguments[0],
+            );
         break;
       case WorkFlowActionType.acStart:
-        success = await vehicleController.acStart();
+        actionToExecute = () async => await vehicleController.acStart();
         break;
       case WorkFlowActionType.acStop:
-        success = await vehicleController.acStop();
+        actionToExecute = () async => await vehicleController.acStop();
         break;
       case WorkFlowActionType.startCharging:
-        success = await vehicleController.startCharging();
+        actionToExecute = () async => await vehicleController.startCharging();
         break;
       case WorkFlowActionType.stopCharging:
-        success = await vehicleController.stopCharging();
+        actionToExecute = () async => await vehicleController.stopCharging();
         break;
       case WorkFlowActionType.unlockChargePort:
         if (vehicleController.vehicleData.value != null &&
@@ -156,51 +233,56 @@ class WorkFlowController extends GetxController {
                 vehicleController
                         .vehicleData.value!.chargeState.chargerPilotCurrent! >
                     0)) {
-          success = await vehicleController.unlockCharger();
+          actionToExecute = () async => await vehicleController.unlockCharger();
         } else {
-          success = true;
+          actionToExecute = () async => true;
         }
         break;
       case WorkFlowActionType.startSteeringWheelHeat:
-        success = await vehicleController.toggleSteeringWheelHeater(true);
+        actionToExecute =
+            () async => await vehicleController.toggleSteeringWheelHeater(true);
         break;
       case WorkFlowActionType.stopSteeringWheelHeat:
-        success = await vehicleController.toggleSteeringWheelHeater(false);
+        actionToExecute = () async =>
+            await vehicleController.toggleSteeringWheelHeater(false);
         break;
       case WorkFlowActionType.startSeatHeater:
-        success = await vehicleController.toggleSeatHeater(
-          workFlowAction.arguments[0],
-          workFlowAction.arguments[1],
-        );
+        actionToExecute = () async => await vehicleController.toggleSeatHeater(
+              workFlowAction.arguments[0],
+              workFlowAction.arguments[1],
+            );
         break;
       case WorkFlowActionType.stopSeatHeater:
-        success = await vehicleController.toggleSeatHeater(
-          workFlowAction.arguments[0],
-          0,
-        );
+        actionToExecute = () async => await vehicleController.toggleSeatHeater(
+              workFlowAction.arguments[0],
+              0,
+            );
         break;
       case WorkFlowActionType.workFlow:
-        success = await startWorkFlow(workFlow: workFlowAction.arguments[0]);
+        actionToExecute = () async =>
+            await startWorkFlow(workFlow: workFlowAction.arguments[0]);
         break;
       case WorkFlowActionType.lockDoors:
-        success = await vehicleController.doorLock();
+        actionToExecute = () async => await vehicleController.doorLock();
         break;
       case WorkFlowActionType.unlockDoors:
-        success = await vehicleController.doorUnlock();
+        actionToExecute = () async => await vehicleController.doorUnlock();
         break;
       case WorkFlowActionType.ventWindows:
-        success = await vehicleController.ventWindows();
+        actionToExecute = () async => await vehicleController.ventWindows();
         break;
       case WorkFlowActionType.closeWindows:
-        if (workFlowAction.arguments.isNotEmpty) {
-          Future.delayed(Duration(seconds: workFlowAction.arguments[0]),
-              () async => await vehicleController.closeWindows());
-          success = true;
-        } else {
-          success = await vehicleController.closeWindows();
-        }
-
+        actionToExecute = () async => await vehicleController.closeWindows();
         break;
+    }
+
+    // Check if we need a delay, or we can execute it immideitly.
+    if (workFlowAction.delayInSeconds == null) {
+      success = await actionToExecute();
+    } else {
+      Future.delayed(Duration(seconds: workFlowAction.delayInSeconds!),
+          () async => await actionToExecute());
+      success = true;
     }
 
     return success;

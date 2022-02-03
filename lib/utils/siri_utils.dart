@@ -48,7 +48,7 @@ Future initSiriActivities() async {
   await FlutterSiriSuggestions.instance.buildActivity(
     const FlutterSiriActivity(
       "Open Charge Port",
-      "openChargeActivity",
+      "openChargePortActivity",
       isEligibleForSearch: true,
       isEligibleForPrediction: true,
       contentDescription: "Open Charge Port",
@@ -59,7 +59,7 @@ Future initSiriActivities() async {
   await FlutterSiriSuggestions.instance.buildActivity(
     const FlutterSiriActivity(
       "Close Charge Port",
-      "closeChargeActivity",
+      "closeChargePortActivity",
       isEligibleForSearch: true,
       isEligibleForPrediction: true,
       contentDescription: "Close Charge Port",

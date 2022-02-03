@@ -1,4 +1,5 @@
 import 'package:deart/controllers/home_controller.dart';
+import 'package:deart/models/internal/work_flow_preset.dart';
 import 'package:deart/utils/ui_utils.dart';
 import 'package:deart/widgets/car_image.dart';
 import 'package:flutter/material.dart';
@@ -29,21 +30,48 @@ class VehiclePage extends GetView<HomeController> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        // Card(
+                        //   child: Padding(
+                        //     padding: const EdgeInsets.all(8.0),
+                        //     child: ElevatedButton.icon(
+                        //       onPressed: () => controller.carLocked.value
+                        //           ? controller.unlock()
+                        //           : controller.lock(),
+                        //       label: Text(
+                        //         controller.carLocked.value ? 'Unlock' : 'Lock',
+                        //       ),
+                        //       icon: Icon(
+                        //         controller.carLocked.value
+                        //             ? Icons.lock_open
+                        //             : Icons.lock,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                         Card(
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: ElevatedButton.icon(
-                              onPressed: () => controller.carLocked.value
-                                  ? controller.unlock()
-                                  : controller.lock(),
-                              label: Text(
-                                controller.carLocked.value ? 'Unlock' : 'Lock',
-                              ),
-                              icon: Icon(
-                                controller.carLocked.value
-                                    ? Icons.lock_open
-                                    : Icons.lock,
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(bottom: 8.0),
+                                  child: Text('Automations:'),
+                                ),
+                                ElevatedButton.icon(
+                                  onPressed: () => controller
+                                      .startWorkFlow(WorkFlowPreset.findMyCar),
+                                  label: const Text('Find My Car'),
+                                  icon: const Icon(Icons.radar),
+                                ),
+                                ElevatedButton.icon(
+                                  onPressed: () => controller.flashLights(),
+                                  label: const Text('Flash Lights'),
+                                  icon: const Icon(
+                                    Icons.flourescent_outlined,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
