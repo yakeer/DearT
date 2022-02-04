@@ -181,42 +181,46 @@ class ClimatePage extends GetView<HomeController> {
                   Flexible(
                     flex: 3,
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Card(
-                            color: Color.fromRGBO(Colors.black.red,
-                                Colors.black.green, Colors.black.blue, 0.5),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.thermostat),
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Text('Outside'),
-                                      Text(
-                                          '${controller.outsideTemperature}\u2103'),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 32.0),
+                        Flexible(
+                          flex: 1,
+                          fit: FlexFit.tight,
                           child: Stack(
                             children: [
                               const Center(
                                 child: CarImageWidget(),
+                              ),
+                              Positioned.fill(
+                                top: 35 * Get.mediaQuery.devicePixelRatio,
+                                child: Align(
+                                  alignment: Alignment.topCenter,
+                                  child: Card(
+                                    color: Color.fromRGBO(
+                                        Colors.black.red,
+                                        Colors.black.green,
+                                        Colors.black.blue,
+                                        0.5),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(Icons.thermostat),
+                                          Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Text('Outside'),
+                                              Text(
+                                                  '${controller.outsideTemperature}\u2103'),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                               Positioned.fill(
                                 child: Align(
