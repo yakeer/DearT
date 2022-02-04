@@ -91,6 +91,10 @@ class SettingsScreen extends GetView<SettingsController> {
                   onPressed: (context) => controller.copyRefreshToken(),
                 ),
                 SettingsTile(
+                  title: 'Streaming Log',
+                  onPressed: (context) => Get.toNamed('/stream'),
+                ),
+                SettingsTile(
                   title: 'Logout',
                   onPressed: (context) => controller.logout(),
                 )

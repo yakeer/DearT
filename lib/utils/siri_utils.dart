@@ -98,5 +98,49 @@ List<FlutterSiriActivity> getSiriActivities() {
     ),
   );
 
+  activities.add(
+    const FlutterSiriActivity(
+      "Vent Windows",
+      "ventWindows",
+      isEligibleForSearch: true,
+      isEligibleForPrediction: true,
+      contentDescription: "Vent Windows",
+      suggestedInvocationPhrase: "Vent Windows",
+    ),
+  );
+
+  activities.add(
+    const FlutterSiriActivity(
+      "Close Windows",
+      "closeWindows",
+      isEligibleForSearch: true,
+      isEligibleForPrediction: true,
+      contentDescription: "Close Windows",
+      suggestedInvocationPhrase: "Close Windows",
+    ),
+  );
+
+  activities.add(
+    const FlutterSiriActivity(
+      "Defrost Car (Preconditioning)",
+      "defrostCar",
+      isEligibleForSearch: true,
+      isEligibleForPrediction: true,
+      contentDescription: "Defrost Car (Preconditioning)",
+      suggestedInvocationPhrase: "Defrost Car (Preconditioning)",
+    ),
+  );
+
+  activities.add(
+    const FlutterSiriActivity(
+      "Stop Defrost Car",
+      "defrostCarOff",
+      isEligibleForSearch: true,
+      isEligibleForPrediction: true,
+      contentDescription: "Stop Defrost Car",
+      suggestedInvocationPhrase: "Stop Defrost Car",
+    ),
+  );
+
   return activities;
 }

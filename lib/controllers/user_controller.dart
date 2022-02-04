@@ -23,7 +23,9 @@ class UserController extends GetxController {
     if (vehicle != null) {
       Get.find<VehicleController>().setVehicleParameters(vehicle);
 
-      selectedVehicleId ??= vehicle.id;
+      if (selectedVehicleId == null || selectedVehicleId != vehicle.id) {
+        selectedVehicleId = vehicle.id;
+      }
     }
 
     await initSettings();
@@ -54,7 +56,9 @@ class UserController extends GetxController {
           vehicle = vehicles.value!.first;
         } else {
           vehicle = vehicles.value!
-              .firstWhere((element) => (element.id == selectedVehicleId));
+              .firstWhereOrNull((element) => (element.id == selectedVehicleId));
+
+          vehicle ??= vehicles.value!.first;
         }
       }
 

@@ -22,6 +22,7 @@ class VehicleController extends GetxController {
   RxDouble acTemperatureSet = 0.0.obs;
   RxDouble carLongitude = 0.0.obs;
   RxDouble carLatitude = 0.0.obs;
+  Rx<int?> streamingVehicleId = Rx(null);
 
   TeslaAPI api = Get.find<TeslaAPI>();
 
@@ -37,12 +38,6 @@ class VehicleController extends GetxController {
   @override
   void onReady() async {
     _loadVehicleData().then((value) async {
-      // if (value != null) {
-      //   await loadSentryState(value);
-
-      //   performAutomations(value);
-      // }
-
       Get.find<AppController>().isDataLoaded.value = true;
     });
 
@@ -77,6 +72,8 @@ class VehicleController extends GetxController {
       vehicle.displayName,
     );
     isOnline.value = vehicle.state == "online";
+
+    streamingVehicleId.value = vehicle.vehicleId;
   }
 
   Future _loadVehicleData() async {
@@ -397,6 +394,20 @@ class VehicleController extends GetxController {
       vehicleId.value!,
       carLongitude.value,
       carLatitude.value,
+    );
+
+    await Future.delayed(
+      const Duration(seconds: 1),
+      () async => await _loadVehicleData(),
+    );
+
+    return success;
+  }
+
+  Future<bool> toggleMaxDefrost(bool setOn) async {
+    bool success = await api.maxDefrost(
+      vehicleId.value!,
+      setOn,
     );
 
     await Future.delayed(

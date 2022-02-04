@@ -2,6 +2,7 @@ import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/models/internal/work_flow_preset.dart';
 import 'package:deart/widgets/car_image.dart';
 import 'package:deart/widgets/theme/deart_elevated_icon.dart';
+// import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:numberpicker/numberpicker.dart';
@@ -118,6 +119,24 @@ class ClimatePage extends GetView<HomeController> {
                                     onPressed: controller.closeWindows,
                                     label: 'Close Windows',
                                     icon: Icons.sensor_window,
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: !controller.isPreconditioning.value,
+                                  child: DearTElevatedButtton(
+                                    onPressed: controller.turnOnMaxDefrost,
+                                    label: 'Defrost Car',
+                                    // icon: CupertinoIcons.brightness_solid,
+                                    icon: Icons.ac_unit,
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: controller.isPreconditioning.value,
+                                  child: DearTElevatedButtton(
+                                    onPressed: controller.turnOffMaxDefrost,
+                                    label: 'Stop Defrost',
+                                    // icon: CupertinoIcons.brightness,
+                                    icon: Icons.ac_unit,
                                   ),
                                 ),
                               ],

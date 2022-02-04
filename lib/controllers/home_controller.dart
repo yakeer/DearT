@@ -61,6 +61,7 @@ class HomeController extends GetxController {
   RxDouble acMinTemperatureAvailable = 15.0.obs;
   RxDouble acMaxTemperatureAvailable = 28.0.obs;
   RxBool isClimateOn = false.obs;
+  RxBool isPreconditioning = false.obs;
 
   // Pages Slide
   PageController pageController = PageController(initialPage: 0);
@@ -103,40 +104,54 @@ class HomeController extends GetxController {
     // Awaken from Siri Suggestion
     FlutterSiriSuggestions.instance.configure(
         onLaunch: (Map<String, dynamic> message) async {
-      // message = {title: "Open App 👨‍💻", key: "mainActivity", userInfo: {}}
+      // message = {title: "Open App", key: "mainActivity", userInfo: {}}
       // Do what you want :)
-      await refreshState();
+      if (message.isNotEmpty) {
+        await refreshState();
 
-      switch (message["key"]) {
-        case "sentryOn":
-          turnOnSentry();
-          break;
-        case "sentryOff":
-          turnOnSentry();
-          break;
-        case "unlockDoors":
-          unlock();
-          break;
-        case "lockDoors":
-          lock();
-          break;
-        case "openChargePort":
-          openChargePort();
-          break;
-        case "closeChargePort":
-          closeChargePort();
-          break;
-        case "unlockCharger":
-          unlockCharger();
-          break;
-        case "startCharging":
-          startCharging();
-          break;
-        case "stopCharging":
-          stopCharging();
-          break;
-        default:
-          break;
+        switch (message["key"]) {
+          case "sentryOn":
+            await turnOnSentry();
+            break;
+          case "sentryOff":
+            await turnOnSentry();
+            break;
+          case "unlockDoors":
+            await unlock();
+            break;
+          case "lockDoors":
+            await lock();
+            break;
+          case "openChargePort":
+            await openChargePort();
+            break;
+          case "closeChargePort":
+            await closeChargePort();
+            break;
+          case "unlockCharger":
+            await unlockCharger();
+            break;
+          case "startCharging":
+            await startCharging();
+            break;
+          case "stopCharging":
+            await stopCharging();
+            break;
+          case "ventWindows":
+            await ventWindows();
+            break;
+          case "closeWindows":
+            await closeWindows();
+            break;
+          case "defrostCar":
+            await turnOnMaxDefrost();
+            break;
+          case "defrostCarOff":
+            await turnOffMaxDefrost();
+            break;
+          default:
+            break;
+        }
       }
     });
   }
@@ -285,6 +300,8 @@ class HomeController extends GetxController {
               (acTemperatureCurrent.value * 2.0).toInt();
 
           isClimateOn.value = vehicleData.climateState.isClimateOn;
+
+          isPreconditioning.value = vehicleData.climateState.isPreconditioning;
         }
       }),
     );
@@ -542,6 +559,28 @@ class HomeController extends GetxController {
       'Windows are now fully closed.',
       currentSnackbar: snackBar,
     );
+
+    return success;
+  }
+
+  Future<bool> turnOnMaxDefrost() async {
+    openSnackbar('Defrost', 'Activating...');
+
+    bool success = await Get.find<VehicleController>().toggleMaxDefrost(true);
+
+    openSnackbar('Defrost', 'Activated succesfully.',
+        currentSnackbar: snackBar);
+
+    return success;
+  }
+
+  Future<bool> turnOffMaxDefrost() async {
+    openSnackbar('Defrost', 'Activating...');
+
+    bool success = await Get.find<VehicleController>().toggleMaxDefrost(false);
+
+    openSnackbar('Defrost', 'Deactivated succesfully.',
+        currentSnackbar: snackBar);
 
     return success;
   }
