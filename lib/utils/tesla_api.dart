@@ -491,6 +491,29 @@ class TeslaAPI extends GetxService {
       ),
     );
   }
+
+  Future<bool> maxDefrost(int vehicleId, bool setOn) async {
+    String apiName =
+        'api/1/vehicles/$vehicleId/command/set_preconditioning_max';
+
+    Uri uri = _getUriByAPIName(apiName);
+
+    http.Response response = await http.post(
+      uri,
+      headers: _initHeaders(),
+      body: {
+        'on': setOn.toString(),
+      },
+    );
+
+    return await handleCommandResponse(
+      response,
+      () => maxDefrost(
+        vehicleId,
+        setOn,
+      ),
+    );
+  }
   //#endregion
 
   Future<bool> handleCommandResponse(

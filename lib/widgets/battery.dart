@@ -1,6 +1,5 @@
 import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/controllers/user_controller.dart';
-import 'package:deart/models/internal/vehicle_preference.dart';
 import 'package:deart/utils/storage_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,9 +18,13 @@ class BatteryWidget extends GetView<HomeController> {
               visible: controller.isInitialDataLoaded.value,
               child: Row(
                 children: [
-                  Icon(_getIcon()),
+                  Icon(
+                    _getIcon(),
+                    color: getColor(),
+                  ),
                   Text(
                     getBatteryText(),
+                    style: TextStyle(color: getColor()),
                   ),
                 ],
               ),
@@ -59,6 +62,16 @@ class BatteryWidget extends GetView<HomeController> {
       return '${controller.batteryLevel}%';
     } else {
       return '${controller.batteryRange.round()}km';
+    }
+  }
+
+  Color getColor() {
+    if (controller.batteryLevel > 20) {
+      return Colors.white;
+    } else if (controller.batteryLevel <= 20 && controller.batteryLevel > 10) {
+      return Colors.orange;
+    } else {
+      return Colors.red;
     }
   }
 

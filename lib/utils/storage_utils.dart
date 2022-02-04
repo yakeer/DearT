@@ -13,6 +13,8 @@ Future<String?> readStorageKey(String key) async {
   if (await storage.containsKey(key: key)) {
     return storage.read(key: key);
   }
+
+  return null;
 }
 
 Future writeStorageKey(String key, String value) {

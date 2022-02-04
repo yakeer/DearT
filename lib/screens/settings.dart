@@ -63,6 +63,20 @@ class SettingsScreen extends GetView<SettingsController> {
               ],
             ),
             SettingsSection(
+              platform: TargetPlatform.iOS,
+              title: 'iOS',
+              titleTextStyle: Get.theme.textTheme.headline6,
+              tiles: [
+                SettingsTile(
+                  platform: TargetPlatform.iOS,
+                  title: 'Install Siri Shortcuts',
+                  onPressed: (context) async {
+                    Get.toNamed('/siri-shortcuts');
+                  },
+                ),
+              ],
+            ),
+            SettingsSection(
               title: 'Account',
               titleTextStyle: Get.theme.textTheme.headline6,
               tiles: [
@@ -75,6 +89,10 @@ class SettingsScreen extends GetView<SettingsController> {
                   title: 'Refresh Token',
                   trailing: const Text('Copy'),
                   onPressed: (context) => controller.copyRefreshToken(),
+                ),
+                SettingsTile(
+                  title: 'Streaming Log',
+                  onPressed: (context) => Get.toNamed('/stream'),
                 ),
                 SettingsTile(
                   title: 'Logout',

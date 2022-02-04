@@ -13,4 +13,12 @@ VehicleState _$VehicleStateFromJson(Map<String, dynamic> json) => VehicleState(
       json['car_version'] as String,
       json['rt'] as int,
       json['ft'] as int,
+      json['fd_window'] as int,
+      json['fp_window'] as int,
+      json['rd_window'] as int,
+      json['rp_window'] as int,
+      json['df'] as int,
+      json['pf'] as int,
+      json['dr'] as int,
+      json['pr'] as int,
     );

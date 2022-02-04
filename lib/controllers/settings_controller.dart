@@ -1,18 +1,22 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/globals.dart';
 import 'package:deart/services/auth_service.dart';
+import 'package:deart/utils/siri_utils.dart';
 import 'package:deart/utils/storage_utils.dart';
 import 'package:deart/utils/ui_utils.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_siri_suggestions/flutter_siri_suggestions.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsController extends GetxController {
   RxBool activateSentryWhenCharging = RxBool(false);
   RxBool showBatteryLevelInAppBar = RxBool(false);
+  Rx<List<FlutterSiriActivity>?> siriActivities = Rx(null);
 
   RxString appVersion = ''.obs;
   RxString carVersion = ''.obs;
@@ -21,6 +25,10 @@ class SettingsController extends GetxController {
 
   @override
   void onReady() async {
+    if (Platform.isIOS) {
+      siriActivities.value = getSiriActivities();
+    }
+
     appVersion.value = await getAppVersion();
     getCarVersion();
     initPreferences();
@@ -90,6 +98,10 @@ class SettingsController extends GetxController {
   Future copyRefreshToken() async {
     await Clipboard.setData(ClipboardData(text: Globals.apiRefreshToken));
     openSnackbar('Refresh Token', 'Copied to clipboard');
+  }
+
+  Future<void> installSiriShortcut(FlutterSiriActivity activity) async {
+    await FlutterSiriSuggestions.instance.buildActivity(activity);
   }
 
   @override

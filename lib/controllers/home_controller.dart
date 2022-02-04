@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/controllers/vehicle_controller.dart';
@@ -8,7 +9,6 @@ import 'package:deart/models/internal/work_flow_preset.dart';
 import 'package:deart/models/vehicle.dart';
 import 'package:deart/screens/climate_page.dart';
 import 'package:deart/screens/vehicle_page.dart';
-import 'package:deart/utils/siri_utils.dart';
 import 'package:deart/utils/tesla_api.dart';
 import 'package:deart/utils/ui_utils.dart';
 import 'package:deart/utils/unit_utils.dart';
@@ -45,6 +45,14 @@ class HomeController extends GetxController {
   Rx<int?> chargingCurrent = Rx(null);
   Rx<int?> chargingCurrentMax = Rx(null);
   RxDouble timeToFullCharge = 0.0.obs;
+  RxBool isFrontDriverWindowOpen = false.obs;
+  RxBool isFrontDriverDoorOpen = false.obs;
+  RxBool isFrontPassengerWindowOpen = false.obs;
+  RxBool isFrontPassengerDoorOpen = false.obs;
+  RxBool isRearDriverWindowOpen = false.obs;
+  RxBool isRearDriverDoorOpen = false.obs;
+  RxBool isRearPassengerWindowOpen = false.obs;
+  RxBool isRearPassengerDoorOpen = false.obs;
 
   // Climate
   RxDouble acTemperatureCurrent = 20.0.obs;
@@ -53,6 +61,7 @@ class HomeController extends GetxController {
   RxDouble acMinTemperatureAvailable = 15.0.obs;
   RxDouble acMaxTemperatureAvailable = 28.0.obs;
   RxBool isClimateOn = false.obs;
+  RxBool isPreconditioning = false.obs;
 
   // Pages Slide
   PageController pageController = PageController(initialPage: 0);
@@ -79,7 +88,9 @@ class HomeController extends GetxController {
 
     initPreferences();
 
-    initSiriShortcuts();
+    if (Platform.isIOS) {
+      initSiriShortcuts();
+    }
 
     super.onInit();
   }
@@ -89,46 +100,58 @@ class HomeController extends GetxController {
         .getPreference<bool>('showBatteryLevelInAppBar')!;
   }
 
-  void initSiriShortcuts() async {
-    await initSiriActivities();
-
+  Future<void> initSiriShortcuts() async {
     // Awaken from Siri Suggestion
     FlutterSiriSuggestions.instance.configure(
         onLaunch: (Map<String, dynamic> message) async {
-      // message = {title: "Open App 👨‍💻", key: "mainActivity", userInfo: {}}
+      // message = {title: "Open App", key: "mainActivity", userInfo: {}}
       // Do what you want :)
-      await refreshState();
+      if (message.isNotEmpty) {
+        await refreshState();
 
-      switch (message["key"]) {
-        case "sentryOnActivity":
-          turnOnSentry();
-          break;
-        case "sentryOffActivity":
-          turnOnSentry();
-          break;
-        case "unlockDoorsActivity":
-          unlock();
-          break;
-        case "lockDoorsActivity":
-          lock();
-          break;
-        case "openChargePortActivity":
-          openChargePort();
-          break;
-        case "closeChargePortActivity":
-          closeChargePort();
-          break;
-        case "unlockChargerActivity":
-          unlockCharger();
-          break;
-        case "startChargingActivity":
-          startCharging();
-          break;
-        case "stopChargingActivity":
-          stopCharging();
-          break;
-        default:
-          break;
+        switch (message["key"]) {
+          case "sentryOn":
+            await turnOnSentry();
+            break;
+          case "sentryOff":
+            await turnOnSentry();
+            break;
+          case "unlockDoors":
+            await unlock();
+            break;
+          case "lockDoors":
+            await lock();
+            break;
+          case "openChargePort":
+            await openChargePort();
+            break;
+          case "closeChargePort":
+            await closeChargePort();
+            break;
+          case "unlockCharger":
+            await unlockCharger();
+            break;
+          case "startCharging":
+            await startCharging();
+            break;
+          case "stopCharging":
+            await stopCharging();
+            break;
+          case "ventWindows":
+            await ventWindows();
+            break;
+          case "closeWindows":
+            await closeWindows();
+            break;
+          case "defrostCar":
+            await turnOnMaxDefrost();
+            break;
+          case "defrostCarOff":
+            await turnOffMaxDefrost();
+            break;
+          default:
+            break;
+        }
       }
     });
   }
@@ -185,7 +208,7 @@ class HomeController extends GetxController {
     return result;
   }
 
-  void subscribeToVehicle() {
+  void subscribeToVehicle() async {
     subscriptions.add(
       Get.find<UserController>().selectedVehicle.listenAndPump((data) {
         if (data != null) {
@@ -215,9 +238,26 @@ class HomeController extends GetxController {
 
           isFrunkOpen.value = vehicleData.vehicleState.frontTrunk > 0;
           isTrunkOpen.value = vehicleData.vehicleState.rearTrunk > 0;
+          isFrontDriverDoorOpen.value =
+              vehicleData.vehicleState.frontDriverDoor > 0;
+          isFrontDriverWindowOpen.value =
+              vehicleData.vehicleState.frontDriverWindow > 0;
+          isFrontPassengerDoorOpen.value =
+              vehicleData.vehicleState.frontPassengerDoor > 0;
+          isFrontPassengerWindowOpen.value =
+              vehicleData.vehicleState.frontPassengerWindow > 0;
+          isRearDriverDoorOpen.value =
+              vehicleData.vehicleState.rearDriverDoor > 0;
+          isRearDriverWindowOpen.value =
+              vehicleData.vehicleState.rearDriverWindow > 0;
+          isRearPassengerDoorOpen.value =
+              vehicleData.vehicleState.rearPassengerDoor > 0;
+          isRearPassengerWindowOpen.value =
+              vehicleData.vehicleState.rearPassengerWindow > 0;
 
           isChargePortOpen.value = vehicleData.chargeState.chargePortDoorOpen;
           if (vehicleData.chargeState.chargePortDoorOpen &&
+              vehicleData.chargeState.chargePortLatch == 'Engaged' &&
               (vehicleData.chargeState.chargerPilotCurrent != null &&
                   vehicleData.chargeState.chargerPilotCurrent! > 0)) {
             isChargerPluggedIn.value = true;
@@ -260,6 +300,8 @@ class HomeController extends GetxController {
               (acTemperatureCurrent.value * 2.0).toInt();
 
           isClimateOn.value = vehicleData.climateState.isClimateOn;
+
+          isPreconditioning.value = vehicleData.climateState.isPreconditioning;
         }
       }),
     );
@@ -273,70 +315,108 @@ class HomeController extends GetxController {
     );
   }
 
-  void turnOnSentry() async {
+  bool anyDoorOpen() {
+    if (isFrontDriverDoorOpen.value ||
+        isFrontPassengerDoorOpen.value ||
+        isRearDriverDoorOpen.value ||
+        isRearPassengerDoorOpen.value) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  bool anyWindowOpen() {
+    if (isFrontDriverWindowOpen.value ||
+        isFrontPassengerWindowOpen.value ||
+        isRearDriverWindowOpen.value ||
+        isRearPassengerWindowOpen.value) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> turnOnSentry() async {
     openSnackbar('Sentry Mode', 'Activating...');
 
-    await Get.find<VehicleController>().toggleSentry(true);
+    bool success = await Get.find<VehicleController>().toggleSentry(true);
 
     openSnackbar('Sentry Mode', 'Activated succesfully.',
         currentSnackbar: snackBar);
+
+    return success;
   }
 
-  void turnOffSentry() async {
+  Future<bool> turnOffSentry() async {
     openSnackbar('Sentry Mode', 'Deactivating...', currentSnackbar: snackBar);
 
-    await Get.find<VehicleController>().toggleSentry(false);
+    bool success = await Get.find<VehicleController>().toggleSentry(false);
 
     openSnackbar(
       'Sentry Mode',
       'Deactivated succesfully.',
       currentSnackbar: snackBar,
     );
+
+    return success;
   }
 
-  void lock() async {
+  Future<bool> lock() async {
     openSnackbar('Lock', 'Locking...', currentSnackbar: snackBar);
 
-    await Get.find<VehicleController>().doorLock();
+    bool success = await Get.find<VehicleController>().doorLock();
 
     openSnackbar('Lock', 'Car is now locked.', currentSnackbar: snackBar);
+
+    return success;
   }
 
-  void unlock() async {
+  Future<bool> unlock() async {
     openSnackbar('Unlock', 'Unlocking...', currentSnackbar: snackBar);
 
-    await Get.find<VehicleController>().doorUnlock();
+    bool success = await Get.find<VehicleController>().doorUnlock();
 
     openSnackbar('Unlock', 'Car is now unlocked.', currentSnackbar: snackBar);
+
+    return success;
   }
 
-  void openTrunk() async {
+  Future<bool> openTrunk() async {
     openSnackbar('Trunk', 'Opening...', currentSnackbar: snackBar);
 
-    await Get.find<VehicleController>().openTrunk();
+    bool success = await Get.find<VehicleController>().openTrunk();
 
     openSnackbar('Trunk', 'Trunk is now opened.', currentSnackbar: snackBar);
+
+    return success;
   }
 
-  void openFrunk() async {
+  Future<bool> openFrunk() async {
     openSnackbar('Frunk', 'Opening...', currentSnackbar: snackBar);
 
-    await Get.find<VehicleController>().openFrunk();
+    bool success = await Get.find<VehicleController>().openFrunk();
 
     openSnackbar('Frunk', 'Frunk is now opened.', currentSnackbar: snackBar);
+
+    return success;
   }
 
-  void horn() async {
-    await api.horn();
+  Future<bool> horn() async {
+    bool success = await api.horn();
 
     openSnackbar('Beep beep', 'Don\'t disturb your neighbors!',
         currentSnackbar: snackBar);
+
+    return success;
   }
 
-  void flashLights() async {
-    await api.flashLights();
+  Future<bool> flashLights() async {
+    bool success = await api.flashLights();
 
     openSnackbar('Blink Blink', 'It\'s too shiny!', currentSnackbar: snackBar);
+
+    return success;
   }
 
   Future<bool> toggleChargePort() async {
@@ -419,8 +499,6 @@ class HomeController extends GetxController {
   }
 
   Future<bool> setACTemperature() async {
-    isCharging.value = false;
-
     bool success = await Get.find<VehicleController>()
         .setACTemperature(acTemperatureSet.value);
 
@@ -438,13 +516,7 @@ class HomeController extends GetxController {
   }
 
   Future<bool> acStart() async {
-    isCharging.value = false;
-
     bool success = await Get.find<VehicleController>().acStart();
-
-    if (success) {
-      acTemperatureCurrent.value = acTemperatureSet.value;
-    }
 
     openSnackbar(
       'A/C',
@@ -456,19 +528,59 @@ class HomeController extends GetxController {
   }
 
   Future<bool> acStop() async {
-    isCharging.value = false;
-
     bool success = await Get.find<VehicleController>().acStop();
-
-    if (success) {
-      acTemperatureCurrent.value = acTemperatureSet.value;
-    }
 
     openSnackbar(
       'A/C',
       'Turned off',
       currentSnackbar: snackBar,
     );
+
+    return success;
+  }
+
+  Future<bool> ventWindows() async {
+    bool success = await Get.find<VehicleController>().ventWindows();
+
+    openSnackbar(
+      'Windows',
+      'Windows are now slightly opened.',
+      currentSnackbar: snackBar,
+    );
+
+    return success;
+  }
+
+  Future<bool> closeWindows() async {
+    bool success = await Get.find<VehicleController>().closeWindows();
+
+    openSnackbar(
+      'Windows',
+      'Windows are now fully closed.',
+      currentSnackbar: snackBar,
+    );
+
+    return success;
+  }
+
+  Future<bool> turnOnMaxDefrost() async {
+    openSnackbar('Defrost', 'Activating...');
+
+    bool success = await Get.find<VehicleController>().toggleMaxDefrost(true);
+
+    openSnackbar('Defrost', 'Activated succesfully.',
+        currentSnackbar: snackBar);
+
+    return success;
+  }
+
+  Future<bool> turnOffMaxDefrost() async {
+    openSnackbar('Defrost', 'Activating...');
+
+    bool success = await Get.find<VehicleController>().toggleMaxDefrost(false);
+
+    openSnackbar('Defrost', 'Deactivated succesfully.',
+        currentSnackbar: snackBar);
 
     return success;
   }
@@ -482,19 +594,30 @@ class HomeController extends GetxController {
       if (success) {
         openSnackbar(
           'WorkFlow',
-          '$preset workflow finished successfully.',
+          '${getWorkFlowName(preset)} finished successfully.',
           currentSnackbar: snackBar,
         );
       } else {
         openSnackbar(
           'WorkFlow',
-          '$preset workflow failed!',
+          '${getWorkFlowName(preset)} workflow failed!',
           currentSnackbar: snackBar,
         );
       }
     }
 
     return false;
+  }
+
+  String getWorkFlowName(WorkFlowPreset preset) {
+    switch (preset) {
+      case WorkFlowPreset.preheat:
+        return 'Preheat';
+      case WorkFlowPreset.precool:
+        return 'Precool';
+      case WorkFlowPreset.findMyCar:
+        return 'Find My Car';
+    }
   }
 
   void goToSettings() {

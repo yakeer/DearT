@@ -2,7 +2,7 @@ import 'package:deart/constants.dart';
 import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/widgets/main_app_bar.dart';
-import 'package:deart/widgets/theme/deart_icon_button.dart';
+import 'package:deart/widgets/quick_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -61,33 +61,9 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               mainAxisSize: MainAxisSize.max,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      DearTIconButtton(
-                        onTap: controller.turnOnSentry,
-                        icon: Icons.add_moderator_outlined,
-                        label: 'Arm',
-                      ),
-                      DearTIconButtton(
-                        onTap: controller.turnOffSentry,
-                        icon: Icons.remove_moderator_outlined,
-                        label: 'Disarm',
-                      ),
-                      DearTIconButtton(
-                        onTap: controller.horn,
-                        icon: Icons.volume_down_outlined,
-                        label: 'Horn',
-                      ),
-                      DearTIconButtton(
-                        onTap: controller.flashLights,
-                        icon: Icons.flourescent_outlined,
-                        label: 'Flash',
-                      ),
-                    ],
-                  ),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: QuickActionsWidget(),
                 ),
                 Visibility(
                   visible: controller.isInitialDataLoaded.value,

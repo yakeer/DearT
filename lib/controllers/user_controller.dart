@@ -7,7 +7,7 @@ import 'package:deart/utils/tesla_api.dart';
 import 'package:get/get.dart';
 
 class UserController extends GetxController {
-  final int? selectedVehicleId;
+  int? selectedVehicleId;
   Rx<Vehicle?> selectedVehicle = Rx(null);
   Rx<List<Vehicle>?> vehicles = Rx(null);
   TeslaAPI api = Get.find<TeslaAPI>();
@@ -22,6 +22,10 @@ class UserController extends GetxController {
     Vehicle? vehicle = await loadVehicles();
     if (vehicle != null) {
       Get.find<VehicleController>().setVehicleParameters(vehicle);
+
+      if (selectedVehicleId == null || selectedVehicleId != vehicle.id) {
+        selectedVehicleId = vehicle.id;
+      }
     }
 
     await initSettings();
@@ -52,7 +56,9 @@ class UserController extends GetxController {
           vehicle = vehicles.value!.first;
         } else {
           vehicle = vehicles.value!
-              .firstWhere((element) => (element.id == selectedVehicleId));
+              .firstWhereOrNull((element) => (element.id == selectedVehicleId));
+
+          vehicle ??= vehicles.value!.first;
         }
       }
 

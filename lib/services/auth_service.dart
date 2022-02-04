@@ -11,6 +11,7 @@ import 'package:deart/models/refresh_token_response.dart';
 import 'package:deart/screens/tesla_login.dart';
 import 'package:deart/utils/api_utils.dart';
 import 'package:deart/utils/storage_utils.dart';
+import 'package:deart/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -24,7 +25,7 @@ class AuthService extends GetxService {
 
     LoginPageData? loginPageData = await getLoginPage();
 
-    Get.to(LoginWebView(loginPageData!));
+    Get.to(() => TeslaLoginScreen(loginPageData!));
 
     // await showModalBottomSheet(
     //   context: context,
@@ -143,7 +144,14 @@ class AuthService extends GetxService {
         }
       } else {
         Get.snackbar(
-            'Failed to Refresh Token', 'Status code ${response.statusCode}');
+          'Failed to Refresh Token',
+          'Status code ${response.statusCode}',
+        );
+
+        await deleteStorageKey('accessToken');
+        await deleteStorageKey('refreshToken');
+
+        Get.offAllNamed('/login');
       }
     }
 
@@ -284,6 +292,13 @@ class AuthService extends GetxService {
 
       return true;
     } else {
+      await deleteStorageKey('accessToken');
+      await deleteStorageKey('refreshToken');
+      openSnackbar(
+        'Token Login',
+        'Failed to authenticate with your tokens, try again.',
+      );
+
       return false;
     }
   }
