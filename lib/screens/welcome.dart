@@ -15,6 +15,16 @@ class WelcomeScreen extends GetView<WelcomeController> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32.0),
+              child: SizedBox(
+                width: 300,
+                height: 300,
+                child: Image.asset(
+                  'assets/images/logo.png',
+                ),
+              ),
+            ),
             Text(
               controller.appName.value,
               style: const TextStyle(
