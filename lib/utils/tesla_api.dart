@@ -52,7 +52,7 @@ class TeslaAPI extends GetxService {
         currentTryCount++;
         if (currentTryCount < 10) {
           return await Future.delayed(
-            const Duration(seconds: 10),
+            const Duration(seconds: 5),
             () async => await wakeUp(currentTryCount: currentTryCount),
           );
         } else {

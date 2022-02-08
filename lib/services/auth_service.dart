@@ -232,6 +232,8 @@ class AuthService extends GetxService {
   }
 
   Future logout() async {
+    await revokeToken();
+
     Get.find<AppController>().isLoggedIn.value = false;
     Get.delete<VehicleController>();
     Get.delete<UserController>();
@@ -240,6 +242,8 @@ class AuthService extends GetxService {
     await deleteStorageKey('refreshToken');
     await deleteStorageKey('idToken');
     await deleteStorageKey('accessTokenExpiryTime');
+
+    Get.offAllNamed('/');
   }
 
   Uri _getUriByAPIName(String apiName, {Map<String, String>? parameters}) {
@@ -301,5 +305,34 @@ class AuthService extends GetxService {
 
       return false;
     }
+  }
+
+  Future<bool> revokeToken() async {
+    String apiName = "oauth/revoke";
+
+    Uri uri = _getOwnerUriByAPIName(apiName);
+
+    http.Response response = await http.post(
+      uri,
+      headers: {
+        "Authorization": "Bearer ${Globals.apiAccessToken}",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Uri getLogoutPage() {
+    String apiName = "oauth2/v3/logout";
+
+    Map<String, String> parameters = {
+      "client_id": Constants.teslaAPIClientID,
+    };
+
+    return _getUriByAPIName(apiName, parameters: parameters);
   }
 }

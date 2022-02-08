@@ -24,6 +24,7 @@ class TeslaLoginScreen extends GetView<LoginController> {
             Visibility(
               visible: !controller.isAuthorizing.value,
               child: WebView(
+                initialCookies: const [],
                 initialUrl: loginPageData.loginUrl.toString(),
                 javascriptMode: JavascriptMode.unrestricted,
                 onWebViewCreated: (WebViewController webViewController) {

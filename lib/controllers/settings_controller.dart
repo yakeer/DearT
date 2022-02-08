@@ -17,6 +17,7 @@ class SettingsController extends GetxController {
   RxBool activateSentryWhenCharging = RxBool(false);
   RxBool showBatteryLevelInAppBar = RxBool(false);
   Rx<List<FlutterSiriActivity>?> siriActivities = Rx(null);
+  RxBool showLogoutTeslaAccount = RxBool(false);
 
   RxString appVersion = ''.obs;
   RxString carVersion = ''.obs;
@@ -35,10 +36,35 @@ class SettingsController extends GetxController {
     super.onReady();
   }
 
-  void logout() async {
-    await Get.find<AuthService>().logout();
+  Future initShowTeslaLogout() async {
+    String? isTeslaAccountValue = await readStorageKey('isTeslaAccount');
+    if (isTeslaAccountValue == null) {
+      showLogoutTeslaAccount.value = true;
+    } else {
+      if (isTeslaAccountValue == "true") {
+        showLogoutTeslaAccount.value = true;
+      } else {
+        showLogoutTeslaAccount.value = false;
+      }
+    }
+  }
 
-    Get.offAllNamed('/');
+  void logoutTeslaAccount() async {
+    writeStorageKey('isTeslaAccount', false.toString());
+    Get.toNamed('/tesla-logout');
+  }
+
+  void logout() async {
+    String? isTeslaAccountValue = await readStorageKey('isTeslaAccount');
+    if (isTeslaAccountValue != null) {
+      if (isTeslaAccountValue == "true") {
+        Get.toNamed('/logout');
+      } else {
+        await Get.find<AuthService>().logout();
+      }
+    } else {
+      await Get.find<AuthService>().logout();
+    }
   }
 
   void getCarVersion() {

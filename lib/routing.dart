@@ -2,6 +2,7 @@ import 'package:deart/screens/home.dart';
 import 'package:deart/screens/login.dart';
 import 'package:deart/screens/settings.dart';
 import 'package:deart/screens/siri_activities.dart';
+import 'package:deart/screens/tesla_logout.dart';
 import 'package:deart/screens/token_login.dart';
 import 'package:deart/screens/web_socket_screen.dart';
 import 'package:deart/screens/welcome.dart';
@@ -35,5 +36,13 @@ var appPages = [
   GetPage(
     name: '/stream',
     page: () => const WebSocketScreen(),
-  )
+  ),
+  GetPage(
+    name: '/tesla-logout',
+    page: () => const TeslaLogoutScreen(true),
+  ),
+  GetPage(
+    name: '/logout',
+    page: () => const TeslaLogoutScreen(false),
+  ),
 ];

@@ -95,7 +95,11 @@ class SettingsScreen extends GetView<SettingsController> {
                   onPressed: (context) => Get.toNamed('/stream'),
                 ),
                 SettingsTile(
-                  title: 'Logout',
+                  title: 'Logout Tesla Account',
+                  onPressed: (context) => controller.logoutTeslaAccount(),
+                ),
+                SettingsTile(
+                  title: 'Logout DearT',
                   onPressed: (context) => controller.logout(),
                 )
               ],
