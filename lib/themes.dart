@@ -16,6 +16,10 @@ class Themes {
 
   static final dark = ThemeData(
     brightness: Brightness.dark,
+    // backgroundColor: ,
+    appBarTheme: AppBarTheme(backgroundColor: Colors.grey.shade900),
+    scaffoldBackgroundColor: Colors.black,
+    cardColor: Colors.grey.shade900,
     fontFamily: 'Roboto',
   );
 }

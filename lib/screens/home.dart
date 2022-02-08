@@ -1,4 +1,3 @@
-import 'package:deart/constants.dart';
 import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/widgets/main_app_bar.dart';
@@ -43,6 +42,8 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+
+    const appBar = MainAppBar();
     return GetX<HomeController>(
       init: HomeController(),
       builder: (controller) => RefreshIndicator(
@@ -53,56 +54,70 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
         triggerMode: RefreshIndicatorTriggerMode.anywhere,
         onRefresh: () => controller.refreshState(),
         child: Scaffold(
-          appBar: const MainAppBar(),
+          appBar: appBar,
           body: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: QuickActionsWidget(),
-                ),
-                Visibility(
-                  visible: controller.isInitialDataLoaded.value,
-                  child: SizedBox(
-                    height: Constants.pageControllerHeight,
-                    child: PageView(
-                      controller: controller.pageController,
-                      scrollDirection: Axis.horizontal,
-                      onPageChanged: controller.onPageChanged,
-                      children: controller.pages,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: Get.mediaQuery.size.height -
+                    appBar.preferredSize.height -
+                    Get.mediaQuery.padding.top,
+                minHeight: Get.mediaQuery.size.height -
+                    appBar.preferredSize.height -
+                    Get.mediaQuery.padding.top,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Visibility(
+                    visible: controller.selectedPage.value != 2,
+                    child: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: QuickActionsWidget(),
                     ),
                   ),
-                ),
-                Visibility(
-                  visible: controller.isInitialDataLoaded.value,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: _buildPageIndicator(),
-                  ),
-                ),
-                Visibility(
-                  visible: !controller.isInitialDataLoaded.value,
-                  child: SizedBox(
-                    height: Constants.pageControllerHeight,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          CircularProgressIndicator(),
-                          Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text('Waking up car...'),
-                          )
-                        ],
+                  Visibility(
+                    visible: controller.isInitialDataLoaded.value,
+                    child: Expanded(
+                      child: PageView(
+                        controller: controller.pageController,
+                        scrollDirection: Axis.horizontal,
+                        onPageChanged: controller.onPageChanged,
+                        children: controller.pages,
                       ),
                     ),
                   ),
-                )
-              ],
+                  Visibility(
+                    visible: controller.isInitialDataLoaded.value,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 24.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: _buildPageIndicator(),
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                    visible: !controller.isInitialDataLoaded.value,
+                    child: Expanded(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            CircularProgressIndicator(),
+                            Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text('Waking up car...'),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),
@@ -141,13 +156,53 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
     );
   }
 
+  Widget _settingsIndicator(bool isActive) {
+    return SizedBox(
+      height: 10,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        margin: const EdgeInsets.symmetric(horizontal: 4.0),
+        height: isActive ? 10 : 8.0,
+        width: isActive ? 12 : 8.0,
+        decoration: BoxDecoration(
+          boxShadow: [
+            isActive
+                ? BoxShadow(
+                    color: const Color(0XFF2FB7B2).withOpacity(0.72),
+                    blurRadius: 4.0,
+                    spreadRadius: 1.0,
+                    offset: const Offset(
+                      0.0,
+                      0.0,
+                    ),
+                  )
+                : const BoxShadow(
+                    color: Colors.transparent,
+                  )
+          ],
+          shape: BoxShape.rectangle,
+          color: isActive ? const Color(0XFF6BC4C9) : const Color(0XFFEAEAEA),
+        ),
+      ),
+    );
+  }
+
   List<Widget> _buildPageIndicator() {
     List<Widget> list = [];
     for (int i = 0; i < controller.pages.length; i++) {
-      list.add(i == controller.selectedPage.value
-          ? _indicator(true)
-          : _indicator(false));
+      if (i == 2) {
+        list.add(
+          _settingsIndicator(controller.selectedPage.value == 2),
+        );
+      } else {
+        list.add(
+          i == controller.selectedPage.value
+              ? _indicator(true)
+              : _indicator(false),
+        );
+      }
     }
+
     return list;
   }
 }

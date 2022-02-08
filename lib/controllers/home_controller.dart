@@ -8,6 +8,7 @@ import 'package:deart/models/enums/sentry_mode_state.dart';
 import 'package:deart/models/internal/work_flow_preset.dart';
 import 'package:deart/models/vehicle.dart';
 import 'package:deart/screens/climate_page.dart';
+import 'package:deart/screens/settings.dart';
 import 'package:deart/screens/vehicle_page.dart';
 import 'package:deart/utils/tesla_api.dart';
 import 'package:deart/utils/ui_utils.dart';
@@ -35,9 +36,11 @@ class HomeController extends GetxController {
   RxDouble insideTemperature = 0.0.obs;
   RxDouble outsideTemperature = 0.0.obs;
   RxDouble batteryRange = 0.0.obs;
-  RxInt batteryLevel = 0.obs;
+
   RxBool isTrunkOpen = false.obs;
   RxBool isFrunkOpen = false.obs;
+
+  RxInt batteryLevel = 0.obs;
   RxBool isChargePortOpen = false.obs;
   RxBool isChargerPluggedIn = false.obs;
   RxBool isCharging = false.obs;
@@ -45,6 +48,9 @@ class HomeController extends GetxController {
   Rx<int?> chargingCurrent = Rx(null);
   Rx<int?> chargingCurrentMax = Rx(null);
   RxDouble timeToFullCharge = 0.0.obs;
+  RxBool canChargeMore = false.obs;
+  RxInt chargeLimitSoc = 0.obs;
+
   RxBool isFrontDriverWindowOpen = false.obs;
   RxBool isFrontDriverDoorOpen = false.obs;
   RxBool isFrontPassengerWindowOpen = false.obs;
@@ -66,7 +72,7 @@ class HomeController extends GetxController {
   // Pages Slide
   PageController pageController = PageController(initialPage: 0);
   RxInt selectedPage = 0.obs;
-  List<Widget> pages = const [VehiclePage(), ClimatePage()];
+  List<Widget> pages = const [VehiclePage(), ClimatePage(), SettingsScreen()];
 
   // Battery Widget
   RxBool showBatteryLevel = RxBool(false);
@@ -82,9 +88,9 @@ class HomeController extends GetxController {
       }
     });
 
-    initQuickActions();
-
     subscribeToVehicle();
+
+    initQuickActions();
 
     initPreferences();
 
@@ -236,6 +242,7 @@ class HomeController extends GetxController {
 
           carLocked.value = vehicleData.vehicleState.locked;
 
+          // Doors + Trunks + Windows
           isFrunkOpen.value = vehicleData.vehicleState.frontTrunk > 0;
           isTrunkOpen.value = vehicleData.vehicleState.rearTrunk > 0;
           isFrontDriverDoorOpen.value =
@@ -255,6 +262,7 @@ class HomeController extends GetxController {
           isRearPassengerWindowOpen.value =
               vehicleData.vehicleState.rearPassengerWindow > 0;
 
+          // Charging
           isChargePortOpen.value = vehicleData.chargeState.chargePortDoorOpen;
           if (vehicleData.chargeState.chargePortDoorOpen &&
               vehicleData.chargeState.chargePortLatch == 'Engaged' &&
@@ -277,6 +285,13 @@ class HomeController extends GetxController {
             isChargerLocked.value = true;
           } else {
             isChargerLocked.value = false;
+          }
+
+          chargeLimitSoc.value = vehicleData.chargeState.chargeLimitSoc;
+          if (batteryLevel.value >= chargeLimitSoc.value) {
+            canChargeMore.value = false;
+          } else {
+            canChargeMore.value = true;
           }
 
           chargingCurrent.value = vehicleData.chargeState.chargerActualCurrent;
@@ -338,8 +353,6 @@ class HomeController extends GetxController {
   }
 
   Future<bool> turnOnSentry() async {
-    openSnackbar('Sentry Mode', 'Activating...');
-
     bool success = await Get.find<VehicleController>().toggleSentry(true);
 
     openSnackbar('Sentry Mode', 'Activated succesfully.',
@@ -349,8 +362,6 @@ class HomeController extends GetxController {
   }
 
   Future<bool> turnOffSentry() async {
-    openSnackbar('Sentry Mode', 'Deactivating...', currentSnackbar: snackBar);
-
     bool success = await Get.find<VehicleController>().toggleSentry(false);
 
     openSnackbar(
@@ -363,8 +374,6 @@ class HomeController extends GetxController {
   }
 
   Future<bool> lock() async {
-    openSnackbar('Lock', 'Locking...', currentSnackbar: snackBar);
-
     bool success = await Get.find<VehicleController>().doorLock();
 
     openSnackbar('Lock', 'Car is now locked.', currentSnackbar: snackBar);
@@ -607,6 +616,17 @@ class HomeController extends GetxController {
     }
 
     return false;
+  }
+
+  String getWorkFlowPopupMessage(WorkFlowPreset preset) {
+    switch (preset) {
+      case WorkFlowPreset.preheat:
+        return "- Heats driver's seat\n- Heats steering wheel\n- Turn A/C to 25 degress.\n- Stops Charging\n- Unlocks charger port";
+      case WorkFlowPreset.precool:
+        return "- Stop driver's seat heat\n- Stops steering wheel heating\n- Turn A/C to 19 degress.\n- Vents windows for 1 minute.\n- Stops Charging\n- Unlocks charger port";
+      case WorkFlowPreset.findMyCar:
+        return "Flashes 2 times,\nwaits 5 seconds and flashes 2 times again.\nAfter 10 seconds, honks horn, and flashes 5 times.";
+    }
   }
 
   String getWorkFlowName(WorkFlowPreset preset) {

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 SnackbarController openSnackbar(
@@ -21,4 +22,31 @@ SnackbarController openSnackbar(
   );
 
   return currentSnackbar;
+}
+
+Future openPopup(
+  String title,
+  String message,
+) {
+  return showDialog(
+    context: Get.context!,
+    builder: (context) => AlertDialog(
+      title: Text(title),
+      content: SingleChildScrollView(
+        child: ListBody(
+          children: <Widget>[
+            Text(message),
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          child: const Text('Got it.'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    ),
+  );
 }

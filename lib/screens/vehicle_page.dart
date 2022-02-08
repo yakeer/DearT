@@ -31,52 +31,34 @@ class VehiclePage extends GetView<HomeController> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Card(
-                        //   child: Padding(
-                        //     padding: const EdgeInsets.all(8.0),
-                        //     child: ElevatedButton.icon(
-                        //       onPressed: () => controller.carLocked.value
-                        //           ? controller.unlock()
-                        //           : controller.lock(),
-                        //       label: Text(
-                        //         controller.carLocked.value ? 'Unlock' : 'Lock',
-                        //       ),
-                        //       icon: Icon(
-                        //         controller.carLocked.value
-                        //             ? Icons.lock_open
-                        //             : Icons.lock,
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
                         Card(
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                const Padding(
-                                  padding: EdgeInsets.only(bottom: 8.0),
-                                  child: Text('Automations:'),
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8.0),
+                                  child: Text(
+                                    'Automations:',
+                                    style: Get.theme.textTheme.caption,
+                                  ),
                                 ),
                                 DearTElevatedButtton(
                                   onPressed: () async => await controller
                                       .startWorkFlow(WorkFlowPreset.findMyCar),
                                   label: 'Find My Car',
                                   icon: Icons.radar,
+                                  longPressPopupTitle: "Find My Car",
+                                  longPressPopupMessage:
+                                      controller.getWorkFlowPopupMessage(
+                                          WorkFlowPreset.findMyCar),
                                 ),
                                 DearTElevatedButtton(
                                   label: 'Flash Lights',
                                   icon: Icons.flourescent_outlined,
                                   onPressed: controller.flashLights,
                                 ),
-                                // ElevatedButton.icon(
-                                //   onPressed: () => controller.flashLights(),
-                                //   label: const Text('Flash Lights'),
-                                //   icon: const Icon(
-                                //     Icons.flourescent_outlined,
-                                //   ),
-                                // ),
                               ],
                             ),
                           ),
@@ -90,9 +72,12 @@ class VehiclePage extends GetView<HomeController> {
                               children: [
                                 Visibility(
                                   visible: !controller.isChargerPluggedIn.value,
-                                  child: const Padding(
-                                    padding: EdgeInsets.only(bottom: 8.0),
-                                    child: Text('Not plugged in'),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                    child: Text(
+                                      'Charger Unplugged',
+                                      style: Get.theme.textTheme.caption,
+                                    ),
                                   ),
                                 ),
                                 Visibility(
@@ -100,7 +85,9 @@ class VehiclePage extends GetView<HomeController> {
                                   child: Padding(
                                     padding: const EdgeInsets.only(bottom: 8.0),
                                     child: Text(
-                                        'Plugged in (${controller.chargingCurrent}A/${controller.chargingCurrentMax}A)'),
+                                      'Plugged in (${controller.chargingCurrent}A/${controller.chargingCurrentMax}A)',
+                                      style: Get.theme.textTheme.caption,
+                                    ),
                                   ),
                                 ),
                                 Visibility(
@@ -109,30 +96,46 @@ class VehiclePage extends GetView<HomeController> {
                                     padding: const EdgeInsets.only(bottom: 8.0),
                                     child: Text(
                                       'Finishing at ${controller.getFinishTime(controller.timeToFullCharge.value)}',
+                                      style: Get.theme.textTheme.caption,
                                     ),
                                   ),
                                 ),
-                                DearTElevatedButtton(
-                                  onPressed: !controller.isChargePortOpen.value
-                                      ? controller.openChargePort
-                                      : controller.closeChargePort,
-                                  label: controller.isChargePortOpen.value
-                                      ? 'Close Port'
-                                      : 'Open Port',
-                                  icon: Icons.ev_station_outlined,
+                                Visibility(
+                                  visible: !controller.isChargePortOpen.value,
+                                  child: DearTElevatedButtton(
+                                    onPressed: controller.openChargePort,
+                                    label: 'Open Port',
+                                    icon: Icons.ev_station_outlined,
+                                  ),
                                 ),
                                 Visibility(
-                                  visible: controller.isChargerPluggedIn.value,
+                                  visible: controller.isChargePortOpen.value &&
+                                      !controller.isChargerPluggedIn.value,
                                   child: DearTElevatedButtton(
-                                    onPressed: !controller.isCharging.value
-                                        ? controller.startCharging
-                                        : controller.stopCharging,
-                                    label: controller.isCharging.value
-                                        ? 'Stop'
-                                        : 'Start',
-                                    icon: controller.isCharging.value
-                                        ? Icons.stop
-                                        : Icons.play_arrow,
+                                    onPressed: controller.closeChargePort,
+                                    label: 'Close Port',
+                                    icon: Icons.ev_station,
+                                  ),
+                                ),
+                                Visibility(
+                                  visible:
+                                      controller.isChargerPluggedIn.value &&
+                                          !controller.isCharging.value &&
+                                          controller.canChargeMore.value,
+                                  child: DearTElevatedButtton(
+                                    onPressed: controller.startCharging,
+                                    label: 'Start',
+                                    icon: Icons.play_arrow,
+                                  ),
+                                ),
+                                Visibility(
+                                  visible:
+                                      controller.isChargerPluggedIn.value &&
+                                          controller.isCharging.value,
+                                  child: DearTElevatedButtton(
+                                    onPressed: controller.stopCharging,
+                                    label: 'Stop',
+                                    icon: Icons.stop,
                                   ),
                                 ),
                                 Visibility(
@@ -144,6 +147,7 @@ class VehiclePage extends GetView<HomeController> {
                                 ),
                                 Visibility(
                                   visible: !controller.isCharging.value &&
+                                      controller.isChargerPluggedIn.value &&
                                       controller.isChargerLocked.value,
                                   child: DearTElevatedButtton(
                                     onPressed: controller.unlockCharger,
@@ -159,7 +163,7 @@ class VehiclePage extends GetView<HomeController> {
                     ),
                   ),
                   Flexible(
-                    flex: 4,
+                    flex: 3,
                     fit: FlexFit.tight,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

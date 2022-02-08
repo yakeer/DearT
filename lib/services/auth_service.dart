@@ -26,24 +26,6 @@ class AuthService extends GetxService {
     LoginPageData? loginPageData = await getLoginPage();
 
     Get.to(() => TeslaLoginScreen(loginPageData!));
-
-    // await showModalBottomSheet(
-    //   context: context,
-    //   isDismissible: true,
-    //   builder: (context) => LoginWebView(loginPageData!),
-    //   useRootNavigator: true,
-    //   isScrollControlled: true,
-    // );
-
-    // loginPageData =
-    //     await exchangeAuthorizationCodeForBearerToken(loginPageData);
-
-    // loginPageData = await exchangeBearerTokenForAccessToken(loginPageData);
-
-    // if (loginPageData.loginSuccess) {
-    //   Get.find<AppController>().isLoggedIn.value = true;
-    //   Get.offAllNamed('/home');
-    // }
   }
 
   Future<LoginPageData?> getLoginPage() async {

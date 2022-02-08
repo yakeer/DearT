@@ -1,5 +1,6 @@
 import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/controllers/user_controller.dart';
+import 'package:deart/utils/ui_utils.dart';
 import 'package:deart/widgets/battery.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,24 +27,35 @@ class MainAppBar extends GetView<HomeController>
             children: [
               Visibility(
                 visible: !controller.carLocked.value,
-                child: const Icon(
-                  Icons.lock_open,
-                  color: Colors.orange,
+                child: GestureDetector(
+                  onTap: () => openPopup('Warning', 'Car is unlocked.'),
+                  child: const Icon(
+                    Icons.lock_open,
+                    color: Colors.orange,
+                  ),
                 ),
               ),
               Visibility(
                 visible:
                     controller.carLocked.value && controller.anyWindowOpen(),
-                child: const Icon(
-                  Icons.sensor_window,
-                  color: Colors.orange,
+                child: GestureDetector(
+                  onTap: () =>
+                      openPopup('Warning', 'Some of the windows are open.'),
+                  child: const Icon(
+                    Icons.sensor_window,
+                    color: Colors.orange,
+                  ),
                 ),
               ),
               Visibility(
                 visible: controller.carLocked.value && controller.anyDoorOpen(),
-                child: const Icon(
-                  Icons.door_back_door,
-                  color: Colors.red,
+                child: GestureDetector(
+                  onTap: () =>
+                      openPopup('Warning', 'Some of the doors are open.'),
+                  child: const Icon(
+                    Icons.door_back_door,
+                    color: Colors.red,
+                  ),
                 ),
               ),
             ],
@@ -92,9 +104,16 @@ class MainAppBar extends GetView<HomeController>
                     ),
                   ),
             const BatteryWidget(),
-            IconButton(
-                onPressed: controller.goToSettings,
-                icon: const Icon(Icons.settings))
+            Row(
+              children: [
+                Text(
+                  "${controller.insideTemperature.toInt()}\u00B0/${controller.outsideTemperature.toInt()}\u00B0",
+                )
+              ],
+            )
+            // IconButton(
+            //     onPressed: controller.goToSettings,
+            //     icon: const Icon(Icons.settings))
           ],
         ),
       ),

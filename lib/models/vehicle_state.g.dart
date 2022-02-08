@@ -21,4 +21,5 @@ VehicleState _$VehicleStateFromJson(Map<String, dynamic> json) => VehicleState(
       json['pf'] as int,
       json['dr'] as int,
       json['pr'] as int,
+      json['is_user_present'] as bool,
     );

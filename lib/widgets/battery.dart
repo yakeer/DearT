@@ -31,10 +31,10 @@ class BatteryWidget extends GetView<HomeController> {
             ),
             Visibility(
               visible: !controller.isInitialDataLoaded.value,
-              child: const SizedBox(
+              child: SizedBox(
                 height: 20,
                 width: 20,
-                child: CircularProgressIndicator(),
+                child: Container(),
               ),
             ),
           ],

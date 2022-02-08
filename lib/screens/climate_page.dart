@@ -163,12 +163,20 @@ class ClimatePage extends GetView<HomeController> {
                                         .startWorkFlow(WorkFlowPreset.preheat),
                                     label: 'Preheat Cabin',
                                     icon: Icons.hot_tub,
+                                    longPressPopupMessage:
+                                        controller.getWorkFlowPopupMessage(
+                                      WorkFlowPreset.preheat,
+                                    ),
                                   ),
                                   DearTElevatedButtton(
                                     onPressed: () async => await controller
                                         .startWorkFlow(WorkFlowPreset.precool),
                                     label: 'Precool Cabin',
                                     icon: Icons.ac_unit,
+                                    longPressPopupMessage:
+                                        controller.getWorkFlowPopupMessage(
+                                      WorkFlowPreset.precool,
+                                    ),
                                   )
                                 ],
                               ),

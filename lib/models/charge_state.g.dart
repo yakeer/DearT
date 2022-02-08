@@ -17,4 +17,5 @@ ChargeState _$ChargeStateFromJson(Map<String, dynamic> json) => ChargeState(
       json['charger_pilot_current'] as int?,
       json['charge_port_latch'] as String,
       (json['time_to_full_charge'] as num).toDouble(),
+      json['charge_limit_soc'] as int,
     );

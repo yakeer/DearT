@@ -50,7 +50,9 @@ class VehicleController extends GetxController {
       if (Get.find<UserController>().getPreference<bool>('activateSentry') ??
           false) {
         if (sentryModeState.value != SentryModeState.on) {
-          await toggleSentry(true);
+          if (!vehicleData.vehicleState.isUserPresent) {
+            await toggleSentry(true);
+          }
         }
       }
     }
@@ -88,7 +90,7 @@ class VehicleController extends GetxController {
       _loadCarModel(vehicleData.value!.vehicleConfig);
     }
 
-    vehicleData.trigger(vehicleData.value);
+    // vehicleData.trigger(vehicleData.value);
   }
 
   Future<void> _loadCarModel(VehicleConfig vehicleConfig) {
@@ -256,7 +258,7 @@ class VehicleController extends GetxController {
     bool success = await api.openChargePort(vehicleId.value!);
 
     await Future.delayed(
-      const Duration(seconds: 1),
+      const Duration(milliseconds: 1500),
       () async => await _loadVehicleData(),
     );
 
@@ -267,7 +269,7 @@ class VehicleController extends GetxController {
     bool success = await api.closeChargePort(vehicleId.value!);
 
     await Future.delayed(
-      const Duration(seconds: 1),
+      const Duration(milliseconds: 1500),
       () async => await _loadVehicleData(),
     );
 
