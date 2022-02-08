@@ -94,9 +94,7 @@ class HomeController extends GetxController {
 
     initPreferences();
 
-    if (Platform.isIOS) {
-      initSiriShortcuts();
-    }
+    initSiriShortcuts();
 
     super.onInit();
   }
@@ -113,9 +111,12 @@ class HomeController extends GetxController {
       // message = {title: "Open App", key: "mainActivity", userInfo: {}}
       // Do what you want :)
       if (message.isNotEmpty) {
-        await refreshState();
+        refreshState();
 
         switch (message["key"]) {
+          case "horn":
+            await horn();
+            break;
           case "sentryOn":
             await turnOnSentry();
             break;

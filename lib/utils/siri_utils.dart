@@ -4,6 +4,15 @@ List<FlutterSiriActivity> getSiriActivities() {
   List<FlutterSiriActivity> activities = [];
 
   activities.add(const FlutterSiriActivity(
+    "Honk Horn",
+    "horn",
+    isEligibleForSearch: true,
+    isEligibleForPrediction: true,
+    contentDescription: "Honk Horn",
+    suggestedInvocationPhrase: "honk horn",
+  ));
+
+  activities.add(const FlutterSiriActivity(
     "Turn Sentry On",
     "sentryOn",
     isEligibleForSearch: true,
