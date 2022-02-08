@@ -216,6 +216,18 @@ class HomeController extends GetxController {
 
   void subscribeToVehicle() async {
     subscriptions.add(
+      Get.find<VehicleController>().isOnline.listenAndPump(
+        (value) {
+          if (value != null && value == true) {
+            if (!isInitialDataLoaded.value) {
+              isInitialDataLoaded.value = true;
+            }
+          }
+        },
+      ),
+    );
+
+    subscriptions.add(
       Get.find<UserController>().selectedVehicle.listenAndPump((data) {
         if (data != null) {
           vehicleId.value = data.id;
