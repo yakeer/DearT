@@ -23,7 +23,7 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       // user returned to our app
-      Get.find<VehicleController>().refreshState();
+      Get.find<VehicleController>().refreshState(true);
     } else if (state == AppLifecycleState.inactive) {
       // app is inactive
     } else if (state == AppLifecycleState.paused) {

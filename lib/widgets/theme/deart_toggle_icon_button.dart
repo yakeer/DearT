@@ -4,22 +4,25 @@ import 'package:get/get.dart';
 class DearTToggleIconButton extends StatefulWidget {
   final String onLabel;
   final String offLabel;
-  final String unknownLabel;
+  final String? unknownLabel;
   final IconData icon;
   final Future<bool> Function() onStateTap;
   final Future<bool> Function() offStateTap;
-  final Future<bool> Function() unknownStateTap;
+  final Future<bool> Function()? unknownStateTap;
   final DearTToggleIconButtonState toggleState;
+  final bool showBadge;
+
   const DearTToggleIconButton({
     Key? key,
     required this.onLabel,
     required this.offLabel,
-    required this.unknownLabel,
+    this.unknownLabel,
     required this.icon,
     required this.onStateTap,
     required this.offStateTap,
-    required this.unknownStateTap,
+    this.unknownStateTap,
     required this.toggleState,
+    this.showBadge = false,
   }) : super(key: key);
 
   @override
@@ -50,24 +53,63 @@ class _DearTToggleIconButtonState extends State<DearTToggleIconButton> {
                 child: ClipOval(
                   child: Material(
                     color: Colors.transparent,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Icon(
-                          widget.icon,
-                          size: 36,
-                          color: _getColorByState(),
-                        ), // icon
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            getLabelByState(),
-                            style: TextStyle(
-                              fontSize: 12,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(
+                              widget.icon,
+                              size: 36,
                               color: _getColorByState(),
+                            ), // icon
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                getLabelByState(),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: _getColorByState(),
+                                ),
+                              ),
+                            ), // text
+                          ],
+                        ),
+                        Visibility(
+                          visible: widget.showBadge,
+                          child: Positioned.fill(
+                            bottom: 10,
+                            right: 20,
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: _getColorByState(),
+                                    ),
+                                    color: _getColorByState(),
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(20),
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      getStateText(),
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                        ), // text
+                        )
                       ],
                     ),
                   ),
@@ -91,6 +133,17 @@ class _DearTToggleIconButtonState extends State<DearTToggleIconButton> {
     });
   }
 
+  String getStateText() {
+    switch (widget.toggleState) {
+      case DearTToggleIconButtonState.on:
+        return 'On';
+      case DearTToggleIconButtonState.off:
+        return 'Off';
+      case DearTToggleIconButtonState.unknown:
+        return '?';
+    }
+  }
+
   Future<bool> Function() getActionByState() {
     switch (widget.toggleState) {
       case DearTToggleIconButtonState.on:
@@ -98,7 +151,7 @@ class _DearTToggleIconButtonState extends State<DearTToggleIconButton> {
       case DearTToggleIconButtonState.off:
         return widget.offStateTap;
       case DearTToggleIconButtonState.unknown:
-        return widget.unknownStateTap;
+        return widget.unknownStateTap!;
     }
   }
 
@@ -109,7 +162,7 @@ class _DearTToggleIconButtonState extends State<DearTToggleIconButton> {
       case DearTToggleIconButtonState.off:
         return widget.offLabel;
       case DearTToggleIconButtonState.unknown:
-        return widget.unknownLabel;
+        return widget.unknownLabel!;
     }
   }
 

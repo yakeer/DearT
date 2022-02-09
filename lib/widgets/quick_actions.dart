@@ -21,13 +21,23 @@ class QuickActionsWidget extends GetView<HomeController> {
             icon: Icons.volume_down_outlined,
             label: 'Horn',
           ),
-          DearTIconButton(
-            onTap: controller.carLocked.value
-                ? controller.unlock
-                : controller.lock,
-            icon: controller.carLocked.value ? Icons.lock_open : Icons.lock,
-            label: controller.carLocked.value ? 'Unlock' : 'Lock',
+          DearTToggleIconButton(
+            onStateTap: controller.lock,
+            offStateTap: controller.unlock,
+            icon: !controller.carLocked.value ? Icons.lock_open : Icons.lock,
+            onLabel: 'Unlocked',
+            offLabel: 'Locked',
+            toggleState: !controller.carLocked.value
+                ? DearTToggleIconButtonState.on
+                : DearTToggleIconButtonState.off,
           ),
+          // DearTIconButton(
+          //   onTap: controller.carLocked.value
+          //       ? controller.unlock
+          //       : controller.lock,
+          //   icon: controller.carLocked.value ? Icons.lock_open : Icons.lock,
+          //   label: controller.carLocked.value ? 'Unlock' : 'Lock',
+          // ),
         ],
       ),
     );
@@ -46,10 +56,11 @@ class QuickActionsWidget extends GetView<HomeController> {
           offStateTap: controller.turnOnSentry,
           unknownStateTap: controller.turnOnSentry,
           icon: Icons.shield_outlined,
-          onLabel: 'Sentry On',
-          offLabel: 'Sentry Off',
+          onLabel: 'Sentry',
+          offLabel: 'Sentry',
           unknownLabel: 'Unknown',
           toggleState: _getSentryToggleState(controller.sentryModeState.value),
+          showBadge: true,
         ),
       );
 

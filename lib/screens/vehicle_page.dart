@@ -49,9 +49,9 @@ class VehiclePage extends GetView<HomeController> {
                                 DearTElevatedButtton(
                                   onPressed: () async => await controller
                                       .startWorkFlow(WorkFlowPreset.findMyCar),
-                                  label: 'Find My Car',
+                                  label: 'Locate',
                                   icon: Icons.radar,
-                                  longPressPopupTitle: "Find My Car",
+                                  longPressPopupTitle: "Locate",
                                   longPressPopupMessage:
                                       controller.getWorkFlowPopupMessage(
                                           WorkFlowPreset.findMyCar),

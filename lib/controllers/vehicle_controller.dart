@@ -282,7 +282,7 @@ class VehicleController extends GetxController {
     bool success = await api.doorLock(vehicleId.value!);
 
     Future.delayed(
-      const Duration(seconds: 1),
+      const Duration(milliseconds: 200),
       () async => await _loadVehicleData(false),
     );
 
@@ -293,7 +293,7 @@ class VehicleController extends GetxController {
     bool success = await api.doorUnlock(vehicleId.value!);
 
     Future.delayed(
-      const Duration(seconds: 1),
+      const Duration(milliseconds: 200),
       () async => await _loadVehicleData(false),
     );
 
@@ -482,8 +482,8 @@ class VehicleController extends GetxController {
     return success;
   }
 
-  Future refreshState() async {
-    return _loadVehicleData(false);
+  Future refreshState(bool fromResume) async {
+    return _loadVehicleData(fromResume);
   }
 
   @override

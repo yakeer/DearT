@@ -28,15 +28,16 @@ class PurchaseController extends GetxController {
   }
 
   Future _getProducts() async {
-    // Set literals require Dart 2.2. Alternatively, use
-    // `Set<String> _kIds = <String>['product1', 'product2'].toSet()`.
-
-    final ProductDetailsResponse response =
-        await InAppPurchase.instance.queryProductDetails(_productCatalogIds);
-    if (response.notFoundIDs.isNotEmpty) {
-      // Handle the error.
+    try {
+      final ProductDetailsResponse response =
+          await InAppPurchase.instance.queryProductDetails(_productCatalogIds);
+      if (response.notFoundIDs.isNotEmpty) {
+        // Handle the error.
+      }
+      products.value = response.productDetails;
+    } catch (e) {
+      openPopup('In-app Purchases', 'Error retrieving products.');
     }
-    products.value = response.productDetails;
 
     await _loadPurchasedProducts();
   }

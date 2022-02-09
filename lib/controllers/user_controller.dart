@@ -136,7 +136,7 @@ class UserController extends GetxController {
       Get.find<VehicleController>().changeVehicle(vehicleId, vehicleName);
 
       // Reload data if car changed
-      Get.find<VehicleController>().refreshState();
+      Get.find<VehicleController>().refreshState(false);
     }
   }
 }

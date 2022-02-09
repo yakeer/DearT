@@ -49,7 +49,10 @@ class _DearTElevatedButttonState extends State<DearTElevatedButtton> {
                     )
                 : null,
             icon: widget.icon != null ? Icon(widget.icon) : Container(),
-            label: Text(widget.label),
+            label: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(widget.label),
+            ),
           );
   }
 

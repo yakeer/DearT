@@ -393,6 +393,7 @@ class HomeController extends GetxController {
   }
 
   Future<bool> lock() async {
+    carLocked.value = true;
     bool success = await Get.find<VehicleController>().doorLock();
 
     openSnackbar('Lock', 'Car is now locked.', currentSnackbar: snackBar);
@@ -401,6 +402,7 @@ class HomeController extends GetxController {
   }
 
   Future<bool> unlock() async {
+    carLocked.value = false;
     openSnackbar('Unlock', 'Unlocking...', currentSnackbar: snackBar);
 
     bool success = await Get.find<VehicleController>().doorUnlock();
@@ -689,7 +691,7 @@ class HomeController extends GetxController {
   }
 
   Future refreshState() async {
-    await Get.find<VehicleController>().refreshState();
+    await Get.find<VehicleController>().refreshState(false);
   }
 
   void onPageChanged(int pageNumber) {
