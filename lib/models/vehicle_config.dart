@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'vehicle_config.g.dart';
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable()
 class VehicleConfig {
   @JsonKey(name: 'car_type')
   final String carType;
@@ -21,4 +21,6 @@ class VehicleConfig {
 
   factory VehicleConfig.fromJson(Map<String, dynamic> json) =>
       _$VehicleConfigFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VehicleConfigToJson(this);
 }

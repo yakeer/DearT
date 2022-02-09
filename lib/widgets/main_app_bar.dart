@@ -20,11 +20,20 @@ class MainAppBar extends GetView<HomeController>
           visible: controller.isInitialDataLoaded.value &&
               (!controller.carLocked.value ||
                   controller.anyDoorOpen() ||
-                  controller.anyWindowOpen()),
+                  controller.anyWindowOpen() ||
+                  controller.refreshingVehicleData.value),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              Visibility(
+                visible: controller.refreshingVehicleData.value,
+                child: const SizedBox(
+                  height: 12,
+                  width: 12,
+                  child: CircularProgressIndicator(),
+                ),
+              ),
               Visibility(
                 visible: !controller.carLocked.value,
                 child: GestureDetector(
@@ -64,7 +73,8 @@ class MainAppBar extends GetView<HomeController>
         leadingWidth: controller.isInitialDataLoaded.value &&
                 (!controller.carLocked.value ||
                     controller.anyDoorOpen() ||
-                    controller.anyWindowOpen())
+                    controller.anyWindowOpen() ||
+                    controller.refreshingVehicleData.value)
             ? 30
             : 0,
         title: Row(

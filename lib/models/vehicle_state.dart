@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'vehicle_state.g.dart';
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable()
 class VehicleState {
   final bool locked;
 
@@ -67,4 +67,6 @@ class VehicleState {
 
   factory VehicleState.fromJson(Map<String, dynamic> json) =>
       _$VehicleStateFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VehicleStateToJson(this);
 }

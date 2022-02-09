@@ -105,11 +105,17 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
                       child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            CircularProgressIndicator(),
+                          children: [
+                            const CircularProgressIndicator(),
                             Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text('Waking up car...'),
+                              padding: const EdgeInsets.all(8.0),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  'Waking up car...',
+                                  style: Get.theme.textTheme.headline6,
+                                ),
+                              ),
                             )
                           ],
                         ),

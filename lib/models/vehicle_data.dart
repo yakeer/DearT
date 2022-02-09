@@ -7,7 +7,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'vehicle_data.g.dart';
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable()
 class VehicleData {
   @JsonKey(name: 'drive_state')
   final DriveState driveState;
@@ -38,4 +38,6 @@ class VehicleData {
 
   factory VehicleData.fromJson(Map<String, dynamic> json) =>
       _$VehicleDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VehicleDataToJson(this);
 }

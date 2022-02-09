@@ -9,7 +9,7 @@ import 'package:deart/models/vehicle.dart';
 import 'package:deart/screens/climate_page.dart';
 import 'package:deart/screens/settings.dart';
 import 'package:deart/screens/vehicle_page.dart';
-import 'package:deart/utils/tesla_api.dart';
+import 'package:deart/services/tesla_api.dart';
 import 'package:deart/utils/ui_utils.dart';
 import 'package:deart/utils/unit_utils.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +25,7 @@ class HomeController extends GetxController {
   RxString vehicleName = ''.obs;
 
   RxBool isInitialDataLoaded = false.obs;
+  RxBool refreshingVehicleData = false.obs;
 
   RxString sentryModeStateText = 'Unknown'.obs;
 
@@ -215,6 +216,12 @@ class HomeController extends GetxController {
   }
 
   void subscribeToVehicle() async {
+    subscriptions.add(Get.find<VehicleController>()
+        .refreshingVehicleData
+        .listenAndPump((isRefreshing) {
+      refreshingVehicleData.value = isRefreshing;
+    }));
+
     subscriptions.add(
       Get.find<VehicleController>().isOnline.listenAndPump(
         (value) {

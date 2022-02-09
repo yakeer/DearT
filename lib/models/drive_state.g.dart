@@ -10,3 +10,9 @@ DriveState _$DriveStateFromJson(Map<String, dynamic> json) => DriveState(
       (json['latitude'] as num).toDouble(),
       (json['longitude'] as num).toDouble(),
     );
+
+Map<String, dynamic> _$DriveStateToJson(DriveState instance) =>
+    <String, dynamic>{
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
+    };

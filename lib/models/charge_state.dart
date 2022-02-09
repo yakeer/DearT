@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'charge_state.g.dart';
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable()
 class ChargeState {
   @JsonKey(name: 'battery_level')
   final int batteryLevel;
@@ -55,4 +55,6 @@ class ChargeState {
 
   factory ChargeState.fromJson(Map<String, dynamic> json) =>
       _$ChargeStateFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ChargeStateToJson(this);
 }

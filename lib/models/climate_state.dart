@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'climate_state.g.dart';
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable()
 class ClimateState {
   @JsonKey(name: 'inside_temp')
   final double insideTemp;
@@ -45,4 +45,6 @@ class ClimateState {
 
   factory ClimateState.fromJson(Map<String, dynamic> json) =>
       _$ClimateStateFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ClimateStateToJson(this);
 }
