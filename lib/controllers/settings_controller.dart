@@ -137,6 +137,10 @@ class SettingsController extends GetxController {
     await FlutterSiriSuggestions.instance.buildActivity(activity);
   }
 
+  Future? goToPurchases() {
+    return Get.toNamed('/purchases');
+  }
+
   @override
   void onClose() {
     // Close subscriptions.

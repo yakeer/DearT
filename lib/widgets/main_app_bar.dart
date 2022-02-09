@@ -104,12 +104,15 @@ class MainAppBar extends GetView<HomeController>
                     ),
                   ),
             const BatteryWidget(),
-            Row(
-              children: [
-                Text(
-                  "${controller.insideTemperature.toInt()}\u00B0/${controller.outsideTemperature.toInt()}\u00B0",
-                )
-              ],
+            Visibility(
+              visible: controller.isInitialDataLoaded.value,
+              child: Row(
+                children: [
+                  Text(
+                    "${controller.insideTemperature.toInt()}\u00B0/${controller.outsideTemperature.toInt()}\u00B0",
+                  )
+                ],
+              ),
             )
             // IconButton(
             //     onPressed: controller.goToSettings,

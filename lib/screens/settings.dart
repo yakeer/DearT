@@ -42,6 +42,16 @@ class SettingsScreen extends GetView<SettingsController> {
             ],
           ),
           SettingsSection(
+            title: 'In-App Purchases',
+            titleTextStyle: Get.theme.textTheme.headline6,
+            tiles: [
+              SettingsTile(
+                title: 'Buy Premium Features',
+                onPressed: (context) => controller.goToPurchases(),
+              ),
+            ],
+          ),
+          SettingsSection(
             title: 'Automations',
             titleTextStyle: Get.theme.textTheme.headline6,
             tiles: [

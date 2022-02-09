@@ -1,4 +1,5 @@
 import 'package:deart/screens/home.dart';
+import 'package:deart/screens/in_app_purchases_screen.dart';
 import 'package:deart/screens/login.dart';
 import 'package:deart/screens/settings.dart';
 import 'package:deart/screens/siri_activities.dart';
@@ -36,6 +37,10 @@ var appPages = [
   GetPage(
     name: '/stream',
     page: () => const WebSocketScreen(),
+  ),
+  GetPage(
+    name: '/purchases',
+    page: () => const InAppPurchasesScreen(),
   ),
   GetPage(
     name: '/tesla-logout',

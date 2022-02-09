@@ -277,9 +277,7 @@ class HomeController extends GetxController {
           // Charging
           isChargePortOpen.value = vehicleData.chargeState.chargePortDoorOpen;
           if (vehicleData.chargeState.chargePortDoorOpen &&
-              vehicleData.chargeState.chargePortLatch == 'Engaged' &&
-              (vehicleData.chargeState.chargerPilotCurrent != null &&
-                  vehicleData.chargeState.chargerPilotCurrent! > 0)) {
+              vehicleData.chargeState.chargePortLatch == 'Engaged') {
             isChargerPluggedIn.value = true;
           } else {
             isChargerPluggedIn.value = false;
