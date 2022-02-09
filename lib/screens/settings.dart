@@ -1,3 +1,4 @@
+import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/controllers/settings_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
@@ -32,11 +33,10 @@ class SettingsScreen extends GetView<SettingsController> {
                 title: 'Prefer Battery %',
                 switchValue: controller.showBatteryLevelInAppBar.value,
                 onToggle: (bool value) {
-                  controller.changeToggle(
-                    'showBatteryLevelInAppBar',
-                    controller.showBatteryLevelInAppBar,
-                    value,
-                  );
+                  controller.changeToggle('showBatteryLevelInAppBar',
+                      controller.showBatteryLevelInAppBar, value,
+                      refVariableInHomeScreen:
+                          Get.find<HomeController>().showBatteryLevel);
                 },
               )
             ],

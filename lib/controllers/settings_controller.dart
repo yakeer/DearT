@@ -96,7 +96,12 @@ class SettingsController extends GetxController {
     );
   }
 
-  changeToggle(String prefName, RxBool toggleVariable, bool value) async {
+  changeToggle(
+    String prefName,
+    RxBool toggleVariable,
+    bool value, {
+    RxBool? refVariableInHomeScreen,
+  }) async {
     int vehicleId = Get.find<VehicleController>().vehicleId.value!;
 
     Get.find<UserController>().setPreference(prefName, value);
@@ -105,7 +110,9 @@ class SettingsController extends GetxController {
 
     toggleVariable.value = value;
 
-    // initPreferences();
+    if (refVariableInHomeScreen != null) {
+      refVariableInHomeScreen.value = value;
+    }
   }
 
   Future<String> getAppVersion() async {
