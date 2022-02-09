@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/controllers/settings_controller.dart';
 import 'package:flutter/material.dart';
@@ -52,11 +54,24 @@ class SettingsScreen extends GetView<SettingsController> {
             ],
           ),
           SettingsSection(
-            title: 'Automations',
+            title: 'Sentry Mode',
             titleTextStyle: Get.theme.textTheme.headline6,
             tiles: [
               SettingsTile.switchTile(
-                title: 'Activate Sentry when charging',
+                title: 'Quick Action Toggle',
+                subtitle: 'Show Quick Action toggle or 2 buttons',
+                switchValue: controller.sentryQuickActionToggle.value,
+                onToggle: (bool value) {
+                  controller.changeToggle(
+                    'sentryQuickActionToggle',
+                    controller.sentryQuickActionToggle,
+                    value,
+                  );
+                },
+              ),
+              SettingsTile.switchTile(
+                title: 'Enable when charging',
+                subtitle: 'Turn on Sentry Mode when charging.',
                 switchValue: controller.activateSentryWhenCharging.value,
                 onToggle: (bool value) {
                   controller.changeToggle(
@@ -66,6 +81,18 @@ class SettingsScreen extends GetView<SettingsController> {
                   );
                 },
               ),
+              SettingsTile.switchTile(
+                title: 'Enable when car locked',
+                subtitle: 'Turn on Sentry Mode when car is locked.',
+                switchValue: controller.activateSentryWhenLocked.value,
+                onToggle: (bool value) {
+                  controller.changeToggle(
+                    'activateSentryWhenLocked',
+                    controller.activateSentryWhenLocked,
+                    value,
+                  );
+                },
+              )
             ],
           ),
           SettingsSection(
@@ -74,7 +101,7 @@ class SettingsScreen extends GetView<SettingsController> {
             titleTextStyle: Get.theme.textTheme.headline6,
             tiles: [
               SettingsTile(
-                platform: TargetPlatform.iOS,
+                enabled: Platform.isIOS,
                 title: 'Install Siri Shortcuts',
                 onPressed: (context) async {
                   Get.toNamed('/siri-shortcuts');
@@ -98,10 +125,12 @@ class SettingsScreen extends GetView<SettingsController> {
               ),
               SettingsTile(
                 title: 'Streaming Log',
+                subtitle: 'Experimental',
                 onPressed: (context) => Get.toNamed('/stream'),
               ),
               SettingsTile(
                 title: 'Logout Tesla Account',
+                subtitle: 'But keep tokens',
                 onPressed: (context) => controller.logoutTeslaAccount(),
               ),
               SettingsTile(

@@ -27,6 +27,7 @@ class HomeController extends GetxController {
   RxBool isInitialDataLoaded = false.obs;
   RxBool refreshingVehicleData = false.obs;
 
+  Rx<SentryModeState> sentryModeState = Rx(SentryModeState.unknown);
   RxString sentryModeStateText = 'Unknown'.obs;
 
   RxBool carLocked = false.obs;
@@ -342,6 +343,7 @@ class HomeController extends GetxController {
       Get.find<VehicleController>()
           .sentryModeState
           .listenAndPump((sentryModeState) {
+        this.sentryModeState.value = sentryModeState;
         sentryModeStateText.value = getSentryModeStateText(sentryModeState);
       }),
     );

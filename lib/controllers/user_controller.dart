@@ -38,6 +38,17 @@ class UserController extends GetxController {
         'activateSentry',
         await readPreference<bool>(
             selectedVehicleId!, 'activateSentry', false)));
+
+    preferences.value.add(VehiclePreference(
+        'activateSentryWhenLocked',
+        await readPreference<bool>(
+            selectedVehicleId!, 'activateSentryWhenLocked', false)));
+
+    preferences.value.add(VehiclePreference(
+        'sentryQuickActionToggle',
+        await readPreference<bool>(
+            selectedVehicleId!, 'sentryQuickActionToggle', true)));
+
     preferences.value.add(VehiclePreference(
         'showBatteryLevelInAppBar',
         await readPreference<bool>(

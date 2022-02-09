@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class DearTIconButtton extends StatefulWidget {
+class DearTIconButton extends StatefulWidget {
   final String label;
   final IconData icon;
   final Future<bool> Function() onTap;
-  const DearTIconButtton({
+  const DearTIconButton({
     Key? key,
     required this.label,
     required this.icon,
@@ -12,10 +12,10 @@ class DearTIconButtton extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<DearTIconButtton> createState() => _DearTIconButttonState();
+  State<DearTIconButton> createState() => _DearTIconButtonState();
 }
 
-class _DearTIconButttonState extends State<DearTIconButtton> {
+class _DearTIconButtonState extends State<DearTIconButton> {
   bool isRunning = false;
 
   @override

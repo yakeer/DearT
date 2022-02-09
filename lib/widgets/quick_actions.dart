@@ -1,5 +1,8 @@
 import 'package:deart/controllers/home_controller.dart';
+import 'package:deart/controllers/user_controller.dart';
+import 'package:deart/models/enums/sentry_mode_state.dart';
 import 'package:deart/widgets/theme/deart_icon_button.dart';
+import 'package:deart/widgets/theme/deart_toggle_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,27 +15,13 @@ class QuickActionsWidget extends GetView<HomeController> {
       builder: (controller) => Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          DearTIconButtton(
-            onTap: controller.turnOnSentry,
-            icon: Icons.add_moderator_outlined,
-            label: 'Arm',
-          ),
-          DearTIconButtton(
-            onTap: controller.turnOffSentry,
-            icon: Icons.remove_moderator_outlined,
-            label: 'Disarm',
-          ),
-          DearTIconButtton(
+          ..._getSentryButton(),
+          DearTIconButton(
             onTap: controller.horn,
             icon: Icons.volume_down_outlined,
             label: 'Horn',
           ),
-          // DearTIconButtton(
-          //   onTap: controller.flashLights,
-          //   icon: Icons.flourescent_outlined,
-          //   label: 'Flash',
-          // ),
-          DearTIconButtton(
+          DearTIconButton(
             onTap: controller.carLocked.value
                 ? controller.unlock
                 : controller.lock,
@@ -42,5 +31,66 @@ class QuickActionsWidget extends GetView<HomeController> {
         ],
       ),
     );
+  }
+
+  List<Widget> _getSentryButton() {
+    List<Widget> widgets = [];
+
+    bool showToggle = Get.find<UserController>()
+        .getPreference<bool>('sentryQuickActionToggle')!;
+
+    if (showToggle) {
+      widgets.add(
+        DearTToggleIconButton(
+          onStateTap: controller.turnOffSentry,
+          offStateTap: controller.turnOnSentry,
+          unknownStateTap: controller.turnOnSentry,
+          icon: Icons.shield_outlined,
+          onLabel: 'Sentry On',
+          offLabel: 'Sentry Off',
+          unknownLabel: 'Unknown',
+          toggleState: _getSentryToggleState(controller.sentryModeState.value),
+        ),
+      );
+
+      // Also add Flash
+      widgets.add(
+        DearTIconButton(
+          onTap: controller.flashLights,
+          icon: Icons.flourescent_outlined,
+          label: 'Flash',
+        ),
+      );
+    } else {
+      widgets.add(
+        DearTIconButton(
+          onTap: controller.turnOnSentry,
+          icon: Icons.add_moderator_outlined,
+          label: 'Arm',
+        ),
+      );
+
+      widgets.add(
+        DearTIconButton(
+          onTap: controller.turnOffSentry,
+          icon: Icons.remove_moderator_outlined,
+          label: 'Disarm',
+        ),
+      );
+    }
+
+    return widgets;
+  }
+
+  DearTToggleIconButtonState _getSentryToggleState(
+      SentryModeState sentryState) {
+    switch (sentryState) {
+      case SentryModeState.unknown:
+        return DearTToggleIconButtonState.unknown;
+      case SentryModeState.off:
+        return DearTToggleIconButtonState.off;
+      case SentryModeState.on:
+        return DearTToggleIconButtonState.on;
+    }
   }
 }

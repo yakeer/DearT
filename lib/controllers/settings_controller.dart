@@ -15,6 +15,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsController extends GetxController {
   RxBool activateSentryWhenCharging = RxBool(false);
+  RxBool activateSentryWhenLocked = RxBool(false);
+  RxBool sentryQuickActionToggle = RxBool(false);
   RxBool showBatteryLevelInAppBar = RxBool(false);
   Rx<List<FlutterSiriActivity>?> siriActivities = Rx(null);
   RxBool showLogoutTeslaAccount = RxBool(false);
@@ -87,9 +89,19 @@ class SettingsController extends GetxController {
               .firstWhere((element) => element.name == 'activateSentry')
               .value as bool;
 
+          activateSentryWhenLocked.value = prefs
+              .firstWhere(
+                  (element) => element.name == 'activateSentryWhenLocked')
+              .value as bool;
+
           showBatteryLevelInAppBar.value = prefs
               .firstWhere(
                   (element) => element.name == 'showBatteryLevelInAppBar')
+              .value as bool;
+
+          sentryQuickActionToggle.value = prefs
+              .firstWhere(
+                  (element) => element.name == 'sentryQuickActionToggle')
               .value as bool;
         },
       ),

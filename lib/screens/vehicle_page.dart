@@ -1,4 +1,5 @@
 import 'package:deart/controllers/home_controller.dart';
+import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/models/internal/work_flow_preset.dart';
 import 'package:deart/utils/ui_utils.dart';
 import 'package:deart/widgets/car_image.dart';
@@ -29,7 +30,7 @@ class VehiclePage extends GetView<HomeController> {
                     fit: FlexFit.tight,
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Card(
@@ -55,16 +56,11 @@ class VehiclePage extends GetView<HomeController> {
                                       controller.getWorkFlowPopupMessage(
                                           WorkFlowPreset.findMyCar),
                                 ),
-                                DearTElevatedButtton(
-                                  label: 'Flash Lights',
-                                  icon: Icons.flourescent_outlined,
-                                  onPressed: controller.flashLights,
-                                ),
                               ],
                             ),
                           ),
                         ),
-                        Expanded(child: Container()),
+                        // Expanded(child: Container()),
                         const ChargeWidget(),
                       ],
                     ),
@@ -130,11 +126,16 @@ class VehiclePage extends GetView<HomeController> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Center(
-                child: Text(
-                  'Sentry Mode State: ${controller.sentryModeStateText}',
+            Visibility(
+              visible: Get.find<UserController>()
+                      .getPreference<bool>('sentryQuickActionToggle')! ==
+                  false,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Center(
+                  child: Text(
+                    'Sentry Mode State: ${controller.sentryModeStateText}',
+                  ),
                 ),
               ),
             ),

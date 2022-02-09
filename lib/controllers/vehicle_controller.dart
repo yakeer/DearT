@@ -58,6 +58,18 @@ class VehicleController extends GetxController {
         }
       }
     }
+
+    if (vehicleData.vehicleState.locked) {
+      if (Get.find<UserController>()
+              .getPreference<bool>('activateSentryWhenLocked') ??
+          false) {
+        if (sentryModeState.value != SentryModeState.on) {
+          if (!vehicleData.vehicleState.isUserPresent) {
+            await toggleSentry(true);
+          }
+        }
+      }
+    }
   }
 
   Future getCarLocation(VehicleData vehicleData) async {
