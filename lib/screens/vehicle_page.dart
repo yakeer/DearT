@@ -14,7 +14,7 @@ class VehiclePage extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return GetX<HomeController>(
       builder: (controller) => Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -55,7 +55,7 @@ class VehiclePage extends GetView<HomeController> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
@@ -64,19 +64,67 @@ class VehiclePage extends GetView<HomeController> {
                           style: Get.theme.textTheme.caption,
                         ),
                       ),
-                      SizedBox(
-                        height: 60,
-                        child: DearTElevatedButtton(
-                          onPressed: () async => await controller
-                              .startWorkFlow(WorkFlowPreset.findMyCar),
-                          label: 'Locate',
-                          icon: Icons.radar,
-                          longPressPopupTitle: "Locate",
-                          longPressPopupMessage:
-                              controller.getWorkFlowPopupMessage(
-                                  WorkFlowPreset.findMyCar),
-                        ),
+                      Flex(
+                        direction: Axis.horizontal,
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 50,
+                              child: DearTElevatedButtton(
+                                onPressed: () async => await controller
+                                    .startWorkFlow(WorkFlowPreset.precool),
+                                label: 'Precool',
+                                icon: Icons.ac_unit,
+                                longPressPopupMessage:
+                                    controller.getWorkFlowPopupMessage(
+                                  WorkFlowPreset.precool,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 8,
+                          ),
+                          Expanded(
+                            child: SizedBox(
+                              height: 50,
+                              child: DearTElevatedButtton(
+                                onPressed: () async => await controller
+                                    .startWorkFlow(WorkFlowPreset.preheat),
+                                label: 'Preheat',
+                                icon: Icons.hot_tub,
+                                longPressPopupMessage:
+                                    controller.getWorkFlowPopupMessage(
+                                  WorkFlowPreset.preheat,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      Flex(
+                        direction: Axis.horizontal,
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 50,
+                              child: DearTElevatedButtton(
+                                onPressed: () async => await controller
+                                    .startWorkFlow(WorkFlowPreset.findMyCar),
+                                label: 'Locate',
+                                icon: Icons.radar,
+                                longPressPopupTitle: "Locate",
+                                longPressPopupMessage:
+                                    controller.getWorkFlowPopupMessage(
+                                        WorkFlowPreset.findMyCar),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),

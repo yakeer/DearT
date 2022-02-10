@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:deart/controllers/app_controller.dart';
 import 'package:deart/controllers/user_controller.dart';
+import 'package:deart/models/drive_state.dart';
 import 'package:deart/models/enums/car_model.dart';
 import 'package:deart/models/enums/sentry_mode_state.dart';
 import 'package:deart/models/vehicle.dart';
@@ -64,11 +65,24 @@ class VehicleController extends GetxController {
               .getPreference<bool>('activateSentryWhenLocked') ??
           false) {
         if (sentryModeState.value != SentryModeState.on) {
-          if (!vehicleData.vehicleState.isUserPresent) {
+          if (!vehicleData.vehicleState.isUserPresent &&
+              !isDriving(vehicleData.driveState)) {
             await toggleSentry(true);
           }
         }
       }
+    }
+  }
+
+  bool isDriving(DriveState driveState) {
+    if (driveState.shiftState != null) {
+      if (driveState.shiftState == 'D' || driveState.shiftState == 'R') {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
     }
   }
 

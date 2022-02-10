@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/controllers/settings_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
@@ -31,15 +29,9 @@ class SettingsScreen extends GetView<SettingsController> {
                 title: 'Car Version ',
                 trailing: Text('${controller.carVersion}'),
               ),
-              SettingsTile.switchTile(
-                title: 'Prefer Battery %',
-                switchValue: controller.showBatteryLevelInAppBar.value,
-                onToggle: (bool value) {
-                  controller.changeToggle('showBatteryLevelInAppBar',
-                      controller.showBatteryLevelInAppBar, value,
-                      refVariableInHomeScreen:
-                          Get.find<HomeController>().showBatteryLevel);
-                },
+              SettingsTile(
+                title: 'Diagnostics',
+                onPressed: (context) => Get.toNamed('/diagnostics'),
               )
             ],
           ),
@@ -98,20 +90,7 @@ class SettingsScreen extends GetView<SettingsController> {
               )
             ],
           ),
-          SettingsSection(
-            platform: TargetPlatform.iOS,
-            title: 'iOS',
-            titleTextStyle: Get.theme.textTheme.headline6,
-            tiles: [
-              SettingsTile(
-                enabled: Platform.isIOS,
-                title: 'Install Siri Shortcuts',
-                onPressed: (context) async {
-                  Get.toNamed('/siri-shortcuts');
-                },
-              ),
-            ],
-          ),
+          ..._getSiriSettings(),
           SettingsSection(
             title: 'Account',
             titleTextStyle: Get.theme.textTheme.headline6,
@@ -127,11 +106,6 @@ class SettingsScreen extends GetView<SettingsController> {
                 onPressed: (context) => controller.copyRefreshToken(),
               ),
               SettingsTile(
-                title: 'Streaming Log',
-                subtitle: 'Experimental',
-                onPressed: (context) => Get.toNamed('/stream'),
-              ),
-              SettingsTile(
                 title: 'Logout Tesla Account',
                 subtitle: 'But keep tokens',
                 onPressed: (context) => controller.logoutTeslaAccount(),
@@ -145,5 +119,28 @@ class SettingsScreen extends GetView<SettingsController> {
         ],
       ),
     );
+  }
+
+  List<SettingsSection> _getSiriSettings() {
+    List<SettingsSection> widgets = [];
+    if (Platform.isIOS) {
+      widgets.add(
+        SettingsSection(
+          title: 'iOS',
+          titleTextStyle: Get.theme.textTheme.headline6,
+          tiles: [
+            SettingsTile(
+              enabled: Platform.isIOS,
+              title: 'Install Siri Shortcuts',
+              onPressed: (context) async {
+                Get.toNamed('/siri-shortcuts');
+              },
+            ),
+          ],
+        ),
+      );
+    }
+
+    return widgets;
   }
 }

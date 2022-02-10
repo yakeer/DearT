@@ -1,3 +1,4 @@
+import 'package:deart/screens/diagnostics.dart';
 import 'package:deart/screens/home.dart';
 import 'package:deart/screens/in_app_purchases_screen.dart';
 import 'package:deart/screens/login.dart';
@@ -41,6 +42,10 @@ var appPages = [
   GetPage(
     name: '/purchases',
     page: () => const InAppPurchasesScreen(),
+  ),
+  GetPage(
+    name: '/diagnostics',
+    page: () => const DiagnosticsScreen(),
   ),
   GetPage(
     name: '/tesla-logout',

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:deart/controllers/user_controller.dart';
@@ -17,7 +18,6 @@ class SettingsController extends GetxController {
   RxBool activateSentryWhenCharging = RxBool(false);
   RxBool activateSentryWhenLocked = RxBool(false);
   RxBool sentryQuickActionToggle = RxBool(false);
-  RxBool showBatteryLevelInAppBar = RxBool(false);
   Rx<List<FlutterSiriActivity>?> siriActivities = Rx(null);
   RxBool showLogoutTeslaAccount = RxBool(false);
 
@@ -94,11 +94,6 @@ class SettingsController extends GetxController {
                   (element) => element.name == 'activateSentryWhenLocked')
               .value as bool;
 
-          showBatteryLevelInAppBar.value = prefs
-              .firstWhere(
-                  (element) => element.name == 'showBatteryLevelInAppBar')
-              .value as bool;
-
           sentryQuickActionToggle.value = prefs
               .firstWhere(
                   (element) => element.name == 'sentryQuickActionToggle')
@@ -143,6 +138,15 @@ class SettingsController extends GetxController {
   Future copyRefreshToken() async {
     await Clipboard.setData(ClipboardData(text: Globals.apiRefreshToken));
     openSnackbar('Refresh Token', 'Copied to clipboard');
+  }
+
+  Future copyVehicleData() async {
+    Map<String, dynamic> vehicleDataJsonData =
+        Get.find<VehicleController>().vehicleData.toJson();
+    String vehicleDataJson = jsonEncode(vehicleDataJsonData);
+
+    await Clipboard.setData(ClipboardData(text: vehicleDataJson));
+    openSnackbar('Vehicle Data', 'Copied to clipboard');
   }
 
   Future<void> installSiriShortcut(FlutterSiriActivity activity) async {
