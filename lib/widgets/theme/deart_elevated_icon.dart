@@ -1,3 +1,4 @@
+import 'package:deart/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 
 class DearTElevatedButtton extends StatefulWidget {
@@ -5,12 +6,19 @@ class DearTElevatedButtton extends StatefulWidget {
   final IconData? icon;
   final bool? disabled;
   final Future<dynamic> Function() onPressed;
+  final String? longPressPopupTitle;
+  final String? longPressPopupMessage;
+  final Alignment textAlignment;
+
   const DearTElevatedButtton(
       {Key? key,
       required this.label,
       required this.icon,
       required this.onPressed,
-      this.disabled})
+      this.disabled,
+      this.longPressPopupTitle,
+      this.longPressPopupMessage,
+      this.textAlignment = Alignment.centerLeft})
       : super(key: key);
 
   @override
@@ -36,8 +44,17 @@ class _DearTElevatedButttonState extends State<DearTElevatedButtton> {
                     (widget.disabled != null && !widget.disabled!)
                 ? runAction
                 : null,
+            onLongPress: widget.longPressPopupMessage != null
+                ? () => openPopup(
+                      widget.longPressPopupTitle ?? widget.label,
+                      widget.longPressPopupMessage!,
+                    )
+                : null,
             icon: widget.icon != null ? Icon(widget.icon) : Container(),
-            label: Text(widget.label),
+            label: Align(
+              alignment: widget.textAlignment,
+              child: Text(widget.label),
+            ),
           );
   }
 

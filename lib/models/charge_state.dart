@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'charge_state.g.dart';
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable()
 class ChargeState {
   @JsonKey(name: 'battery_level')
   final int batteryLevel;
@@ -36,6 +36,9 @@ class ChargeState {
   @JsonKey(name: 'time_to_full_charge')
   final double timeToFullCharge;
 
+  @JsonKey(name: 'charge_limit_soc')
+  final int chargeLimitSoc;
+
   ChargeState(
     this.batteryLevel,
     this.batteryRange,
@@ -45,9 +48,13 @@ class ChargeState {
     this.chargeCurrentRequest,
     this.chargeCurrentRequestMax,
     this.chargerPilotCurrent,
-    this.chargePortLatch, this.timeToFullCharge,
+    this.chargePortLatch,
+    this.timeToFullCharge,
+    this.chargeLimitSoc,
   );
 
   factory ChargeState.fromJson(Map<String, dynamic> json) =>
       _$ChargeStateFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ChargeStateToJson(this);
 }

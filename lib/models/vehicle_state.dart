@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'vehicle_state.g.dart';
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable()
 class VehicleState {
   final bool locked;
 
@@ -44,6 +44,9 @@ class VehicleState {
   @JsonKey(name: 'pr')
   final int rearPassengerDoor;
 
+  @JsonKey(name: 'is_user_present')
+  final bool isUserPresent;
+
   VehicleState(
     this.locked,
     this.odometer,
@@ -59,8 +62,11 @@ class VehicleState {
     this.frontPassengerDoor,
     this.rearDriverDoor,
     this.rearPassengerDoor,
+    this.isUserPresent,
   );
 
   factory VehicleState.fromJson(Map<String, dynamic> json) =>
       _$VehicleStateFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VehicleStateToJson(this);
 }

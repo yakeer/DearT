@@ -1,6 +1,6 @@
 import 'package:deart/controllers/app_controller.dart';
 import 'package:deart/services/auth_service.dart';
-import 'package:deart/utils/tesla_api.dart';
+import 'package:deart/services/tesla_api.dart';
 import 'package:get/get.dart';
 
 class WelcomeController extends GetxController {

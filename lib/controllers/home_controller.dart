@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/controllers/vehicle_controller.dart';
@@ -8,8 +7,9 @@ import 'package:deart/models/enums/sentry_mode_state.dart';
 import 'package:deart/models/internal/work_flow_preset.dart';
 import 'package:deart/models/vehicle.dart';
 import 'package:deart/screens/climate_page.dart';
+import 'package:deart/screens/settings.dart';
 import 'package:deart/screens/vehicle_page.dart';
-import 'package:deart/utils/tesla_api.dart';
+import 'package:deart/services/tesla_api.dart';
 import 'package:deart/utils/ui_utils.dart';
 import 'package:deart/utils/unit_utils.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +25,9 @@ class HomeController extends GetxController {
   RxString vehicleName = ''.obs;
 
   RxBool isInitialDataLoaded = false.obs;
+  RxBool refreshingVehicleData = false.obs;
 
+  Rx<SentryModeState> sentryModeState = Rx(SentryModeState.unknown);
   RxString sentryModeStateText = 'Unknown'.obs;
 
   RxBool carLocked = false.obs;
@@ -35,9 +37,11 @@ class HomeController extends GetxController {
   RxDouble insideTemperature = 0.0.obs;
   RxDouble outsideTemperature = 0.0.obs;
   RxDouble batteryRange = 0.0.obs;
-  RxInt batteryLevel = 0.obs;
+
   RxBool isTrunkOpen = false.obs;
   RxBool isFrunkOpen = false.obs;
+
+  RxInt batteryLevel = 0.obs;
   RxBool isChargePortOpen = false.obs;
   RxBool isChargerPluggedIn = false.obs;
   RxBool isCharging = false.obs;
@@ -45,6 +49,9 @@ class HomeController extends GetxController {
   Rx<int?> chargingCurrent = Rx(null);
   Rx<int?> chargingCurrentMax = Rx(null);
   RxDouble timeToFullCharge = 0.0.obs;
+  RxBool canChargeMore = false.obs;
+  RxInt chargeLimitSoc = 0.obs;
+
   RxBool isFrontDriverWindowOpen = false.obs;
   RxBool isFrontDriverDoorOpen = false.obs;
   RxBool isFrontPassengerWindowOpen = false.obs;
@@ -66,10 +73,19 @@ class HomeController extends GetxController {
   // Pages Slide
   PageController pageController = PageController(initialPage: 0);
   RxInt selectedPage = 0.obs;
-  List<Widget> pages = const [VehiclePage(), ClimatePage()];
+  List<Widget> pages = const [VehiclePage(), ClimatePage(), SettingsScreen()];
 
   // Battery Widget
   RxBool showBatteryLevel = RxBool(false);
+
+  // Heaters
+  Rx<bool?> isStreeringWheelHeaterOn = Rx(null);
+  Rx<int?> seatHeaterLeft = Rx(null);
+  Rx<int?> seatHeaterRight = Rx(null);
+  Rx<int?> seatHeaterRearLeft = Rx(null);
+  Rx<int?> seatHeaterRearCenter = Rx(null);
+  Rx<int?> seatHeaterRearRight = Rx(null);
+  RxBool hasRearSeatHeaters = false.obs;
 
   final List<StreamSubscription> subscriptions = [];
   SnackbarController? snackBar;
@@ -82,15 +98,13 @@ class HomeController extends GetxController {
       }
     });
 
-    initQuickActions();
-
     subscribeToVehicle();
+
+    initQuickActions();
 
     initPreferences();
 
-    if (Platform.isIOS) {
-      initSiriShortcuts();
-    }
+    initSiriShortcuts();
 
     super.onInit();
   }
@@ -107,9 +121,12 @@ class HomeController extends GetxController {
       // message = {title: "Open App", key: "mainActivity", userInfo: {}}
       // Do what you want :)
       if (message.isNotEmpty) {
-        await refreshState();
+        refreshState();
 
         switch (message["key"]) {
+          case "horn":
+            await horn();
+            break;
           case "sentryOn":
             await turnOnSentry();
             break;
@@ -209,6 +226,24 @@ class HomeController extends GetxController {
   }
 
   void subscribeToVehicle() async {
+    subscriptions.add(Get.find<VehicleController>()
+        .refreshingVehicleData
+        .listenAndPump((isRefreshing) {
+      refreshingVehicleData.value = isRefreshing;
+    }));
+
+    subscriptions.add(
+      Get.find<VehicleController>().isOnline.listenAndPump(
+        (value) {
+          if (value != null && value == true) {
+            if (!isInitialDataLoaded.value) {
+              isInitialDataLoaded.value = true;
+            }
+          }
+        },
+      ),
+    );
+
     subscriptions.add(
       Get.find<UserController>().selectedVehicle.listenAndPump((data) {
         if (data != null) {
@@ -236,6 +271,7 @@ class HomeController extends GetxController {
 
           carLocked.value = vehicleData.vehicleState.locked;
 
+          // Doors + Trunks + Windows
           isFrunkOpen.value = vehicleData.vehicleState.frontTrunk > 0;
           isTrunkOpen.value = vehicleData.vehicleState.rearTrunk > 0;
           isFrontDriverDoorOpen.value =
@@ -255,11 +291,10 @@ class HomeController extends GetxController {
           isRearPassengerWindowOpen.value =
               vehicleData.vehicleState.rearPassengerWindow > 0;
 
+          // Charging
           isChargePortOpen.value = vehicleData.chargeState.chargePortDoorOpen;
           if (vehicleData.chargeState.chargePortDoorOpen &&
-              vehicleData.chargeState.chargePortLatch == 'Engaged' &&
-              (vehicleData.chargeState.chargerPilotCurrent != null &&
-                  vehicleData.chargeState.chargerPilotCurrent! > 0)) {
+              vehicleData.chargeState.chargePortLatch == 'Engaged') {
             isChargerPluggedIn.value = true;
           } else {
             isChargerPluggedIn.value = false;
@@ -277,6 +312,13 @@ class HomeController extends GetxController {
             isChargerLocked.value = true;
           } else {
             isChargerLocked.value = false;
+          }
+
+          chargeLimitSoc.value = vehicleData.chargeState.chargeLimitSoc;
+          if (batteryLevel.value >= chargeLimitSoc.value) {
+            canChargeMore.value = false;
+          } else {
+            canChargeMore.value = true;
           }
 
           chargingCurrent.value = vehicleData.chargeState.chargerActualCurrent;
@@ -302,6 +344,20 @@ class HomeController extends GetxController {
           isClimateOn.value = vehicleData.climateState.isClimateOn;
 
           isPreconditioning.value = vehicleData.climateState.isPreconditioning;
+
+          // Heaters
+          hasRearSeatHeaters.value =
+              vehicleData.vehicleConfig.rearSeatHeaters > 0;
+          isStreeringWheelHeaterOn.value =
+              vehicleData.climateState.steeringWheelHeater;
+          seatHeaterLeft.value = vehicleData.climateState.seatHeaterLeft;
+          seatHeaterRight.value = vehicleData.climateState.seatHeaterRight;
+          seatHeaterRearLeft.value =
+              vehicleData.climateState.seatHeaterRearLeft;
+          seatHeaterRearCenter.value =
+              vehicleData.climateState.seatHeaterRearCenter;
+          seatHeaterRearRight.value =
+              vehicleData.climateState.seatHeaterRearRight;
         }
       }),
     );
@@ -310,6 +366,7 @@ class HomeController extends GetxController {
       Get.find<VehicleController>()
           .sentryModeState
           .listenAndPump((sentryModeState) {
+        this.sentryModeState.value = sentryModeState;
         sentryModeStateText.value = getSentryModeStateText(sentryModeState);
       }),
     );
@@ -338,8 +395,6 @@ class HomeController extends GetxController {
   }
 
   Future<bool> turnOnSentry() async {
-    openSnackbar('Sentry Mode', 'Activating...');
-
     bool success = await Get.find<VehicleController>().toggleSentry(true);
 
     openSnackbar('Sentry Mode', 'Activated succesfully.',
@@ -349,8 +404,6 @@ class HomeController extends GetxController {
   }
 
   Future<bool> turnOffSentry() async {
-    openSnackbar('Sentry Mode', 'Deactivating...', currentSnackbar: snackBar);
-
     bool success = await Get.find<VehicleController>().toggleSentry(false);
 
     openSnackbar(
@@ -363,8 +416,7 @@ class HomeController extends GetxController {
   }
 
   Future<bool> lock() async {
-    openSnackbar('Lock', 'Locking...', currentSnackbar: snackBar);
-
+    carLocked.value = true;
     bool success = await Get.find<VehicleController>().doorLock();
 
     openSnackbar('Lock', 'Car is now locked.', currentSnackbar: snackBar);
@@ -373,6 +425,7 @@ class HomeController extends GetxController {
   }
 
   Future<bool> unlock() async {
+    carLocked.value = false;
     openSnackbar('Unlock', 'Unlocking...', currentSnackbar: snackBar);
 
     bool success = await Get.find<VehicleController>().doorUnlock();
@@ -564,8 +617,6 @@ class HomeController extends GetxController {
   }
 
   Future<bool> turnOnMaxDefrost() async {
-    openSnackbar('Defrost', 'Activating...');
-
     bool success = await Get.find<VehicleController>().toggleMaxDefrost(true);
 
     openSnackbar('Defrost', 'Activated succesfully.',
@@ -575,12 +626,97 @@ class HomeController extends GetxController {
   }
 
   Future<bool> turnOffMaxDefrost() async {
-    openSnackbar('Defrost', 'Activating...');
-
     bool success = await Get.find<VehicleController>().toggleMaxDefrost(false);
 
     openSnackbar('Defrost', 'Deactivated succesfully.',
         currentSnackbar: snackBar);
+
+    return success;
+  }
+
+  Future<bool> toggleSteeringWheelHeater({bool turnOff = false}) async {
+    bool success = true;
+    if (isStreeringWheelHeaterOn.value != null) {
+      if (isClimateOn.value == false) {
+        await Get.find<VehicleController>().acStart();
+      }
+
+      if (turnOff) {
+        if (isStreeringWheelHeaterOn.value!) {
+          success = await Get.find<VehicleController>()
+              .toggleSteeringWheelHeater(false);
+        }
+      } else {
+        success = await Get.find<VehicleController>()
+            .toggleSteeringWheelHeater(!isStreeringWheelHeaterOn.value!);
+      }
+
+      // if (!turnOff) {
+      //   if (isStreeringWheelHeaterOn.value!) {
+      //     openSnackbar(
+      //       'Steering Wheel Heater',
+      //       'turned off.',
+      //       currentSnackbar: snackBar,
+      //     );
+      //   } else {
+      //     openSnackbar(
+      //       'Steering Wheel Heater',
+      //       'turned on.',
+      //       currentSnackbar: snackBar,
+      //     );
+      //   }
+      // }
+    }
+
+    return success;
+  }
+
+  Future<bool> toggleSeatHeader(int seatNumber, Rx<int?> seatObservable,
+      {bool toggleMax = false, toggleOff = false}) async {
+    // Seats:
+    // 0 - Front Left
+    // 1 - Front right
+    // 2 - Rear left
+    // 4 - Rear center
+    // 5 - Rear right
+    bool success = true;
+    if (seatObservable.value != null) {
+      int activateLevel = seatObservable.value! + 1;
+      if (activateLevel > 3) {
+        activateLevel = 0;
+      }
+
+      if (toggleMax) {
+        activateLevel = 3;
+      }
+
+      if (toggleOff) {
+        activateLevel = 0;
+      }
+
+      seatObservable.value = activateLevel;
+
+      if (isClimateOn.value == false) {
+        await Get.find<VehicleController>().acStart();
+      }
+
+      success = await Get.find<VehicleController>()
+          .toggleSeatHeater(seatNumber, activateLevel);
+
+      // if (activateLevel == 0) {
+      //   openSnackbar(
+      //     'Seat $seatNumber',
+      //     'turned off.',
+      //     currentSnackbar: snackBar,
+      //   );
+      // } else {
+      //   openSnackbar(
+      //     'Seat $seatNumber',
+      //     'heated to level $activateLevel.',
+      //     currentSnackbar: snackBar,
+      //   );
+      // }
+    }
 
     return success;
   }
@@ -607,6 +743,17 @@ class HomeController extends GetxController {
     }
 
     return false;
+  }
+
+  String getWorkFlowPopupMessage(WorkFlowPreset preset) {
+    switch (preset) {
+      case WorkFlowPreset.preheat:
+        return "- Heats driver's seat\n- Heats steering wheel\n- Turn A/C to 25 degress.\n- Stops Charging\n- Unlocks charger port";
+      case WorkFlowPreset.precool:
+        return "- Stop driver's seat heat\n- Stops steering wheel heating\n- Turn A/C to 19 degress.\n- Vents windows for 1 minute.\n- Stops Charging\n- Unlocks charger port";
+      case WorkFlowPreset.findMyCar:
+        return "Flashes 2 times,\nwaits 5 seconds and flashes 2 times again.\nAfter 10 seconds, honks horn, and flashes 5 times.";
+    }
   }
 
   String getWorkFlowName(WorkFlowPreset preset) {
@@ -650,7 +797,7 @@ class HomeController extends GetxController {
   }
 
   Future refreshState() async {
-    await Get.find<VehicleController>().refreshState();
+    await Get.find<VehicleController>().refreshState(false);
   }
 
   void onPageChanged(int pageNumber) {

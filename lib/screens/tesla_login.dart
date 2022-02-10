@@ -72,7 +72,10 @@ class TeslaLoginScreen extends GetView<LoginController> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: const [
                     CircularProgressIndicator(),
-                    Text('Authorizing....'),
+                    Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: Text('Authorizing....'),
+                    ),
                   ],
                 ),
               ),

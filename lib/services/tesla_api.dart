@@ -12,12 +12,20 @@ import 'package:deart/models/vehicle.dart';
 
 class TeslaAPI extends GetxService {
   final String baseURL = Constants.baseURL;
+  http.Client client = http.Client();
+
+  @override
+  void onClose() {
+    client.close();
+
+    super.onClose();
+  }
 
   Future<List<Vehicle>?> getVehicles() async {
     String apiName = 'api/1/vehicles';
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.get(
+    http.Response response = await client.get(
       uri,
       headers: _initHeaders(),
     );
@@ -40,19 +48,18 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.post(uri, headers: _initHeaders());
+    http.Response response = await client.post(uri, headers: _initHeaders());
 
     if (response.statusCode == 200) {
-      Get.find<VehicleController>().setIsOnline(false);
-
       Vehicle vehicle = parseResponse(response, Vehicle.fromJson);
       if (vehicle.state == "online") {
+        Get.find<VehicleController>().setIsOnline(true);
         return true;
       } else {
         currentTryCount++;
         if (currentTryCount < 10) {
           return await Future.delayed(
-            const Duration(seconds: 10),
+            const Duration(seconds: 3),
             () async => await wakeUp(currentTryCount: currentTryCount),
           );
         } else {
@@ -73,7 +80,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http
+    http.Response response = await client
         .post(uri, headers: _initHeaders(), body: {'on': setOn.toString()});
 
     if (response.statusCode == 200) {
@@ -100,7 +107,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.get(
+    http.Response response = await client.get(
       uri,
       headers: _initHeaders(),
     );
@@ -124,7 +131,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.get(
+    http.Response response = await client.get(
       uri,
       headers: _initHeaders(),
     );
@@ -148,7 +155,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.post(uri, headers: _initHeaders());
+    http.Response response = await client.post(uri, headers: _initHeaders());
 
     return await handleCommandResponse(response, () => horn());
   }
@@ -158,7 +165,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.post(uri, headers: _initHeaders());
+    http.Response response = await client.post(uri, headers: _initHeaders());
 
     return await handleCommandResponse(response, () => doorLock(vehicleId));
   }
@@ -168,7 +175,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.post(uri, headers: _initHeaders());
+    http.Response response = await client.post(uri, headers: _initHeaders());
 
     return await handleCommandResponse(response, () => doorUnlock(vehicleId));
   }
@@ -201,7 +208,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http
+    http.Response response = await client
         .post(uri, headers: _initHeaders(), body: {'which_trunk': 'front'});
 
     if (response.statusCode == 200) {
@@ -224,7 +231,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.post(uri, headers: _initHeaders());
+    http.Response response = await client.post(uri, headers: _initHeaders());
 
     if (response.statusCode == 200) {
       CommandResult commandResult =
@@ -247,7 +254,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.post(
+    http.Response response = await client.post(
       uri,
       headers: _initHeaders(),
     );
@@ -272,7 +279,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.post(
+    http.Response response = await client.post(
       uri,
       headers: _initHeaders(),
     );
@@ -324,7 +331,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.post(
+    http.Response response = await client.post(
       uri,
       headers: _initHeaders(),
     );
@@ -342,7 +349,7 @@ class TeslaAPI extends GetxService {
     Uri uri = _getUriByAPIName(apiName);
 
     http.Response response =
-        await http.post(uri, headers: _initHeaders(), body: {
+        await client.post(uri, headers: _initHeaders(), body: {
       'driver_temp': temperature.toString(),
       'passenger_temp': temperature.toString(),
     });
@@ -357,7 +364,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.post(
+    http.Response response = await client.post(
       uri,
       headers: _initHeaders(),
     );
@@ -375,7 +382,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.post(
+    http.Response response = await client.post(
       uri,
       headers: _initHeaders(),
     );
@@ -401,7 +408,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.post(
+    http.Response response = await client.post(
       uri,
       headers: _initHeaders(),
       body: {
@@ -426,7 +433,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.post(
+    http.Response response = await client.post(
       uri,
       headers: _initHeaders(),
       body: {
@@ -448,7 +455,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.post(
+    http.Response response = await client.post(
       uri,
       headers: _initHeaders(),
       body: {
@@ -472,7 +479,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.post(
+    http.Response response = await client.post(
       uri,
       headers: _initHeaders(),
       body: {
@@ -498,7 +505,7 @@ class TeslaAPI extends GetxService {
 
     Uri uri = _getUriByAPIName(apiName);
 
-    http.Response response = await http.post(
+    http.Response response = await client.post(
       uri,
       headers: _initHeaders(),
       body: {

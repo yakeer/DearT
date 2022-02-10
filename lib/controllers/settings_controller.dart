@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:deart/controllers/user_controller.dart';
@@ -15,8 +16,10 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsController extends GetxController {
   RxBool activateSentryWhenCharging = RxBool(false);
-  RxBool showBatteryLevelInAppBar = RxBool(false);
+  RxBool activateSentryWhenLocked = RxBool(false);
+  RxBool sentryQuickActionToggle = RxBool(false);
   Rx<List<FlutterSiriActivity>?> siriActivities = Rx(null);
+  RxBool showLogoutTeslaAccount = RxBool(false);
 
   RxString appVersion = ''.obs;
   RxString carVersion = ''.obs;
@@ -35,10 +38,35 @@ class SettingsController extends GetxController {
     super.onReady();
   }
 
-  void logout() async {
-    await Get.find<AuthService>().logout();
+  Future initShowTeslaLogout() async {
+    String? isTeslaAccountValue = await readStorageKey('isTeslaAccount');
+    if (isTeslaAccountValue == null) {
+      showLogoutTeslaAccount.value = true;
+    } else {
+      if (isTeslaAccountValue == "true") {
+        showLogoutTeslaAccount.value = true;
+      } else {
+        showLogoutTeslaAccount.value = false;
+      }
+    }
+  }
 
-    Get.offAllNamed('/');
+  void logoutTeslaAccount() async {
+    writeStorageKey('isTeslaAccount', false.toString());
+    Get.toNamed('/tesla-logout');
+  }
+
+  void logout() async {
+    String? isTeslaAccountValue = await readStorageKey('isTeslaAccount');
+    if (isTeslaAccountValue != null) {
+      if (isTeslaAccountValue == "true") {
+        Get.toNamed('/logout');
+      } else {
+        await Get.find<AuthService>().logout();
+      }
+    } else {
+      await Get.find<AuthService>().logout();
+    }
   }
 
   void getCarVersion() {
@@ -61,16 +89,26 @@ class SettingsController extends GetxController {
               .firstWhere((element) => element.name == 'activateSentry')
               .value as bool;
 
-          showBatteryLevelInAppBar.value = prefs
+          activateSentryWhenLocked.value = prefs
               .firstWhere(
-                  (element) => element.name == 'showBatteryLevelInAppBar')
+                  (element) => element.name == 'activateSentryWhenLocked')
+              .value as bool;
+
+          sentryQuickActionToggle.value = prefs
+              .firstWhere(
+                  (element) => element.name == 'sentryQuickActionToggle')
               .value as bool;
         },
       ),
     );
   }
 
-  changeToggle(String prefName, RxBool toggleVariable, bool value) async {
+  changeToggle(
+    String prefName,
+    RxBool toggleVariable,
+    bool value, {
+    RxBool? refVariableInHomeScreen,
+  }) async {
     int vehicleId = Get.find<VehicleController>().vehicleId.value!;
 
     Get.find<UserController>().setPreference(prefName, value);
@@ -79,7 +117,9 @@ class SettingsController extends GetxController {
 
     toggleVariable.value = value;
 
-    // initPreferences();
+    if (refVariableInHomeScreen != null) {
+      refVariableInHomeScreen.value = value;
+    }
   }
 
   Future<String> getAppVersion() async {
@@ -100,8 +140,21 @@ class SettingsController extends GetxController {
     openSnackbar('Refresh Token', 'Copied to clipboard');
   }
 
+  Future copyVehicleData() async {
+    Map<String, dynamic> vehicleDataJsonData =
+        Get.find<VehicleController>().vehicleData.toJson();
+    String vehicleDataJson = jsonEncode(vehicleDataJsonData);
+
+    await Clipboard.setData(ClipboardData(text: vehicleDataJson));
+    openSnackbar('Vehicle Data', 'Copied to clipboard');
+  }
+
   Future<void> installSiriShortcut(FlutterSiriActivity activity) async {
     await FlutterSiriSuggestions.instance.buildActivity(activity);
+  }
+
+  Future? goToPurchases() {
+    return Get.toNamed('/purchases');
   }
 
   @override

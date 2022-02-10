@@ -4,6 +4,7 @@ import 'package:deart/controllers/app_controller.dart';
 import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/models/internal/login_page_data.dart';
 import 'package:deart/services/auth_service.dart';
+import 'package:deart/utils/storage_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -28,6 +29,8 @@ class LoginController extends GetxController {
   void onInit() {
     isAuthorizing.listen((value) {
       captureAuthorizationCode(navigationRequestURL!, loginPageData!);
+
+      writeStorageKey('isTeslaAccount', true.toString());
     });
 
     super.onInit();
@@ -50,6 +53,7 @@ class LoginController extends GetxController {
       )) {
         Get.offAllNamed('/login');
       } else {
+        writeStorageKey('isTeslaAccount', false.toString());
         Get.offAllNamed('/home');
       }
     }

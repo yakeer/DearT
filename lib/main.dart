@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       debugShowCheckedModeBanner: false,
       getPages: appPages, // Routing
+      locale: const Locale('en'),
     );
   }
 }

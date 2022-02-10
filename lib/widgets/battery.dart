@@ -23,7 +23,7 @@ class BatteryWidget extends GetView<HomeController> {
                     color: getColor(),
                   ),
                   Text(
-                    getBatteryText(),
+                    getBatteryText(controller.showBatteryLevel.value),
                     style: TextStyle(color: getColor()),
                   ),
                 ],
@@ -31,10 +31,10 @@ class BatteryWidget extends GetView<HomeController> {
             ),
             Visibility(
               visible: !controller.isInitialDataLoaded.value,
-              child: const SizedBox(
+              child: SizedBox(
                 height: 20,
                 width: 20,
-                child: CircularProgressIndicator(),
+                child: Container(),
               ),
             ),
           ],
@@ -57,11 +57,11 @@ class BatteryWidget extends GetView<HomeController> {
         controller.showBatteryLevel.value);
   }
 
-  String getBatteryText() {
-    if (controller.showBatteryLevel.value) {
+  String getBatteryText(bool showBatteryLevel) {
+    if (showBatteryLevel) {
       return '${controller.batteryLevel}%';
     } else {
-      return '${controller.batteryRange.round()}km';
+      return '${controller.batteryRange.truncate()}km';
     }
   }
 

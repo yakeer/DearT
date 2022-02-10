@@ -2,8 +2,10 @@ import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/globals.dart';
 import 'package:deart/models/internal/vehicle_preference.dart';
 import 'package:deart/models/vehicle.dart';
+import 'package:deart/services/auth_service.dart';
 import 'package:deart/utils/storage_utils.dart';
-import 'package:deart/utils/tesla_api.dart';
+import 'package:deart/services/tesla_api.dart';
+import 'package:deart/utils/ui_utils.dart';
 import 'package:get/get.dart';
 
 class UserController extends GetxController {
@@ -36,6 +38,17 @@ class UserController extends GetxController {
         'activateSentry',
         await readPreference<bool>(
             selectedVehicleId!, 'activateSentry', false)));
+
+    preferences.value.add(VehiclePreference(
+        'activateSentryWhenLocked',
+        await readPreference<bool>(
+            selectedVehicleId!, 'activateSentryWhenLocked', false)));
+
+    preferences.value.add(VehiclePreference(
+        'sentryQuickActionToggle',
+        await readPreference<bool>(
+            selectedVehicleId!, 'sentryQuickActionToggle', true)));
+
     preferences.value.add(VehiclePreference(
         'showBatteryLevelInAppBar',
         await readPreference<bool>(
@@ -47,6 +60,14 @@ class UserController extends GetxController {
 
     // Load Vehicles from API
     vehicles.value = await api.getVehicles();
+
+    // Show an error message and logut.
+    if (vehicles.value!.isEmpty) {
+      openPopup('Error', 'No vehicles found in your account.');
+
+      await Get.find<AuthService>().logout();
+    }
+
     if (vehicles.value != null && vehicles.value!.isNotEmpty) {
       // Auto select first vehicle
       if (vehicles.value!.length == 1) {
@@ -87,6 +108,8 @@ class UserController extends GetxController {
     if (pref != null) {
       pref.value = value;
     }
+
+    preferences.trigger(preferences.value);
   }
 
   carChanged(
@@ -115,7 +138,7 @@ class UserController extends GetxController {
       Get.find<VehicleController>().changeVehicle(vehicleId, vehicleName);
 
       // Reload data if car changed
-      Get.find<VehicleController>().refreshState();
+      Get.find<VehicleController>().refreshState(false);
     }
   }
 }

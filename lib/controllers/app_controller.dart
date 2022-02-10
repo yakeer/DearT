@@ -1,3 +1,4 @@
+import 'package:deart/controllers/purhcase_controller.dart';
 import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/controllers/work_flow_controller.dart';
 import 'package:deart/globals.dart';
@@ -34,6 +35,11 @@ class AppController extends GetxController {
 
       Get.put(
         WorkFlowController(),
+        permanent: true,
+      );
+
+      Get.put(
+        PurchaseController(),
         permanent: true,
       );
 
