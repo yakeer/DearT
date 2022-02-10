@@ -108,6 +108,8 @@ class UserController extends GetxController {
     if (pref != null) {
       pref.value = value;
     }
+
+    preferences.trigger(preferences.value);
   }
 
   carChanged(

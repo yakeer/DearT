@@ -163,7 +163,11 @@ class PurchaseController extends GetxController {
   }
 
   void restorePurchases() async {
-    await InAppPurchase.instance.restorePurchases();
+    try {
+      await InAppPurchase.instance.restorePurchases();
+    } catch (e) {
+      openPopup('Restore Purchases', 'Unexpected error');
+    }
   }
 
   List<SettingsTile> getAvailableProducts(List<ProductDetails> availableList) {

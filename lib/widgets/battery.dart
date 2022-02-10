@@ -61,7 +61,7 @@ class BatteryWidget extends GetView<HomeController> {
     if (showBatteryLevel) {
       return '${controller.batteryLevel}%';
     } else {
-      return '${controller.batteryRange.round()}km';
+      return '${controller.batteryRange.truncate()}km';
     }
   }
 

@@ -16,6 +16,12 @@ ClimateState _$ClimateStateFromJson(Map<String, dynamic> json) => ClimateState(
       json['is_preconditioning'] as bool,
       json['is_climate_on'] as bool,
       json['is_auto_conditioning_on'] as bool,
+      json['seat_heater_left'] as int?,
+      json['seat_heater_right'] as int?,
+      json['seat_heater_rear_left'] as int?,
+      json['seat_heater_rear_center'] as int?,
+      json['seat_heater_rear_right'] as int?,
+      json['steering_wheel_heater'] as bool?,
     );
 
 Map<String, dynamic> _$ClimateStateToJson(ClimateState instance) =>
@@ -29,4 +35,10 @@ Map<String, dynamic> _$ClimateStateToJson(ClimateState instance) =>
       'is_preconditioning': instance.isPreconditioning,
       'is_climate_on': instance.isClimateOn,
       'is_auto_conditioning_on': instance.isAutoConditioningOn,
+      'seat_heater_left': instance.seatHeaterLeft,
+      'seat_heater_right': instance.seatHeaterRight,
+      'seat_heater_rear_left': instance.seatHeaterRearLeft,
+      'seat_heater_rear_center': instance.seatHeaterRearCenter,
+      'seat_heater_rear_right': instance.seatHeaterRearRight,
+      'steering_wheel_heater': instance.steeringWheelHeater,
     };

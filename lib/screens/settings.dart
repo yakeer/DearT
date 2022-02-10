@@ -60,6 +60,7 @@ class SettingsScreen extends GetView<SettingsController> {
               SettingsTile.switchTile(
                 title: 'Quick Action Toggle',
                 subtitle: 'Show Quick Action toggle or 2 buttons',
+                subtitleMaxLines: 2,
                 switchValue: controller.sentryQuickActionToggle.value,
                 onToggle: (bool value) {
                   controller.changeToggle(
@@ -72,6 +73,7 @@ class SettingsScreen extends GetView<SettingsController> {
               SettingsTile.switchTile(
                 title: 'Enable when charging',
                 subtitle: 'Turn on Sentry Mode when charging.',
+                subtitleMaxLines: 2,
                 switchValue: controller.activateSentryWhenCharging.value,
                 onToggle: (bool value) {
                   controller.changeToggle(
@@ -84,6 +86,7 @@ class SettingsScreen extends GetView<SettingsController> {
               SettingsTile.switchTile(
                 title: 'Enable when car locked',
                 subtitle: 'Turn on Sentry Mode when car is locked.',
+                subtitleMaxLines: 2,
                 switchValue: controller.activateSentryWhenLocked.value,
                 onToggle: (bool value) {
                   controller.changeToggle(

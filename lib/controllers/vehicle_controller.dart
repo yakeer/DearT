@@ -124,9 +124,7 @@ class VehicleController extends GetxController {
 
       _loadCarModel(vehicleData.value!.vehicleConfig);
 
-      if (initialLoading) {
-        _saveVehicleDataToCache(vehicleData.value!);
-      }
+      _saveVehicleDataToCache(vehicleData.value!);
     }
   }
 
@@ -418,7 +416,7 @@ class VehicleController extends GetxController {
     );
 
     Future.delayed(
-      const Duration(seconds: 3),
+      const Duration(milliseconds: 1500),
       () async => await _loadVehicleData(false),
     );
 

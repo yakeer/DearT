@@ -8,16 +8,18 @@ class DearTElevatedButtton extends StatefulWidget {
   final Future<dynamic> Function() onPressed;
   final String? longPressPopupTitle;
   final String? longPressPopupMessage;
+  final Alignment textAlignment;
 
-  const DearTElevatedButtton({
-    Key? key,
-    required this.label,
-    required this.icon,
-    required this.onPressed,
-    this.disabled,
-    this.longPressPopupTitle,
-    this.longPressPopupMessage,
-  }) : super(key: key);
+  const DearTElevatedButtton(
+      {Key? key,
+      required this.label,
+      required this.icon,
+      required this.onPressed,
+      this.disabled,
+      this.longPressPopupTitle,
+      this.longPressPopupMessage,
+      this.textAlignment = Alignment.centerLeft})
+      : super(key: key);
 
   @override
   State<DearTElevatedButtton> createState() => _DearTElevatedButttonState();
@@ -50,7 +52,7 @@ class _DearTElevatedButttonState extends State<DearTElevatedButtton> {
                 : null,
             icon: widget.icon != null ? Icon(widget.icon) : Container(),
             label: Align(
-              alignment: Alignment.centerLeft,
+              alignment: widget.textAlignment,
               child: Text(widget.label),
             ),
           );

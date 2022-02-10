@@ -31,6 +31,25 @@ class ClimateState {
   @JsonKey(name: 'is_auto_conditioning_on')
   final bool isAutoConditioningOn;
 
+  @JsonKey(name: 'seat_heater_left')
+  final int? seatHeaterLeft;
+
+  @JsonKey(name: 'seat_heater_right')
+  final int? seatHeaterRight;
+
+  @JsonKey(name: 'seat_heater_rear_left')
+  final int? seatHeaterRearLeft;
+
+  @JsonKey(name: 'seat_heater_rear_center')
+  final int? seatHeaterRearCenter;
+
+  @JsonKey(name: 'seat_heater_rear_right')
+  final int? seatHeaterRearRight;
+
+  //steering_wheel_heater
+  @JsonKey(name: 'steering_wheel_heater')
+  final bool? steeringWheelHeater;
+
   ClimateState(
     this.insideTemp,
     this.outsideTemp,
@@ -41,6 +60,12 @@ class ClimateState {
     this.isPreconditioning,
     this.isClimateOn,
     this.isAutoConditioningOn,
+    this.seatHeaterLeft,
+    this.seatHeaterRight,
+    this.seatHeaterRearLeft,
+    this.seatHeaterRearCenter,
+    this.seatHeaterRearRight,
+    this.steeringWheelHeater,
   );
 
   factory ClimateState.fromJson(Map<String, dynamic> json) =>
