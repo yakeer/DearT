@@ -634,35 +634,45 @@ class HomeController extends GetxController {
     return success;
   }
 
-  Future<bool> toggleSteeringWheelHeater() async {
+  Future<bool> toggleSteeringWheelHeater({bool turnOff = false}) async {
     bool success = true;
     if (isStreeringWheelHeaterOn.value != null) {
       if (isClimateOn.value == false) {
         await Get.find<VehicleController>().acStart();
       }
 
-      success = await Get.find<VehicleController>()
-          .toggleSteeringWheelHeater(!isStreeringWheelHeaterOn.value!);
-
-      if (isStreeringWheelHeaterOn.value!) {
-        openSnackbar(
-          'Steering Wheel Heater',
-          'turned off.',
-          currentSnackbar: snackBar,
-        );
+      if (turnOff) {
+        if (isStreeringWheelHeaterOn.value!) {
+          success = await Get.find<VehicleController>()
+              .toggleSteeringWheelHeater(false);
+        }
       } else {
-        openSnackbar(
-          'Steering Wheel Heater',
-          'turned on.',
-          currentSnackbar: snackBar,
-        );
+        success = await Get.find<VehicleController>()
+            .toggleSteeringWheelHeater(!isStreeringWheelHeaterOn.value!);
       }
+
+      // if (!turnOff) {
+      //   if (isStreeringWheelHeaterOn.value!) {
+      //     openSnackbar(
+      //       'Steering Wheel Heater',
+      //       'turned off.',
+      //       currentSnackbar: snackBar,
+      //     );
+      //   } else {
+      //     openSnackbar(
+      //       'Steering Wheel Heater',
+      //       'turned on.',
+      //       currentSnackbar: snackBar,
+      //     );
+      //   }
+      // }
     }
 
     return success;
   }
 
-  Future<bool> toggleSeatHeader(int seatNumber, Rx<int?> seatObservable) async {
+  Future<bool> toggleSeatHeader(int seatNumber, Rx<int?> seatObservable,
+      {bool toggleMax = false, toggleOff = false}) async {
     // Seats:
     // 0 - Front Left
     // 1 - Front right
@@ -671,10 +681,20 @@ class HomeController extends GetxController {
     // 5 - Rear right
     bool success = true;
     if (seatObservable.value != null) {
-      int activateLevel = seatObservable.value!;
+      int activateLevel = seatObservable.value! + 1;
       if (activateLevel > 3) {
         activateLevel = 0;
       }
+
+      if (toggleMax) {
+        activateLevel = 3;
+      }
+
+      if (toggleOff) {
+        activateLevel = 0;
+      }
+
+      seatObservable.value = activateLevel;
 
       if (isClimateOn.value == false) {
         await Get.find<VehicleController>().acStart();
@@ -683,19 +703,19 @@ class HomeController extends GetxController {
       success = await Get.find<VehicleController>()
           .toggleSeatHeater(seatNumber, activateLevel);
 
-      if (activateLevel == 0) {
-        openSnackbar(
-          'Seat $seatNumber',
-          'turned off.',
-          currentSnackbar: snackBar,
-        );
-      } else {
-        openSnackbar(
-          'Seat $seatNumber',
-          'heated to level $activateLevel.',
-          currentSnackbar: snackBar,
-        );
-      }
+      // if (activateLevel == 0) {
+      //   openSnackbar(
+      //     'Seat $seatNumber',
+      //     'turned off.',
+      //     currentSnackbar: snackBar,
+      //   );
+      // } else {
+      //   openSnackbar(
+      //     'Seat $seatNumber',
+      //     'heated to level $activateLevel.',
+      //     currentSnackbar: snackBar,
+      //   );
+      // }
     }
 
     return success;
