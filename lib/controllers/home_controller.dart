@@ -26,6 +26,7 @@ class HomeController extends GetxController {
 
   RxBool isInitialDataLoaded = false.obs;
   RxBool refreshingVehicleData = false.obs;
+  Rx<DateTime> lastUpdate = Rx(DateTime.now());
 
   Rx<SentryModeState> sentryModeState = Rx(SentryModeState.unknown);
   RxString sentryModeStateText = 'Unknown'.obs;
@@ -90,6 +91,8 @@ class HomeController extends GetxController {
   final List<StreamSubscription> subscriptions = [];
   SnackbarController? snackBar;
 
+  Timer? refreshTimer;
+
   @override
   void onInit() {
     Get.find<UserController>().vehicles.listenAndPump((data) {
@@ -106,7 +109,40 @@ class HomeController extends GetxController {
 
     initSiriShortcuts();
 
+    initRefreshDataTimer();
+
     super.onInit();
+  }
+
+  Timer? initRefreshDataTimer() {
+    if (refreshTimer != null) {
+      refreshTimer!.cancel();
+    }
+
+    double? refreshDataIntervalValue =
+        Get.find<UserController>().getPreference<double>('dataRefreshInterval');
+    if (refreshDataIntervalValue != null && refreshDataIntervalValue > 0) {
+      Timer timer = Timer.periodic(
+          Duration(seconds: refreshDataIntervalValue.toInt()), (timer) {
+        refreshState();
+      });
+
+      refreshTimer = timer;
+
+      return timer;
+    }
+
+    return null;
+  }
+
+  void pauseRefreshTimer() {
+    if (refreshTimer != null) {
+      refreshTimer!.cancel();
+    }
+  }
+
+  void resumeRefreshTimer() {
+    initRefreshDataTimer();
   }
 
   void initPreferences() {
@@ -124,46 +160,46 @@ class HomeController extends GetxController {
         refreshState();
 
         switch (message["key"]) {
-          case "horn":
+          case "deart_horn":
             await horn();
             break;
-          case "sentryOn":
+          case "deart_sentryOn":
             await turnOnSentry();
             break;
-          case "sentryOff":
+          case "deart_sentryOff":
             await turnOnSentry();
             break;
-          case "unlockDoors":
+          case "deart_unlockDoors":
             await unlock();
             break;
-          case "lockDoors":
+          case "deart_lockDoors":
             await lock();
             break;
-          case "openChargePort":
+          case "deart_openChargePort":
             await openChargePort();
             break;
-          case "closeChargePort":
+          case "deart_closeChargePort":
             await closeChargePort();
             break;
-          case "unlockCharger":
+          case "deart_unlockCharger":
             await unlockCharger();
             break;
-          case "startCharging":
+          case "deart_startCharging":
             await startCharging();
             break;
-          case "stopCharging":
+          case "deart_stopCharging":
             await stopCharging();
             break;
-          case "ventWindows":
+          case "deart_ventWindows":
             await ventWindows();
             break;
-          case "closeWindows":
+          case "deart_closeWindows":
             await closeWindows();
             break;
-          case "defrostCar":
+          case "deart_defrostCar":
             await turnOnMaxDefrost();
             break;
-          case "defrostCarOff":
+          case "deart_defrostCarOff":
             await turnOffMaxDefrost();
             break;
           default:
@@ -262,6 +298,9 @@ class HomeController extends GetxController {
 
           // Refresh Sentry State
           Get.find<VehicleController>().loadSentryState(vehicleData);
+
+          lastUpdate.value = DateTime.fromMillisecondsSinceEpoch(
+              vehicleData.vehicleState.timestamp);
 
           batteryLevel.value = vehicleData.chargeState.batteryLevel;
           batteryRange.value = mileToKM(vehicleData.chargeState.batteryRange);
@@ -852,7 +891,7 @@ class HomeController extends GetxController {
     return DateFormat.Hm().format(finishTime);
   }
 
-  Future refreshState() async {
+  Future<void> refreshState() async {
     await Get.find<VehicleController>().refreshState(false);
   }
 

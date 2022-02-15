@@ -152,19 +152,23 @@ class VehicleController extends GetxController {
   }
 
   Future<bool> _loadVehicleDataFromCache() async {
-    String cacheKey = '$vehicleId-vehicleData';
+    try {
+      String cacheKey = '$vehicleId-vehicleData';
 
-    String? json = await readStorageKey(cacheKey);
-    if (json != null) {
-      Map<String, dynamic> jsonData = jsonDecode(json);
-      VehicleData vehicleDataFromCache = VehicleData.fromJson(jsonData);
+      String? json = await readStorageKey(cacheKey);
+      if (json != null) {
+        Map<String, dynamic> jsonData = jsonDecode(json);
+        VehicleData vehicleDataFromCache = VehicleData.fromJson(jsonData);
 
-      vehicleData.value = vehicleDataFromCache;
+        vehicleData.value = vehicleDataFromCache;
 
-      return true;
+        return true;
+      }
+
+      return false;
+    } catch (e) {
+      return false;
     }
-
-    return false;
   }
 
   Future<void> _loadCarModel(VehicleConfig vehicleConfig) {

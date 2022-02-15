@@ -4,6 +4,7 @@ import 'package:deart/widgets/main_app_bar.dart';
 import 'package:deart/widgets/quick_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
   HomeScreen({Key? key}) : super(key: key) {
@@ -24,9 +25,11 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       // user returned to our app
       Get.find<VehicleController>().refreshState(true);
+      controller.resumeRefreshTimer();
     } else if (state == AppLifecycleState.inactive) {
       // app is inactive
     } else if (state == AppLifecycleState.paused) {
+      controller.pauseRefreshTimer();
       // user quit our app temporally
     } else if (state == AppLifecycleState.detached) {
       // app suspended
@@ -96,6 +99,17 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: _buildPageIndicator(),
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                    visible: controller.isInitialDataLoaded.value,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 24.0),
+                      child: Center(
+                        child: Text(
+                          'Last update: ${timeago.format(controller.lastUpdate.value)}',
+                        ),
                       ),
                     ),
                   ),

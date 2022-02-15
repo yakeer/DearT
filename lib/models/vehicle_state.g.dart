@@ -22,6 +22,7 @@ VehicleState _$VehicleStateFromJson(Map<String, dynamic> json) => VehicleState(
       json['dr'] as int,
       json['pr'] as int,
       json['is_user_present'] as bool,
+      json['timestamp'] as int,
     );
 
 Map<String, dynamic> _$VehicleStateToJson(VehicleState instance) =>
@@ -41,4 +42,5 @@ Map<String, dynamic> _$VehicleStateToJson(VehicleState instance) =>
       'dr': instance.rearDriverDoor,
       'pr': instance.rearPassengerDoor,
       'is_user_present': instance.isUserPresent,
+      'timestamp': instance.timestamp,
     };

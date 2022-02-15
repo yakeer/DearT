@@ -34,25 +34,44 @@ class UserController extends GetxController {
   }
 
   Future initSettings() async {
-    preferences.value.add(VehiclePreference(
+    preferences.value.add(
+      VehiclePreference(
         'activateSentry',
-        await readPreference<bool>(
-            selectedVehicleId!, 'activateSentry', false)));
+        await readPreference<bool>(selectedVehicleId!, 'activateSentry', false),
+      ),
+    );
 
-    preferences.value.add(VehiclePreference(
+    preferences.value.add(
+      VehiclePreference(
         'activateSentryWhenLocked',
         await readPreference<bool>(
-            selectedVehicleId!, 'activateSentryWhenLocked', false)));
+            selectedVehicleId!, 'activateSentryWhenLocked', false),
+      ),
+    );
 
-    preferences.value.add(VehiclePreference(
+    preferences.value.add(
+      VehiclePreference(
         'sentryQuickActionToggle',
         await readPreference<bool>(
-            selectedVehicleId!, 'sentryQuickActionToggle', true)));
+            selectedVehicleId!, 'sentryQuickActionToggle', true),
+      ),
+    );
 
-    preferences.value.add(VehiclePreference(
+    preferences.value.add(
+      VehiclePreference(
         'showBatteryLevelInAppBar',
         await readPreference<bool>(
-            selectedVehicleId!, 'showBatteryLevelInAppBar', false)));
+            selectedVehicleId!, 'showBatteryLevelInAppBar', false),
+      ),
+    );
+
+    preferences.value.add(
+      VehiclePreference(
+        'dataRefreshInterval',
+        await readPreference<double>(
+            selectedVehicleId!, 'dataRefreshInterval', 0),
+      ),
+    );
   }
 
   Future<Vehicle?> loadVehicles() async {

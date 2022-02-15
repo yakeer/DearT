@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/globals.dart';
@@ -20,6 +21,7 @@ class SettingsController extends GetxController {
   RxBool sentryQuickActionToggle = RxBool(false);
   Rx<List<FlutterSiriActivity>?> siriActivities = Rx(null);
   RxBool showLogoutTeslaAccount = RxBool(false);
+  RxDouble dataRefreshInterval = 0.0.obs;
 
   RxString appVersion = ''.obs;
   RxString carVersion = ''.obs;
@@ -98,12 +100,16 @@ class SettingsController extends GetxController {
               .firstWhere(
                   (element) => element.name == 'sentryQuickActionToggle')
               .value as bool;
+
+          dataRefreshInterval.value = prefs
+              .firstWhere((element) => element.name == 'dataRefreshInterval')
+              .value as double;
         },
       ),
     );
   }
 
-  changeToggle(
+  Future changeToggle(
     String prefName,
     RxBool toggleVariable,
     bool value, {
@@ -119,6 +125,28 @@ class SettingsController extends GetxController {
 
     if (refVariableInHomeScreen != null) {
       refVariableInHomeScreen.value = value;
+    }
+  }
+
+  Future updateRefreshInterval(double value) async {
+    dataRefreshInterval.value = value;
+
+    Get.find<UserController>().setPreference('dataRefreshInterval', value);
+
+    await writePreference(
+      Get.find<VehicleController>().vehicleId.value!,
+      'dataRefreshInterval',
+      value,
+    );
+
+    Get.find<HomeController>().initRefreshDataTimer();
+  }
+
+  String getRefreshSliderText() {
+    if (dataRefreshInterval.value == 0) {
+      return 'Never';
+    } else {
+      return '${dataRefreshInterval.value} sec';
     }
   }
 

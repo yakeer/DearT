@@ -30,6 +30,30 @@ class SettingsScreen extends GetView<SettingsController> {
                 trailing: Text('${controller.carVersion}'),
               ),
               SettingsTile(
+                titleWidget: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Text(
+                      'Refresh Interval',
+                      style: Get.theme.textTheme.titleMedium,
+                    ),
+                    Expanded(
+                      child: Slider(
+                        min: 0,
+                        max: 60,
+                        divisions: 6,
+                        onChanged: (value) => true,
+                        onChangeEnd: (value) =>
+                            controller.updateRefreshInterval(value),
+                        value: controller.dataRefreshInterval.value,
+                        label: controller.getRefreshSliderText(),
+                      ),
+                    ),
+                  ],
+                ),
+                trailing: Container(),
+              ),
+              SettingsTile(
                 title: 'Diagnostics',
                 onPressed: (context) => Get.toNamed('/diagnostics'),
               )

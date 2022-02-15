@@ -44,6 +44,16 @@ Future<T> readPreference<T>(
     }
   }
 
+  if (T == double) {
+    double? value = prefs.getDouble(keyName);
+    if (value == null) {
+      await writePreference(vehicleId, prefName, defaultValue);
+      return defaultValue;
+    } else {
+      return Future.value(value) as Future<T>;
+    }
+  }
+
   throw 'Non implemented';
 }
 
