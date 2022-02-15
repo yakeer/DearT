@@ -275,8 +275,6 @@ class VehicleController extends GetxController {
       } else {
         setSentryState(SentryModeState.off);
       }
-    } else {
-      setSentryState(SentryModeState.unknown);
     }
 
     return success;

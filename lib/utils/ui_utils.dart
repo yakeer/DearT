@@ -24,6 +24,19 @@ SnackbarController openSnackbar(
   return currentSnackbar;
 }
 
+SnackbarController showCommandSnackbar(
+  bool commandResult,
+  String title,
+  String successMessage,
+  String failureMessage,
+) {
+  if (commandResult) {
+    return openSnackbar(title, successMessage);
+  } else {
+    return openSnackbar(title, failureMessage);
+  }
+}
+
 Future openPopup(
   String title,
   String message,

@@ -397,8 +397,12 @@ class HomeController extends GetxController {
   Future<bool> turnOnSentry() async {
     bool success = await Get.find<VehicleController>().toggleSentry(true);
 
-    openSnackbar('Sentry Mode', 'Activated succesfully.',
-        currentSnackbar: snackBar);
+    showCommandSnackbar(
+      success,
+      'Sentry Mode',
+      'Activated succesfully.',
+      'Failed to activate, Check phone & car connectivity',
+    );
 
     return success;
   }
@@ -406,10 +410,11 @@ class HomeController extends GetxController {
   Future<bool> turnOffSentry() async {
     bool success = await Get.find<VehicleController>().toggleSentry(false);
 
-    openSnackbar(
+    showCommandSnackbar(
+      success,
       'Sentry Mode',
       'Deactivated succesfully.',
-      currentSnackbar: snackBar,
+      'Failed to deactivate, Check phone & car connectivity',
     );
 
     return success;
@@ -426,31 +431,40 @@ class HomeController extends GetxController {
 
   Future<bool> unlock() async {
     carLocked.value = false;
-    openSnackbar('Unlock', 'Unlocking...', currentSnackbar: snackBar);
-
     bool success = await Get.find<VehicleController>().doorUnlock();
 
-    openSnackbar('Unlock', 'Car is now unlocked.', currentSnackbar: snackBar);
+    showCommandSnackbar(
+      success,
+      'Unlock',
+      'Car is now unlocked.',
+      'Failed to unlock, Check phone & car connectivity',
+    );
 
     return success;
   }
 
   Future<bool> openTrunk() async {
-    openSnackbar('Trunk', 'Opening...', currentSnackbar: snackBar);
-
     bool success = await Get.find<VehicleController>().openTrunk();
 
-    openSnackbar('Trunk', 'Trunk is now opened.', currentSnackbar: snackBar);
+    showCommandSnackbar(
+      success,
+      'Trunk',
+      'Trunk is now opened',
+      'Failed to open trunk, Check phone & car connectivity',
+    );
 
     return success;
   }
 
   Future<bool> openFrunk() async {
-    openSnackbar('Frunk', 'Opening...', currentSnackbar: snackBar);
-
     bool success = await Get.find<VehicleController>().openFrunk();
 
-    openSnackbar('Frunk', 'Frunk is now opened.', currentSnackbar: snackBar);
+    showCommandSnackbar(
+      success,
+      'Frunk',
+      'Frunk is now opened',
+      'Failed to open Frunk, Check phone & car connectivity',
+    );
 
     return success;
   }
@@ -458,8 +472,12 @@ class HomeController extends GetxController {
   Future<bool> horn() async {
     bool success = await api.horn();
 
-    openSnackbar('Beep beep', 'Don\'t disturb your neighbors!',
-        currentSnackbar: snackBar);
+    showCommandSnackbar(
+      success,
+      'Beep Beep',
+      'Don\'t disturb your neighbors!',
+      'Failed to hont horn, Check phone & car connectivity',
+    );
 
     return success;
   }
@@ -467,7 +485,12 @@ class HomeController extends GetxController {
   Future<bool> flashLights() async {
     bool success = await api.flashLights();
 
-    openSnackbar('Blink Blink', 'It\'s too shiny!', currentSnackbar: snackBar);
+    showCommandSnackbar(
+      success,
+      'Blink Blink',
+      'It\'s too shiny!',
+      'Failed to flash lights, Check phone & car connectivity',
+    );
 
     return success;
   }
@@ -483,8 +506,12 @@ class HomeController extends GetxController {
   Future<bool> openChargePort() async {
     bool success = await Get.find<VehicleController>().openChargePort();
 
-    openSnackbar('Charge Port', 'Charge port is now opened.',
-        currentSnackbar: snackBar);
+    showCommandSnackbar(
+      success,
+      'Charge Port',
+      'Charge port is now opened.',
+      'Failed to open charge port, Check phone & car connectivity',
+    );
 
     return success;
   }
@@ -492,8 +519,12 @@ class HomeController extends GetxController {
   Future<bool> closeChargePort() async {
     bool success = await Get.find<VehicleController>().closeChargePort();
 
-    openSnackbar('Charge Port', 'Charge port is now closed.',
-        currentSnackbar: snackBar);
+    showCommandSnackbar(
+      success,
+      'Charge Port',
+      'Charge port is now closed.',
+      'Failed to close charge port, Check phone & car connectivity',
+    );
 
     return success;
   }
@@ -508,7 +539,12 @@ class HomeController extends GetxController {
 
     Future.delayed(const Duration(seconds: 10), () => refreshState());
 
-    openSnackbar('Charging', 'Charging started.', currentSnackbar: snackBar);
+    showCommandSnackbar(
+      success,
+      'Charging',
+      'Charging started.',
+      'Failed to start charging port, Check phone & car connectivity',
+    );
 
     return success;
   }
@@ -520,7 +556,12 @@ class HomeController extends GetxController {
 
     Future.delayed(const Duration(seconds: 5), () => refreshState());
 
-    openSnackbar('Charging', 'Charging stopped.', currentSnackbar: snackBar);
+    showCommandSnackbar(
+      success,
+      'Charging',
+      'Charging stopped.',
+      'Failed to stop charging port, Check phone & car connectivity',
+    );
 
     return success;
   }
@@ -530,7 +571,12 @@ class HomeController extends GetxController {
 
     bool success = await Get.find<VehicleController>().unlockCharger();
 
-    openSnackbar('Charging', 'Charger unlocked.', currentSnackbar: snackBar);
+    showCommandSnackbar(
+      success,
+      'Charging',
+      'Charging unlocked.',
+      'Failed to unlock charger, Check phone & car connectivity',
+    );
 
     return success;
   }
@@ -545,8 +591,12 @@ class HomeController extends GetxController {
       unlockSuccess = await Get.find<VehicleController>().unlockCharger();
     }
 
-    openSnackbar('Charging Stopped', 'Charger unlocked.',
-        currentSnackbar: snackBar);
+    showCommandSnackbar(
+      unlockSuccess && stopChargeSuccess,
+      'Charging',
+      'Charging stopped & charger unlocked.',
+      'Failed to stop + unlock charger, Check phone & car connectivity',
+    );
 
     return stopChargeSuccess && unlockSuccess;
   }
@@ -559,10 +609,11 @@ class HomeController extends GetxController {
       acTemperatureCurrent.value = acTemperatureSet.value;
     }
 
-    openSnackbar(
+    showCommandSnackbar(
+      success,
       'A/C',
       'Temperature set to ${acTemperatureSet.value}',
-      currentSnackbar: snackBar,
+      'Failed to set a/c temperature, Check phone & car connectivity',
     );
 
     return success;
@@ -571,10 +622,11 @@ class HomeController extends GetxController {
   Future<bool> acStart() async {
     bool success = await Get.find<VehicleController>().acStart();
 
-    openSnackbar(
+    showCommandSnackbar(
+      success,
       'A/C',
       'Turned on to ${acTemperatureSet.value} C',
-      currentSnackbar: snackBar,
+      'Failed to turn on a/c, Check phone & car connectivity',
     );
 
     return success;
@@ -583,10 +635,11 @@ class HomeController extends GetxController {
   Future<bool> acStop() async {
     bool success = await Get.find<VehicleController>().acStop();
 
-    openSnackbar(
+    showCommandSnackbar(
+      success,
       'A/C',
       'Turned off',
-      currentSnackbar: snackBar,
+      'Failed to turn off a/c, Check phone & car connectivity',
     );
 
     return success;
@@ -595,10 +648,11 @@ class HomeController extends GetxController {
   Future<bool> ventWindows() async {
     bool success = await Get.find<VehicleController>().ventWindows();
 
-    openSnackbar(
+    showCommandSnackbar(
+      success,
       'Windows',
       'Windows are now slightly opened.',
-      currentSnackbar: snackBar,
+      'Failed to vent windows, Check phone & car connectivity',
     );
 
     return success;
@@ -607,10 +661,11 @@ class HomeController extends GetxController {
   Future<bool> closeWindows() async {
     bool success = await Get.find<VehicleController>().closeWindows();
 
-    openSnackbar(
+    showCommandSnackbar(
+      success,
       'Windows',
       'Windows are now fully closed.',
-      currentSnackbar: snackBar,
+      'Failed to close windows, Check phone & car connectivity',
     );
 
     return success;
@@ -619,8 +674,12 @@ class HomeController extends GetxController {
   Future<bool> turnOnMaxDefrost() async {
     bool success = await Get.find<VehicleController>().toggleMaxDefrost(true);
 
-    openSnackbar('Defrost', 'Activated succesfully.',
-        currentSnackbar: snackBar);
+    showCommandSnackbar(
+      success,
+      'Defrost',
+      'Activated succesfully.',
+      'Failed to activate defrost, Check phone & car connectivity',
+    );
 
     return success;
   }
@@ -628,8 +687,12 @@ class HomeController extends GetxController {
   Future<bool> turnOffMaxDefrost() async {
     bool success = await Get.find<VehicleController>().toggleMaxDefrost(false);
 
-    openSnackbar('Defrost', 'Deactivated succesfully.',
-        currentSnackbar: snackBar);
+    showCommandSnackbar(
+      success,
+      'Defrost',
+      'Deactivated succesfully.',
+      'Failed to deactivate defrost, Check phone & car connectivity',
+    );
 
     return success;
   }
@@ -727,19 +790,12 @@ class HomeController extends GetxController {
       bool success =
           await Get.find<WorkFlowController>().startWorkFlow(preset: preset);
 
-      if (success) {
-        openSnackbar(
-          'WorkFlow',
-          '${getWorkFlowName(preset)} finished successfully.',
-          currentSnackbar: snackBar,
-        );
-      } else {
-        openSnackbar(
-          'WorkFlow',
-          '${getWorkFlowName(preset)} workflow failed!',
-          currentSnackbar: snackBar,
-        );
-      }
+      showCommandSnackbar(
+        success,
+        'WorkFlow',
+        '${getWorkFlowName(preset)} finished successfully.',
+        '${getWorkFlowName(preset)} workflow failed!',
+      );
     }
 
     return false;
