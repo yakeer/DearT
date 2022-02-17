@@ -50,7 +50,7 @@ class VehiclePage extends GetView<HomeController> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 32.0),
+              padding: const EdgeInsets.only(bottom: 8.0),
               child: Card(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),

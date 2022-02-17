@@ -58,6 +58,7 @@ class _DearTToggleIconButtonState extends State<DearTToggleIconButton> {
                       children: [
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             Icon(
                               widget.icon,

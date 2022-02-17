@@ -10,7 +10,7 @@ class MainAppBar extends GetView<HomeController>
   const MainAppBar({Key? key}) : super(key: key);
 
   @override
-  Size get preferredSize => const Size.fromHeight(60.0);
+  Size get preferredSize => const Size.fromHeight(40.0);
 
   @override
   Widget build(BuildContext context) {

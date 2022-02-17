@@ -74,12 +74,16 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Visibility(
-                    visible: controller.selectedPage.value != 2,
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: QuickActionsWidget(),
-                    ),
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.bounceInOut,
+                    child: controller.selectedPage.value != 2
+                        ? const Padding(
+                            padding:
+                                EdgeInsets.only(left: 8.0, right: 8, top: 8),
+                            child: QuickActionsWidget(),
+                          )
+                        : Container(),
                   ),
                   Visibility(
                     visible: controller.isInitialDataLoaded.value,
@@ -95,7 +99,7 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
                   Visibility(
                     visible: controller.isInitialDataLoaded.value,
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 24.0),
+                      padding: const EdgeInsets.only(bottom: 12, top: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: _buildPageIndicator(),
@@ -105,7 +109,7 @@ class HomeScreen extends GetView<HomeController> with WidgetsBindingObserver {
                   Visibility(
                     visible: controller.isInitialDataLoaded.value,
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 24.0),
+                      padding: const EdgeInsets.only(bottom: 16.0),
                       child: Center(
                         child: Text(
                           'Last update: ${timeago.format(controller.lastUpdate.value)}',
