@@ -64,4 +64,48 @@ Future writePreference<T>(int vehicleId, String prefName, T value) async {
   if (T == bool) {
     prefs.setBool(keyName, value as bool);
   }
+
+  if (T == double) {
+    prefs.setDouble(keyName, value as double);
+  }
+}
+
+Future<T?> readUserPreference<T>(String keyName) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  if (T == bool) {
+    bool? value = prefs.getBool(keyName);
+
+    return value as T?;
+  }
+
+  if (T == String) {
+    String? value = prefs.getString(keyName);
+
+    return value as T?;
+  }
+
+  if (T == double) {
+    double? value = prefs.getDouble(keyName);
+
+    return value as T?;
+  }
+
+  return null;
+}
+
+Future writeUserPreference<T>(String prefName, T value) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  if (T == bool) {
+    prefs.setBool(prefName, value as bool);
+  }
+
+  if (T == double) {
+    prefs.setDouble(prefName, value as double);
+  }
+
+  if (T == String) {
+    prefs.setString(prefName, value as String);
+  }
 }

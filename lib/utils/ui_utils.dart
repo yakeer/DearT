@@ -63,3 +63,34 @@ Future openPopup(
     ),
   );
 }
+
+Future<String?> openPrompt(String title, {String? hintText}) async {
+  TextEditingController _inputController = TextEditingController();
+
+  await showDialog(
+    context: Get.context!,
+    builder: (context) => AlertDialog(
+      title: Text(title),
+      content: SingleChildScrollView(
+        child: ListBody(
+          children: <Widget>[
+            TextField(
+              decoration: InputDecoration(hintText: hintText),
+              controller: _inputController,
+            ),
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          child: const Text('Save'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    ),
+  );
+
+  return _inputController.value.text;
+}

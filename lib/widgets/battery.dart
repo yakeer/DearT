@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/utils/storage_utils.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,10 +21,7 @@ class BatteryWidget extends GetView<HomeController> {
               visible: controller.isInitialDataLoaded.value,
               child: Row(
                 children: [
-                  Icon(
-                    _getIcon(),
-                    color: getColor(),
-                  ),
+                  _getIcon(),
                   Text(
                     getBatteryText(controller.showBatteryLevel.value),
                     style: TextStyle(color: getColor()),
@@ -75,19 +75,55 @@ class BatteryWidget extends GetView<HomeController> {
     }
   }
 
-  IconData _getIcon() {
+  Widget _getIcon() {
     if (controller.isCharging.value) {
-      return Icons.battery_charging_full;
+      return Icon(
+        Icons.battery_charging_full,
+        color: getColor(),
+      );
     }
 
     if (controller.batteryLevel > 0) {
       if (controller.batteryLevel > 0 && controller.batteryLevel <= 20) {
-        return Icons.battery_alert_outlined;
+        return Transform.rotate(
+          angle: -90 * pi / 180,
+          child: Icon(
+            CupertinoIcons.battery_empty,
+            color: getColor(),
+          ),
+        );
+      } else if (controller.batteryLevel > 20 &&
+          controller.batteryLevel <= 50) {
+        return Transform.rotate(
+          angle: -90 * pi / 180,
+          child: Icon(
+            CupertinoIcons.battery_25_percent,
+            color: getColor(),
+          ),
+        );
+      } else if (controller.batteryLevel > 50 &&
+          controller.batteryLevel <= 75) {
+        return Transform.rotate(
+          angle: -90 * pi / 180,
+          child: Icon(
+            CupertinoIcons.battery_75_percent,
+            color: getColor(),
+          ),
+        );
       } else {
-        return Icons.battery_std_outlined;
+        return Transform.rotate(
+          angle: -90 * pi / 180,
+          child: Icon(
+            CupertinoIcons.battery_empty,
+            color: getColor(),
+          ),
+        );
       }
     } else {
-      return Icons.battery_unknown_outlined;
+      return Icon(
+        Icons.battery_unknown_outlined,
+        color: getColor(),
+      );
     }
   }
 }

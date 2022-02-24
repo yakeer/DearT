@@ -6,14 +6,19 @@ import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/globals.dart';
+import 'package:deart/models/drive_state.dart';
+import 'package:deart/models/internal/gps_location.dart';
 import 'package:deart/services/auth_service.dart';
 import 'package:deart/utils/siri_utils.dart';
 import 'package:deart/utils/storage_utils.dart';
 import 'package:deart/utils/ui_utils.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:flutter_siri_suggestions/flutter_siri_suggestions.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:uuid/uuid.dart';
 
 class SettingsController extends GetxController {
   RxBool activateSentryWhenCharging = RxBool(false);
@@ -26,6 +31,9 @@ class SettingsController extends GetxController {
   RxString appVersion = ''.obs;
   RxString carVersion = ''.obs;
 
+  Rx<List<GPSLocation>> excludedLocations = Rx([]);
+  Rx<List<SettingsTile>> excludedLocationTiles = Rx([]);
+
   final List<StreamSubscription> subscriptions = [];
 
   @override
@@ -37,6 +45,7 @@ class SettingsController extends GetxController {
     appVersion.value = await getAppVersion();
     getCarVersion();
     initPreferences();
+    initExcludedLocations();
     super.onReady();
   }
 
@@ -78,6 +87,30 @@ class SettingsController extends GetxController {
           if (eventData != null) {
             carVersion.value = eventData.vehicleState.carVersion.split(' ')[0];
           }
+        },
+      ),
+    );
+  }
+
+  void initExcludedLocations() {
+    subscriptions.add(
+      Get.find<UserController>().excludedAutoSentryLocations.listenAndPump(
+        (locations) {
+          excludedLocations.value = locations;
+
+          DriveState driveState =
+              Get.find<VehicleController>().vehicleData.value!.driveState;
+
+          excludedLocationTiles.value = locations
+              .map(
+                (data) => SettingsTile(
+                  title:
+                      '${data.name} (${Geolocator.distanceBetween(data.latitude, data.longitude, driveState.latitude, driveState.longitude)}m away)',
+                  onPressed: (context) =>
+                      Get.toNamed('/edit-location/${data.id}'),
+                ),
+              )
+              .toList();
         },
       ),
     );
@@ -179,6 +212,23 @@ class SettingsController extends GetxController {
 
   Future<void> installSiriShortcut(FlutterSiriActivity activity) async {
     await FlutterSiriSuggestions.instance.buildActivity(activity);
+  }
+
+  Future<void> addCurrentVehicleLocation() async {
+    String? locationName = await openPrompt('Enter Location Name');
+    if (locationName != null) {
+      DriveState driveState =
+          Get.find<VehicleController>().vehicleData.value!.driveState;
+
+      GPSLocation location = GPSLocation(
+        const Uuid().v4(),
+        driveState.latitude,
+        driveState.longitude,
+        locationName,
+      );
+
+      Get.find<UserController>().addAutoSentryExcludedLocation(location);
+    }
   }
 
   Future? goToPurchases() {

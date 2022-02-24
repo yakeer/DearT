@@ -13,6 +13,7 @@ VehicleData _$VehicleDataFromJson(Map<String, dynamic> json) => VehicleData(
       json['state'] as String,
       ClimateState.fromJson(json['climate_state'] as Map<String, dynamic>),
       VehicleConfig.fromJson(json['vehicle_config'] as Map<String, dynamic>),
+      json['display_name'] as String,
     );
 
 Map<String, dynamic> _$VehicleDataToJson(VehicleData instance) =>
@@ -23,4 +24,5 @@ Map<String, dynamic> _$VehicleDataToJson(VehicleData instance) =>
       'climate_state': instance.climateState,
       'vehicle_config': instance.vehicleConfig,
       'state': instance.state,
+      'display_name': instance.displayName,
     };

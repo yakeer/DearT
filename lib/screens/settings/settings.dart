@@ -12,6 +12,7 @@ class SettingsScreen extends GetView<SettingsController> {
     return GetX<SettingsController>(
       init: SettingsController(),
       builder: (controller) => SettingsList(
+        shrinkWrap: true,
         // darkBackgroundColor: Get.theme.colorScheme.background,
         // darkBackgroundColor: Colors.transparent,
         backgroundColor: Colors.black,
@@ -51,7 +52,10 @@ class SettingsScreen extends GetView<SettingsController> {
                     ),
                   ],
                 ),
-                trailing: Container(),
+                trailing: const SizedBox(
+                  width: 0,
+                  height: 0,
+                ),
               ),
               SettingsTile(
                 title: 'Diagnostics',
@@ -73,6 +77,10 @@ class SettingsScreen extends GetView<SettingsController> {
             title: 'Sentry Mode',
             titleTextStyle: Get.theme.textTheme.headline6,
             tiles: [
+              SettingsTile(
+                title: 'Excluded Locations',
+                onPressed: (context) => Get.toNamed('/excluded-locations'),
+              ),
               SettingsTile.switchTile(
                 title: 'Quick Action Toggle',
                 subtitle: 'Show Quick Action toggle or 2 buttons',
