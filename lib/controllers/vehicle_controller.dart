@@ -6,11 +6,13 @@ import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/models/drive_state.dart';
 import 'package:deart/models/enums/car_model.dart';
 import 'package:deart/models/enums/sentry_mode_state.dart';
+import 'package:deart/models/internal/gps_location.dart';
 import 'package:deart/models/vehicle.dart';
 import 'package:deart/models/vehicle_config.dart';
 import 'package:deart/models/vehicle_data.dart';
 import 'package:deart/utils/storage_utils.dart';
 import 'package:deart/services/tesla_api.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:html_unescape/html_unescape.dart';
 
@@ -66,11 +68,34 @@ class VehicleController extends GetxController {
           false) {
         if (sentryModeState.value != SentryModeState.on) {
           if (!vehicleData.vehicleState.isUserPresent &&
-              !isDriving(vehicleData.driveState)) {
+              !isDriving(vehicleData.driveState) &&
+              !isExcludedLocation(vehicleData.driveState)) {
             await toggleSentry(true);
           }
         }
       }
+    }
+  }
+
+  bool isExcludedLocation(DriveState driveState) {
+    List<GPSLocation> excludedLocations =
+        Get.find<UserController>().excludedAutoSentryLocations.value;
+
+    if (excludedLocations.isEmpty) {
+      return false;
+    } else {
+      bool result = false;
+
+      for (var element in excludedLocations) {
+        if (Geolocator.distanceBetween(driveState.latitude,
+                driveState.longitude, element.latitude, element.longitude) <
+            (element.radius ?? 50)) {
+          result = true;
+          break;
+        }
+      }
+
+      return result;
     }
   }
 
@@ -122,9 +147,6 @@ class VehicleController extends GetxController {
     if (!cacheFound) {
       vehicleData.value = await api.vehicleData();
 
-      // Future.delayed(const Duration(seconds: 3),
-      //     () => refreshingVehicleData.value = false);
-
       // Remove the loading animation from taskbar.
       refreshingVehicleData.value = false;
     }
@@ -152,19 +174,23 @@ class VehicleController extends GetxController {
   }
 
   Future<bool> _loadVehicleDataFromCache() async {
-    String cacheKey = '$vehicleId-vehicleData';
+    try {
+      String cacheKey = '$vehicleId-vehicleData';
 
-    String? json = await readStorageKey(cacheKey);
-    if (json != null) {
-      Map<String, dynamic> jsonData = jsonDecode(json);
-      VehicleData vehicleDataFromCache = VehicleData.fromJson(jsonData);
+      String? json = await readStorageKey(cacheKey);
+      if (json != null) {
+        Map<String, dynamic> jsonData = jsonDecode(json);
+        VehicleData vehicleDataFromCache = VehicleData.fromJson(jsonData);
 
-      vehicleData.value = vehicleDataFromCache;
+        vehicleData.value = vehicleDataFromCache;
 
-      return true;
+        return true;
+      }
+
+      return false;
+    } catch (e) {
+      return false;
     }
-
-    return false;
   }
 
   Future<void> _loadCarModel(VehicleConfig vehicleConfig) {
@@ -241,6 +267,8 @@ class VehicleController extends GetxController {
     sentryModeState.value = state;
 
     writeStorageKey('sentryModeState', state.toString());
+
+    // Save Odometer.
     if (state == SentryModeState.on && vehicleData.value != null) {
       writeStorageKey('sentryModeOnOdometer',
           vehicleData.value!.vehicleState.odometer.toString());
@@ -275,8 +303,6 @@ class VehicleController extends GetxController {
       } else {
         setSentryState(SentryModeState.off);
       }
-    } else {
-      setSentryState(SentryModeState.unknown);
     }
 
     return success;

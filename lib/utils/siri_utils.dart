@@ -5,7 +5,7 @@ List<FlutterSiriActivity> getSiriActivities() {
 
   activities.add(const FlutterSiriActivity(
     "Honk Horn",
-    "horn",
+    "deart_horn",
     isEligibleForSearch: true,
     isEligibleForPrediction: true,
     contentDescription: "Honk Horn",
@@ -14,7 +14,7 @@ List<FlutterSiriActivity> getSiriActivities() {
 
   activities.add(const FlutterSiriActivity(
     "Turn Sentry On",
-    "sentryOn",
+    "deart_sentryOn",
     isEligibleForSearch: true,
     isEligibleForPrediction: true,
     contentDescription: "Activate Sentry Mode on my Tesla",
@@ -24,7 +24,7 @@ List<FlutterSiriActivity> getSiriActivities() {
   activities.add(
     const FlutterSiriActivity(
       "Turn Sentry Off",
-      "sentryOff",
+      "deart_sentryOff",
       isEligibleForSearch: true,
       isEligibleForPrediction: true,
       contentDescription: "Deactivate Sentry Mode on my Tesla",
@@ -34,7 +34,7 @@ List<FlutterSiriActivity> getSiriActivities() {
 
   activities.add(const FlutterSiriActivity(
     "Unlock My Car",
-    "unlockDoors",
+    "deart_unlockDoors",
     isEligibleForSearch: true,
     isEligibleForPrediction: true,
     contentDescription: "Unlock my Tesla",
@@ -44,7 +44,7 @@ List<FlutterSiriActivity> getSiriActivities() {
   activities.add(
     const FlutterSiriActivity(
       "Lock My Car",
-      "lockDoors",
+      "deart_lockDoors",
       isEligibleForSearch: true,
       isEligibleForPrediction: true,
       contentDescription: "Lock my Tesla",
@@ -55,7 +55,7 @@ List<FlutterSiriActivity> getSiriActivities() {
   activities.add(
     const FlutterSiriActivity(
       "Open Charge Port",
-      "openChargePort",
+      "deart_openChargePort",
       isEligibleForSearch: true,
       isEligibleForPrediction: true,
       contentDescription: "Open Charge Port",
@@ -66,7 +66,7 @@ List<FlutterSiriActivity> getSiriActivities() {
   activities.add(
     const FlutterSiriActivity(
       "Close Charge Port",
-      "closeChargePort",
+      "deart_closeChargePort",
       isEligibleForSearch: true,
       isEligibleForPrediction: true,
       contentDescription: "Close Charge Port",
@@ -77,7 +77,7 @@ List<FlutterSiriActivity> getSiriActivities() {
   activities.add(
     const FlutterSiriActivity(
       "Unlock Charger",
-      "unlockCharger",
+      "deart_unlockCharger",
       isEligibleForSearch: true,
       isEligibleForPrediction: true,
       contentDescription: "Unlock Charger",
@@ -88,7 +88,7 @@ List<FlutterSiriActivity> getSiriActivities() {
   activities.add(
     const FlutterSiriActivity(
       "Start Charging",
-      "startCharging",
+      "deart_startCharging",
       isEligibleForSearch: true,
       isEligibleForPrediction: true,
       contentDescription: "Start Charging",
@@ -99,7 +99,7 @@ List<FlutterSiriActivity> getSiriActivities() {
   activities.add(
     const FlutterSiriActivity(
       "Stop Charging",
-      "stopCharging",
+      "deart_stopCharging",
       isEligibleForSearch: true,
       isEligibleForPrediction: true,
       contentDescription: "Stop Charging",
@@ -110,7 +110,7 @@ List<FlutterSiriActivity> getSiriActivities() {
   activities.add(
     const FlutterSiriActivity(
       "Vent Windows",
-      "ventWindows",
+      "deart_ventWindows",
       isEligibleForSearch: true,
       isEligibleForPrediction: true,
       contentDescription: "Vent Windows",
@@ -121,7 +121,7 @@ List<FlutterSiriActivity> getSiriActivities() {
   activities.add(
     const FlutterSiriActivity(
       "Close Windows",
-      "closeWindows",
+      "deart_closeWindows",
       isEligibleForSearch: true,
       isEligibleForPrediction: true,
       contentDescription: "Close Windows",
@@ -132,7 +132,7 @@ List<FlutterSiriActivity> getSiriActivities() {
   activities.add(
     const FlutterSiriActivity(
       "Defrost Car (Preconditioning)",
-      "defrostCar",
+      "deart_defrostCar",
       isEligibleForSearch: true,
       isEligibleForPrediction: true,
       contentDescription: "Defrost Car (Preconditioning)",
@@ -143,11 +143,33 @@ List<FlutterSiriActivity> getSiriActivities() {
   activities.add(
     const FlutterSiriActivity(
       "Stop Defrost Car",
-      "defrostCarOff",
+      "deart_defrostCarOff",
       isEligibleForSearch: true,
       isEligibleForPrediction: true,
       contentDescription: "Stop Defrost Car",
       suggestedInvocationPhrase: "Stop Defrost Car",
+    ),
+  );
+
+  activities.add(
+    const FlutterSiriActivity(
+      "Open/Close Frunk",
+      "deart_openFrunk",
+      isEligibleForSearch: true,
+      isEligibleForPrediction: true,
+      contentDescription: "Open/Close Frunk",
+      suggestedInvocationPhrase: "Open/Close Frunk",
+    ),
+  );
+
+  activities.add(
+    const FlutterSiriActivity(
+      "Open/Close Trunk",
+      "deart_openTrunk",
+      isEligibleForSearch: true,
+      isEligibleForPrediction: true,
+      contentDescription: "Open/Close Trunk",
+      suggestedInvocationPhrase: "Open/Close Trunk",
     ),
   );
 

@@ -47,6 +47,8 @@ class VehicleState {
   @JsonKey(name: 'is_user_present')
   final bool isUserPresent;
 
+  final int timestamp;
+
   VehicleState(
     this.locked,
     this.odometer,
@@ -63,6 +65,7 @@ class VehicleState {
     this.rearDriverDoor,
     this.rearPassengerDoor,
     this.isUserPresent,
+    this.timestamp,
   );
 
   factory VehicleState.fromJson(Map<String, dynamic> json) =>

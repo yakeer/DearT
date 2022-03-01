@@ -56,6 +56,18 @@
 			</array>
 		</dict>
 	</array>
-	<key>CADisableMinimumFrameDurationOnPhone</key><true/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to location when open to determine where you are relating to your vehicle.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to location when in the background, in order to see if you're getting close to your vehicle.</string>
+	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+	<dict>
+	<key>DearTLocationPurpose</key>
+	<string>DearT App requires temporary access to the device precise location.</string>
+	</dict>
+	<key>io.flutter.embedded_views_preview</key>
+	<true/>
 </dict>
 </plist>

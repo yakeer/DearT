@@ -11,6 +11,7 @@ class DearTToggleIconButton extends StatefulWidget {
   final Future<bool> Function()? unknownStateTap;
   final DearTToggleIconButtonState toggleState;
   final bool showBadge;
+  final bool disabled;
 
   const DearTToggleIconButton({
     Key? key,
@@ -23,6 +24,7 @@ class DearTToggleIconButton extends StatefulWidget {
     this.unknownStateTap,
     required this.toggleState,
     this.showBadge = false,
+    this.disabled = false,
   }) : super(key: key);
 
   @override
@@ -46,71 +48,75 @@ class _DearTToggleIconButtonState extends State<DearTToggleIconButton> {
             ),
           )
         : InkWell(
-            onTap: runAction,
-            child: Center(
-              child: SizedBox.fromSize(
-                size: const Size(80, 80), // button width and height
-                child: ClipOval(
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Icon(
-                              widget.icon,
-                              size: 36,
-                              color: _getColorByState(),
-                            ), // icon
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                getLabelByState(),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: _getColorByState(),
-                                ),
-                              ),
-                            ), // text
-                          ],
-                        ),
-                        Visibility(
-                          visible: widget.showBadge,
-                          child: Positioned.fill(
-                            bottom: 10,
-                            right: 20,
-                            child: Align(
-                              alignment: Alignment.centerRight,
-                              child: SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: _getColorByState(),
-                                    ),
+            onTap: !widget.disabled ? runAction : null,
+            child: Opacity(
+              opacity: widget.disabled ? 0.25 : 1,
+              child: Center(
+                child: SizedBox.fromSize(
+                  size: const Size(80, 80), // button width and height
+                  child: ClipOval(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Icon(
+                                widget.icon,
+                                size: 36,
+                                color: _getColorByState(),
+                              ), // icon
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  widget.disabled ? '' : getLabelByState(),
+                                  style: TextStyle(
+                                    fontSize: 12,
                                     color: _getColorByState(),
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(20),
-                                    ),
                                   ),
-                                  child: Center(
-                                    child: Text(
-                                      getStateText(),
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.black,
+                                ),
+                              ), // text
+                            ],
+                          ),
+                          Visibility(
+                            visible: widget.showBadge,
+                            child: Positioned.fill(
+                              bottom: 10,
+                              right: 20,
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: _getColorByState(),
+                                      ),
+                                      color: _getColorByState(),
+                                      borderRadius: const BorderRadius.all(
+                                        Radius.circular(20),
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        getStateText(),
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.black,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ),

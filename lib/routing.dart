@@ -1,12 +1,14 @@
-import 'package:deart/screens/diagnostics.dart';
-import 'package:deart/screens/home.dart';
-import 'package:deart/screens/in_app_purchases_screen.dart';
-import 'package:deart/screens/login.dart';
-import 'package:deart/screens/settings.dart';
-import 'package:deart/screens/siri_activities.dart';
-import 'package:deart/screens/tesla_logout.dart';
-import 'package:deart/screens/token_login.dart';
-import 'package:deart/screens/web_socket_screen.dart';
+import 'package:deart/screens/settings/diagnostics.dart';
+import 'package:deart/screens/main/home.dart';
+import 'package:deart/screens/settings/edit_location_screen.dart';
+import 'package:deart/screens/settings/excluded_locations.dart';
+import 'package:deart/screens/settings/in_app_purchases_screen.dart';
+import 'package:deart/screens/auth/login.dart';
+import 'package:deart/screens/settings/settings.dart';
+import 'package:deart/screens/settings/siri_activities.dart';
+import 'package:deart/screens/auth/tesla_logout.dart';
+import 'package:deart/screens/auth/token_login.dart';
+import 'package:deart/screens/settings/web_socket_screen.dart';
 import 'package:deart/screens/welcome.dart';
 import 'package:get/get.dart';
 
@@ -42,6 +44,14 @@ var appPages = [
   GetPage(
     name: '/purchases',
     page: () => const InAppPurchasesScreen(),
+  ),
+  GetPage(
+    name: '/excluded-locations',
+    page: () => const ExcludedLocationsScreen(),
+  ),
+  GetPage(
+    name: '/edit-location/:id',
+    page: () => const EditLocationScreen(),
   ),
   GetPage(
     name: '/diagnostics',

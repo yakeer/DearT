@@ -10,7 +10,7 @@ class MainAppBar extends GetView<HomeController>
   const MainAppBar({Key? key}) : super(key: key);
 
   @override
-  Size get preferredSize => const Size.fromHeight(60.0);
+  Size get preferredSize => const Size.fromHeight(40.0);
 
   @override
   Widget build(BuildContext context) {
@@ -119,14 +119,11 @@ class MainAppBar extends GetView<HomeController>
               child: Row(
                 children: [
                   Text(
-                    "${controller.insideTemperature.toInt()}\u00B0/${controller.outsideTemperature.toInt()}\u00B0",
+                    "${controller.insideTemperature.round()}\u00B0/${controller.outsideTemperature.round()}\u00B0",
                   )
                 ],
               ),
             )
-            // IconButton(
-            //     onPressed: controller.goToSettings,
-            //     icon: const Icon(Icons.settings))
           ],
         ),
       ),

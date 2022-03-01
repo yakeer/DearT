@@ -2,17 +2,23 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:deart/controllers/home_controller.dart';
 import 'package:deart/controllers/user_controller.dart';
 import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/globals.dart';
+import 'package:deart/models/drive_state.dart';
+import 'package:deart/models/internal/gps_location.dart';
 import 'package:deart/services/auth_service.dart';
 import 'package:deart/utils/siri_utils.dart';
 import 'package:deart/utils/storage_utils.dart';
 import 'package:deart/utils/ui_utils.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:flutter_siri_suggestions/flutter_siri_suggestions.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:uuid/uuid.dart';
 
 class SettingsController extends GetxController {
   RxBool activateSentryWhenCharging = RxBool(false);
@@ -20,9 +26,13 @@ class SettingsController extends GetxController {
   RxBool sentryQuickActionToggle = RxBool(false);
   Rx<List<FlutterSiriActivity>?> siriActivities = Rx(null);
   RxBool showLogoutTeslaAccount = RxBool(false);
+  RxDouble dataRefreshInterval = 0.0.obs;
 
   RxString appVersion = ''.obs;
   RxString carVersion = ''.obs;
+
+  Rx<List<GPSLocation>> excludedLocations = Rx([]);
+  Rx<List<SettingsTile>> excludedLocationTiles = Rx([]);
 
   final List<StreamSubscription> subscriptions = [];
 
@@ -35,6 +45,7 @@ class SettingsController extends GetxController {
     appVersion.value = await getAppVersion();
     getCarVersion();
     initPreferences();
+    initExcludedLocations();
     super.onReady();
   }
 
@@ -81,6 +92,30 @@ class SettingsController extends GetxController {
     );
   }
 
+  void initExcludedLocations() {
+    subscriptions.add(
+      Get.find<UserController>().excludedAutoSentryLocations.listenAndPump(
+        (locations) {
+          excludedLocations.value = locations;
+
+          DriveState driveState =
+              Get.find<VehicleController>().vehicleData.value!.driveState;
+
+          excludedLocationTiles.value = locations
+              .map(
+                (data) => SettingsTile(
+                  title:
+                      '${data.name} (${Geolocator.distanceBetween(data.latitude, data.longitude, driveState.latitude, driveState.longitude)}m away)',
+                  onPressed: (context) =>
+                      Get.toNamed('/edit-location/${data.id}'),
+                ),
+              )
+              .toList();
+        },
+      ),
+    );
+  }
+
   void initPreferences() {
     subscriptions.add(
       Get.find<UserController>().preferences.listenAndPump(
@@ -98,12 +133,16 @@ class SettingsController extends GetxController {
               .firstWhere(
                   (element) => element.name == 'sentryQuickActionToggle')
               .value as bool;
+
+          dataRefreshInterval.value = prefs
+              .firstWhere((element) => element.name == 'dataRefreshInterval')
+              .value as double;
         },
       ),
     );
   }
 
-  changeToggle(
+  Future changeToggle(
     String prefName,
     RxBool toggleVariable,
     bool value, {
@@ -119,6 +158,28 @@ class SettingsController extends GetxController {
 
     if (refVariableInHomeScreen != null) {
       refVariableInHomeScreen.value = value;
+    }
+  }
+
+  Future updateRefreshInterval(double value) async {
+    dataRefreshInterval.value = value;
+
+    Get.find<UserController>().setPreference('dataRefreshInterval', value);
+
+    await writePreference(
+      Get.find<VehicleController>().vehicleId.value!,
+      'dataRefreshInterval',
+      value,
+    );
+
+    Get.find<HomeController>().initRefreshDataTimer();
+  }
+
+  String getRefreshSliderText() {
+    if (dataRefreshInterval.value == 0) {
+      return 'Never';
+    } else {
+      return '${dataRefreshInterval.value} sec';
     }
   }
 
@@ -151,6 +212,23 @@ class SettingsController extends GetxController {
 
   Future<void> installSiriShortcut(FlutterSiriActivity activity) async {
     await FlutterSiriSuggestions.instance.buildActivity(activity);
+  }
+
+  Future<void> addCurrentVehicleLocation() async {
+    String? locationName = await openPrompt('Enter Location Name');
+    if (locationName != null) {
+      DriveState driveState =
+          Get.find<VehicleController>().vehicleData.value!.driveState;
+
+      GPSLocation location = GPSLocation(
+        const Uuid().v4(),
+        driveState.latitude,
+        driveState.longitude,
+        locationName,
+      );
+
+      Get.find<UserController>().addAutoSentryExcludedLocation(location);
+    }
   }
 
   Future? goToPurchases() {

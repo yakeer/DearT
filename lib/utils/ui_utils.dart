@@ -24,6 +24,19 @@ SnackbarController openSnackbar(
   return currentSnackbar;
 }
 
+SnackbarController showCommandSnackbar(
+  bool commandResult,
+  String title,
+  String successMessage,
+  String failureMessage,
+) {
+  if (commandResult) {
+    return openSnackbar(title, successMessage);
+  } else {
+    return openSnackbar(title, failureMessage);
+  }
+}
+
 Future openPopup(
   String title,
   String message,
@@ -49,4 +62,35 @@ Future openPopup(
       ],
     ),
   );
+}
+
+Future<String?> openPrompt(String title, {String? hintText}) async {
+  TextEditingController _inputController = TextEditingController();
+
+  await showDialog(
+    context: Get.context!,
+    builder: (context) => AlertDialog(
+      title: Text(title),
+      content: SingleChildScrollView(
+        child: ListBody(
+          children: <Widget>[
+            TextField(
+              decoration: InputDecoration(hintText: hintText),
+              controller: _inputController,
+            ),
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          child: const Text('Save'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    ),
+  );
+
+  return _inputController.value.text;
 }

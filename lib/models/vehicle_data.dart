@@ -27,6 +27,9 @@ class VehicleData {
   /// "online"
   final String state;
 
+  @JsonKey(name: 'display_name')
+  final String displayName;
+
   VehicleData(
     this.driveState,
     this.chargeState,
@@ -34,6 +37,7 @@ class VehicleData {
     this.state,
     this.climateState,
     this.vehicleConfig,
+    this.displayName,
   );
 
   factory VehicleData.fromJson(Map<String, dynamic> json) =>

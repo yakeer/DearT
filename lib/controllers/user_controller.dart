@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/globals.dart';
+import 'package:deart/models/internal/gps_location.dart';
 import 'package:deart/models/internal/vehicle_preference.dart';
 import 'package:deart/models/vehicle.dart';
 import 'package:deart/services/auth_service.dart';
@@ -14,6 +17,7 @@ class UserController extends GetxController {
   Rx<List<Vehicle>?> vehicles = Rx(null);
   TeslaAPI api = Get.find<TeslaAPI>();
   Rx<List<VehiclePreference>> preferences = Rx([]);
+  Rx<List<GPSLocation>> excludedAutoSentryLocations = Rx([]);
 
   UserController(this.selectedVehicleId) : super();
 
@@ -34,25 +38,49 @@ class UserController extends GetxController {
   }
 
   Future initSettings() async {
-    preferences.value.add(VehiclePreference(
-        'activateSentry',
-        await readPreference<bool>(
-            selectedVehicleId!, 'activateSentry', false)));
+    await _initVehiclePreferences();
+    await loadAutoSentryExcludedLocations();
+  }
 
-    preferences.value.add(VehiclePreference(
+  Future<void> _initVehiclePreferences() async {
+    preferences.value.add(
+      VehiclePreference(
+        'activateSentry',
+        await readPreference<bool>(selectedVehicleId!, 'activateSentry', false),
+      ),
+    );
+
+    preferences.value.add(
+      VehiclePreference(
         'activateSentryWhenLocked',
         await readPreference<bool>(
-            selectedVehicleId!, 'activateSentryWhenLocked', false)));
+            selectedVehicleId!, 'activateSentryWhenLocked', false),
+      ),
+    );
 
-    preferences.value.add(VehiclePreference(
+    preferences.value.add(
+      VehiclePreference(
         'sentryQuickActionToggle',
         await readPreference<bool>(
-            selectedVehicleId!, 'sentryQuickActionToggle', true)));
+            selectedVehicleId!, 'sentryQuickActionToggle', true),
+      ),
+    );
 
-    preferences.value.add(VehiclePreference(
+    preferences.value.add(
+      VehiclePreference(
         'showBatteryLevelInAppBar',
         await readPreference<bool>(
-            selectedVehicleId!, 'showBatteryLevelInAppBar', false)));
+            selectedVehicleId!, 'showBatteryLevelInAppBar', false),
+      ),
+    );
+
+    preferences.value.add(
+      VehiclePreference(
+        'dataRefreshInterval',
+        await readPreference<double>(
+            selectedVehicleId!, 'dataRefreshInterval', 0),
+      ),
+    );
   }
 
   Future<Vehicle?> loadVehicles() async {
@@ -110,6 +138,54 @@ class UserController extends GetxController {
     }
 
     preferences.trigger(preferences.value);
+  }
+
+  void addAutoSentryExcludedLocation(GPSLocation location) async {
+    List<GPSLocation> locations = excludedAutoSentryLocations.value;
+    locations.add(location);
+
+    excludedAutoSentryLocations.value = locations;
+
+    excludedAutoSentryLocations.trigger(locations);
+
+    await saveAutoSentryExcludedLocations();
+  }
+
+  void removeAutoSentryExcludedLocation(GPSLocation location) {
+    var gpsLocation = excludedAutoSentryLocations.value.firstWhereOrNull(
+        (element) =>
+            element.latitude == location.latitude &&
+            element.longitude == location.longitude);
+    if (gpsLocation != null) {
+      excludedAutoSentryLocations.value.remove(gpsLocation);
+      excludedAutoSentryLocations.trigger(excludedAutoSentryLocations.value);
+
+      saveAutoSentryExcludedLocations();
+    }
+  }
+
+  Future saveAutoSentryExcludedLocations() async {
+    String jsonMap = jsonEncode(excludedAutoSentryLocations.value);
+
+    await writeUserPreference('excludedAutoSentryLocations', jsonMap);
+
+    excludedAutoSentryLocations.trigger(excludedAutoSentryLocations.value);
+  }
+
+  Future loadAutoSentryExcludedLocations() async {
+    String? jsonData =
+        await readUserPreference<String>('excludedAutoSentryLocations');
+    if (jsonData != null) {
+      var locationsMap = jsonDecode(jsonData);
+
+      excludedAutoSentryLocations.value =
+          GPSLocation.fromJsonList(locationsMap);
+    }
+  }
+
+  GPSLocation? findExcludedLocationById(String id) {
+    return excludedAutoSentryLocations.value
+        .firstWhereOrNull((element) => element.id == id);
   }
 
   carChanged(

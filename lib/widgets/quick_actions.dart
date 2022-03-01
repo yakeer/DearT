@@ -22,6 +22,8 @@ class QuickActionsWidget extends GetView<HomeController> {
             label: 'Horn',
           ),
           DearTToggleIconButton(
+            disabled: !controller.isInitialDataLoaded.value ||
+                controller.refreshingVehicleData.value,
             onStateTap: controller.lock,
             offStateTap: controller.unlock,
             icon: !controller.carLocked.value ? Icons.lock_open : Icons.lock,

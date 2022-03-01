@@ -12,6 +12,7 @@ class SettingsScreen extends GetView<SettingsController> {
     return GetX<SettingsController>(
       init: SettingsController(),
       builder: (controller) => SettingsList(
+        shrinkWrap: true,
         // darkBackgroundColor: Get.theme.colorScheme.background,
         // darkBackgroundColor: Colors.transparent,
         backgroundColor: Colors.black,
@@ -28,6 +29,33 @@ class SettingsScreen extends GetView<SettingsController> {
               SettingsTile(
                 title: 'Car Version ',
                 trailing: Text('${controller.carVersion}'),
+              ),
+              SettingsTile(
+                titleWidget: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Text(
+                      'Refresh Interval',
+                      style: Get.theme.textTheme.titleMedium,
+                    ),
+                    Expanded(
+                      child: Slider(
+                        min: 0,
+                        max: 60,
+                        divisions: 6,
+                        onChanged: (value) => true,
+                        onChangeEnd: (value) =>
+                            controller.updateRefreshInterval(value),
+                        value: controller.dataRefreshInterval.value,
+                        label: controller.getRefreshSliderText(),
+                      ),
+                    ),
+                  ],
+                ),
+                trailing: const SizedBox(
+                  width: 0,
+                  height: 0,
+                ),
               ),
               SettingsTile(
                 title: 'Diagnostics',
@@ -49,6 +77,10 @@ class SettingsScreen extends GetView<SettingsController> {
             title: 'Sentry Mode',
             titleTextStyle: Get.theme.textTheme.headline6,
             tiles: [
+              SettingsTile(
+                title: 'Excluded Locations',
+                onPressed: (context) => Get.toNamed('/excluded-locations'),
+              ),
               SettingsTile.switchTile(
                 title: 'Quick Action Toggle',
                 subtitle: 'Show Quick Action toggle or 2 buttons',

@@ -8,7 +8,7 @@ import 'package:deart/controllers/vehicle_controller.dart';
 import 'package:deart/globals.dart';
 import 'package:deart/models/internal/login_page_data.dart';
 import 'package:deart/models/refresh_token_response.dart';
-import 'package:deart/screens/tesla_login.dart';
+import 'package:deart/screens/auth/tesla_login.dart';
 import 'package:deart/utils/api_utils.dart';
 import 'package:deart/utils/storage_utils.dart';
 import 'package:deart/utils/ui_utils.dart';
