@@ -79,7 +79,7 @@ SPEC CHECKSUMS:
   in_app_purchase_storekit: 6dec89fe3b9698847ed4aaf65fde6c17491620ad
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
   quick_actions: cd83314083fa994182e6cd9e7516167a215a4f83
-  shared_preferences_ios: aef470a42dc4675a1cdd50e3158b42e3d1232b32
+  shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
   webview_flutter_wkwebview: 005fbd90c888a42c5690919a1527ecc6649e1162
 
 PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c

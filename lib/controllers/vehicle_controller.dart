@@ -147,9 +147,6 @@ class VehicleController extends GetxController {
     if (!cacheFound) {
       vehicleData.value = await api.vehicleData();
 
-      // Future.delayed(const Duration(seconds: 3),
-      //     () => refreshingVehicleData.value = false);
-
       // Remove the loading animation from taskbar.
       refreshingVehicleData.value = false;
     }
@@ -270,6 +267,8 @@ class VehicleController extends GetxController {
     sentryModeState.value = state;
 
     writeStorageKey('sentryModeState', state.toString());
+
+    // Save Odometer.
     if (state == SentryModeState.on && vehicleData.value != null) {
       writeStorageKey('sentryModeOnOdometer',
           vehicleData.value!.vehicleState.odometer.toString());

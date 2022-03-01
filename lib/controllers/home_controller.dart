@@ -202,6 +202,12 @@ class HomeController extends GetxController {
           case "deart_defrostCarOff":
             await turnOffMaxDefrost();
             break;
+          case "deart_openFrunk":
+            await openFrunk();
+            break;
+          case "deart_openTrunk":
+            await openTrunk();
+            break;
           default:
             break;
         }
@@ -472,12 +478,23 @@ class HomeController extends GetxController {
     carLocked.value = false;
     bool success = await Get.find<VehicleController>().doorUnlock();
 
-    showCommandSnackbar(
-      success,
-      'Unlock',
-      'Car is now unlocked.',
-      'Failed to unlock, Check phone & car connectivity',
-    );
+    // If unlocked and Sentry was activated, disable it.
+    if (success && sentryModeState.value == SentryModeState.on) {
+      await Get.find<VehicleController>().toggleSentry(false);
+      showCommandSnackbar(
+        success,
+        'Unlock',
+        'Car is now unlocked & Sentry deactivated.',
+        'Failed to unlock, Check phone & car connectivity',
+      );
+    } else {
+      showCommandSnackbar(
+        success,
+        'Unlock',
+        'Car is now unlocked.',
+        'Failed to unlock, Check phone & car connectivity',
+      );
+    }
 
     return success;
   }

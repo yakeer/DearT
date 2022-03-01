@@ -151,5 +151,27 @@ List<FlutterSiriActivity> getSiriActivities() {
     ),
   );
 
+  activities.add(
+    const FlutterSiriActivity(
+      "Open/Close Frunk",
+      "deart_openFrunk",
+      isEligibleForSearch: true,
+      isEligibleForPrediction: true,
+      contentDescription: "Open/Close Frunk",
+      suggestedInvocationPhrase: "Open/Close Frunk",
+    ),
+  );
+
+  activities.add(
+    const FlutterSiriActivity(
+      "Open/Close Trunk",
+      "deart_openTrunk",
+      isEligibleForSearch: true,
+      isEligibleForPrediction: true,
+      contentDescription: "Open/Close Trunk",
+      suggestedInvocationPhrase: "Open/Close Trunk",
+    ),
+  );
+
   return activities;
 }

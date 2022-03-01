@@ -121,6 +121,9 @@ class TeslaAPI extends GetxService {
       } else {
         return null;
       }
+    } else if (response.statusCode == 401) {
+      await Get.find<AuthService>().refreshToken();
+      return chargeState();
     } else {
       return null;
     }
@@ -145,6 +148,9 @@ class TeslaAPI extends GetxService {
       } else {
         return null;
       }
+    } else if (response.statusCode == 401) {
+      await Get.find<AuthService>().refreshToken();
+      return vehicleData();
     } else {
       return null;
     }
@@ -188,19 +194,7 @@ class TeslaAPI extends GetxService {
     http.Response response = await http
         .post(uri, headers: _initHeaders(), body: {'which_trunk': 'rear'});
 
-    if (response.statusCode == 200) {
-      CommandResult commandResult =
-          parseResponse(response, CommandResult.fromJson);
-      return commandResult.result;
-    } else if (response.statusCode == 408) {
-      if (await wakeUp()) {
-        return await openTrunk(vehicleId);
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
+    return await handleCommandResponse(response, () => openTrunk(vehicleId));
   }
 
   Future<bool> openFrunk(int vehicleId) async {
@@ -211,19 +205,7 @@ class TeslaAPI extends GetxService {
     http.Response response = await client
         .post(uri, headers: _initHeaders(), body: {'which_trunk': 'front'});
 
-    if (response.statusCode == 200) {
-      CommandResult commandResult =
-          parseResponse(response, CommandResult.fromJson);
-      return commandResult.result;
-    } else if (response.statusCode == 408) {
-      if (await wakeUp()) {
-        return await openFrunk(vehicleId);
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
+    return await handleCommandResponse(response, () => openFrunk(vehicleId));
   }
 
   Future<bool> flashLights() async {
@@ -233,19 +215,7 @@ class TeslaAPI extends GetxService {
 
     http.Response response = await client.post(uri, headers: _initHeaders());
 
-    if (response.statusCode == 200) {
-      CommandResult commandResult =
-          parseResponse(response, CommandResult.fromJson);
-      return commandResult.result;
-    } else if (response.statusCode == 408) {
-      if (await wakeUp()) {
-        return flashLights();
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
+    return await handleCommandResponse(response, () => flashLights());
   }
 
   //#region Charging
@@ -259,19 +229,8 @@ class TeslaAPI extends GetxService {
       headers: _initHeaders(),
     );
 
-    if (response.statusCode == 200) {
-      CommandResult commandResult =
-          parseResponse(response, CommandResult.fromJson);
-      return commandResult.result;
-    } else if (response.statusCode == 408) {
-      if (await wakeUp()) {
-        return await openChargePort(vehicleId);
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
+    return await handleCommandResponse(
+        response, () => openChargePort(vehicleId));
   }
 
   Future<bool> closeChargePort(int vehicleId) async {
@@ -284,19 +243,8 @@ class TeslaAPI extends GetxService {
       headers: _initHeaders(),
     );
 
-    if (response.statusCode == 200) {
-      CommandResult commandResult =
-          parseResponse(response, CommandResult.fromJson);
-      return commandResult.result;
-    } else if (response.statusCode == 408) {
-      if (await wakeUp()) {
-        return await closeChargePort(vehicleId);
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
+    return await handleCommandResponse(
+        response, () => closeChargePort(vehicleId));
   }
 
   Future<bool> startCharging(int vehicleId) async {
@@ -537,6 +485,9 @@ class TeslaAPI extends GetxService {
       } else {
         return false;
       }
+    } else if (response.statusCode == 401) {
+      await Get.find<AuthService>().refreshToken();
+      return await retryFunction();
     } else {
       return false;
     }
