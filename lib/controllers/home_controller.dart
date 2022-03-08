@@ -532,7 +532,7 @@ class HomeController extends GetxController {
       success,
       'Beep Beep',
       'Don\'t disturb your neighbors!',
-      'Failed to hont horn, Check phone & car connectivity',
+      'Failed to honk horn, Check phone & car connectivity',
     );
 
     return success;

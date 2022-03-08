@@ -131,7 +131,7 @@ class VehicleController extends GetxController {
     streamingVehicleId.value = vehicle.vehicleId;
   }
 
-  Future _loadVehicleData(bool initialLoading) async {
+  Future<void> _loadVehicleData(bool initialLoading) async {
     bool cacheFound = false;
     if (initialLoading) {
       // Try Loading from cache.

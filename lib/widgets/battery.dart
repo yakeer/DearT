@@ -114,7 +114,7 @@ class BatteryWidget extends GetView<HomeController> {
         return Transform.rotate(
           angle: -90 * pi / 180,
           child: Icon(
-            CupertinoIcons.battery_empty,
+            CupertinoIcons.battery_full,
             color: getColor(),
           ),
         );
