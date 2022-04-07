@@ -47,6 +47,18 @@ class VehicleState {
   @JsonKey(name: 'is_user_present')
   final bool isUserPresent;
 
+  @JsonKey(name: 'tpms_pressure_fl')
+  final double tpmsFrontLeft;
+
+  @JsonKey(name: 'tpms_pressure_fr')
+  final double tpmsFrontRight;
+
+  @JsonKey(name: 'tpms_pressure_rl')
+  final double tpmsRearLeft;
+
+  @JsonKey(name: 'tpms_pressure_rr')
+  final double tpmsRearRight;
+
   final int timestamp;
 
   VehicleState(
@@ -66,6 +78,10 @@ class VehicleState {
     this.rearPassengerDoor,
     this.isUserPresent,
     this.timestamp,
+    this.tpmsFrontLeft,
+    this.tpmsFrontRight,
+    this.tpmsRearLeft,
+    this.tpmsRearRight,
   );
 
   factory VehicleState.fromJson(Map<String, dynamic> json) =>

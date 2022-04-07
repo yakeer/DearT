@@ -169,15 +169,13 @@ class VehicleController extends GetxController {
 
     String json = jsonEncode(jsonData);
 
-    String cacheKey = '$vehicleId-vehicleData';
-    await writeStorageKey(cacheKey, json);
+    await writeVehicleStorageKey(vehicleId.value!, 'vehicleData', json);
   }
 
   Future<bool> _loadVehicleDataFromCache() async {
     try {
-      String cacheKey = '$vehicleId-vehicleData';
-
-      String? json = await readStorageKey(cacheKey);
+      String? json =
+          await readVehicleStorageKey(vehicleId.value!, 'vehicleData');
       if (json != null) {
         Map<String, dynamic> jsonData = jsonDecode(json);
         VehicleData vehicleDataFromCache = VehicleData.fromJson(jsonData);
@@ -232,7 +230,9 @@ class VehicleController extends GetxController {
   }
 
   Future loadSentryState(VehicleData vehicleData) async {
-    String? stateFromStorage = await readStorageKey('sentryModeState');
+    String? stateFromStorage =
+        await readVehicleStorageKey(vehicleId.value!, 'sentryModeState');
+
     if (stateFromStorage != null) {
       sentryModeState.value = SentryModeState.values
           .firstWhere((element) => element.toString() == stateFromStorage);
@@ -252,9 +252,12 @@ class VehicleController extends GetxController {
   }
 
   Future<void> checkOdometer(VehicleData? vehicleData) async {
-    if (await containsStorageKey('sentryModeOnOdometer')) {
-      double? lastOdometer =
-          double.tryParse((await readStorageKey('sentryModeOnOdometer'))!);
+    if (await containsVehicleStorageKey(
+        vehicleId.value!, 'sentryModeOnOdometer')) {
+      double? lastOdometer = double.tryParse(
+        (await readVehicleStorageKey(
+            vehicleId.value!, 'sentryModeOnOdometer'))!,
+      );
       if (lastOdometer != null) {
         if (vehicleData!.vehicleState.odometer > lastOdometer) {
           setSentryState(SentryModeState.off);
@@ -266,12 +269,19 @@ class VehicleController extends GetxController {
   void setSentryState(SentryModeState state) {
     sentryModeState.value = state;
 
-    writeStorageKey('sentryModeState', state.toString());
+    writeVehicleStorageKey(
+      vehicleId.value!,
+      'sentryModeState',
+      state.toString(),
+    );
 
     // Save Odometer.
     if (state == SentryModeState.on && vehicleData.value != null) {
-      writeStorageKey('sentryModeOnOdometer',
-          vehicleData.value!.vehicleState.odometer.toString());
+      writeVehicleStorageKey(
+        vehicleId.value!,
+        'sentryModeOnOdometer',
+        vehicleData.value!.vehicleState.odometer.toString(),
+      );
     }
   }
 

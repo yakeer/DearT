@@ -65,13 +65,12 @@ class LoginController extends GetxController {
     Uri uri = Uri.parse(url);
     loginPageData.authorizationCode = uri.queryParameters['code']!;
 
-    var loginPageDataResult =
-        await Get.find<AuthService>().exchangeAuthorizationCodeForBearerToken(
+    await Get.find<AuthService>().exchangeAuthorizationCodeForBearerToken(
       loginPageData,
     );
 
-    loginPageData = await Get.find<AuthService>()
-        .exchangeBearerTokenForAccessToken(loginPageDataResult);
+    // loginPageData = await Get.find<AuthService>()
+    //     .exchangeBearerTokenForAccessToken(loginPageDataResult);
 
     UserController userController = Get.put(
       UserController(null),

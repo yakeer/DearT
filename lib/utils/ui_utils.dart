@@ -64,6 +64,24 @@ Future openPopup(
   );
 }
 
+Future openWidgetPopup(String title, Widget widget) {
+  return showDialog(
+    context: Get.context!,
+    builder: (context) => AlertDialog(
+      title: Text(title),
+      content: widget,
+      actions: <Widget>[
+        TextButton(
+          child: const Text('Close'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    ),
+  );
+}
+
 Future<String?> openPrompt(String title, {String? hintText}) async {
   TextEditingController _inputController = TextEditingController();
 

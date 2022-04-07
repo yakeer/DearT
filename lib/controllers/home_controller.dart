@@ -6,12 +6,15 @@ import 'package:deart/controllers/work_flow_controller.dart';
 import 'package:deart/models/enums/sentry_mode_state.dart';
 import 'package:deart/models/internal/work_flow_preset.dart';
 import 'package:deart/models/vehicle.dart';
+import 'package:deart/models/vehicle_state.dart';
 import 'package:deart/screens/main/climate_page.dart';
 import 'package:deart/screens/main/vehicle_page.dart';
 import 'package:deart/screens/settings/settings.dart';
 import 'package:deart/services/tesla_api.dart';
+import 'package:deart/utils/storage_utils.dart';
 import 'package:deart/utils/ui_utils.dart';
 import 'package:deart/utils/unit_utils.dart';
+import 'package:deart/widgets/tpms_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_siri_suggestions/flutter_siri_suggestions.dart';
 import 'package:get/get.dart';
@@ -93,6 +96,8 @@ class HomeController extends GetxController {
 
   Timer? refreshTimer;
 
+  RxBool isLowTirePressure = false.obs;
+
   @override
   void onInit() {
     Get.find<UserController>().vehicles.listenAndPump((data) {
@@ -148,6 +153,30 @@ class HomeController extends GetxController {
   void initPreferences() {
     showBatteryLevel.value = Get.find<UserController>()
         .getPreference<bool>('showBatteryLevelInAppBar')!;
+  }
+
+  bool lowTirePressure(VehicleState vehicleState) {
+    if (vehicleState.tpmsFrontLeft > 0 &&
+        barToPSI(vehicleState.tpmsFrontLeft) < 38) {
+      return true;
+    }
+
+    if (vehicleState.tpmsFrontRight > 0 &&
+        barToPSI(vehicleState.tpmsFrontRight) < 38) {
+      return true;
+    }
+
+    if (vehicleState.tpmsRearLeft > 0 &&
+        barToPSI(vehicleState.tpmsRearLeft) < 38) {
+      return true;
+    }
+
+    if (vehicleState.tpmsRearRight > 0 &&
+        barToPSI(vehicleState.tpmsRearRight) < 38) {
+      return true;
+    }
+
+    return false;
   }
 
   Future<void> initSiriShortcuts() async {
@@ -403,6 +432,9 @@ class HomeController extends GetxController {
               vehicleData.climateState.seatHeaterRearCenter;
           seatHeaterRearRight.value =
               vehicleData.climateState.seatHeaterRearRight;
+
+          // Tire Pressure
+          saveTirePressure(vehicleData.vehicleState);
         }
       }),
     );
@@ -415,6 +447,30 @@ class HomeController extends GetxController {
         sentryModeStateText.value = getSentryModeStateText(sentryModeState);
       }),
     );
+  }
+
+  void saveTirePressure(VehicleState vehicleState) {
+    if (vehicleState.tpmsFrontLeft > 0) {
+      writeVehicleStorageKey(
+          vehicleId.value!, 'tp_fl', vehicleState.tpmsFrontLeft.toString());
+    }
+
+    if (vehicleState.tpmsFrontRight > 0) {
+      writeVehicleStorageKey(
+          vehicleId.value!, 'tp_fr', vehicleState.tpmsFrontRight.toString());
+    }
+
+    if (vehicleState.tpmsRearLeft > 0) {
+      writeVehicleStorageKey(
+          vehicleId.value!, 'tp_rl', vehicleState.tpmsRearLeft.toString());
+    }
+
+    if (vehicleState.tpmsRearRight > 0) {
+      writeVehicleStorageKey(
+          vehicleId.value!, 'tp_rr', vehicleState.tpmsRearRight.toString());
+    }
+
+    isLowTirePressure.value = lowTirePressure(vehicleState);
   }
 
   bool anyDoorOpen() {
@@ -924,5 +980,9 @@ class HomeController extends GetxController {
     }
 
     super.onClose();
+  }
+
+  Future openTPMSWindow() async {
+    openWidgetPopup('Last Known Tire Pressure', const TPMSWidget());
   }
 }

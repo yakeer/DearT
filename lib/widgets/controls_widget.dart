@@ -66,6 +66,11 @@ class ControlsWidget extends GetView<HomeController> {
                   icon: Icons.ac_unit,
                 ),
               ),
+              DearTElevatedButtton(
+                label: 'TPMS',
+                icon: Icons.tire_repair,
+                onPressed: controller.openTPMSWindow,
+              )
             ],
           ),
         ),

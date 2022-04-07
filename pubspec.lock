@@ -84,7 +84,7 @@ packages:
       name: build_runner
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.7"
+    version: "2.1.8"
   build_runner_core:
     dependency: transitive
     description:
@@ -372,7 +372,7 @@ packages:
       name: google_maps_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.1"
+    version: "2.1.3"
   google_maps_flutter_platform_interface:
     dependency: transitive
     description:
@@ -428,7 +428,7 @@ packages:
       name: in_app_purchase
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.0"
+    version: "3.0.2"
   in_app_purchase_android:
     dependency: transitive
     description:
@@ -491,7 +491,7 @@ packages:
       name: json_serializable
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.1.4"
+    version: "6.1.5"
   lints:
     dependency: transitive
     description:
@@ -692,6 +692,20 @@ packages:
     dependency: "direct main"
     description:
       name: quick_actions
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.0+10"
+  quick_actions_android:
+    dependency: transitive
+    description:
+      name: quick_actions_android
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.0+9"
+  quick_actions_ios:
+    dependency: transitive
+    description:
+      name: quick_actions_ios
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.0+9"

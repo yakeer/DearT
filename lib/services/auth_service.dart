@@ -165,6 +165,15 @@ class AuthService extends GetxService {
 
       loginPageData.bearerToken = tokenResponse.accessToken!;
       loginPageData.refreshToken = tokenResponse.refreshToken!;
+
+      Globals.apiAccessToken = tokenResponse.accessToken!;
+      Globals.apiRefreshToken = tokenResponse.refreshToken!;
+
+      await writeStorageKey('refreshToken', Globals.apiRefreshToken!);
+
+      await refreshToken();
+
+      loginPageData.loginSuccess = true;
     }
 
     return loginPageData;

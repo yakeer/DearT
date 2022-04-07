@@ -23,6 +23,10 @@ VehicleState _$VehicleStateFromJson(Map<String, dynamic> json) => VehicleState(
       json['pr'] as int,
       json['is_user_present'] as bool,
       json['timestamp'] as int,
+      (json['tpms_pressure_fl'] as num).toDouble(),
+      (json['tpms_pressure_fr'] as num).toDouble(),
+      (json['tpms_pressure_rl'] as num).toDouble(),
+      (json['tpms_pressure_rr'] as num).toDouble(),
     );
 
 Map<String, dynamic> _$VehicleStateToJson(VehicleState instance) =>
@@ -42,5 +46,9 @@ Map<String, dynamic> _$VehicleStateToJson(VehicleState instance) =>
       'dr': instance.rearDriverDoor,
       'pr': instance.rearPassengerDoor,
       'is_user_present': instance.isUserPresent,
+      'tpms_pressure_fl': instance.tpmsFrontLeft,
+      'tpms_pressure_fr': instance.tpmsFrontRight,
+      'tpms_pressure_rl': instance.tpmsRearLeft,
+      'tpms_pressure_rr': instance.tpmsRearRight,
       'timestamp': instance.timestamp,
     };

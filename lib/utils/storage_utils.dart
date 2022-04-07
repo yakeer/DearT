@@ -7,6 +7,14 @@ Future<bool> containsStorageKey(String key) {
   return storage.containsKey(key: key);
 }
 
+Future<bool> containsVehicleStorageKey(int vehicleId, String key) {
+  FlutterSecureStorage storage = const FlutterSecureStorage();
+
+  String keyName = "$vehicleId-$key";
+
+  return storage.containsKey(key: keyName);
+}
+
 Future<String?> readStorageKey(String key) async {
   FlutterSecureStorage storage = const FlutterSecureStorage();
 
@@ -17,10 +25,30 @@ Future<String?> readStorageKey(String key) async {
   return null;
 }
 
+Future<String?> readVehicleStorageKey(int vehicleId, String key) async {
+  FlutterSecureStorage storage = const FlutterSecureStorage();
+
+  String keyName = "$vehicleId-$key";
+
+  if (await storage.containsKey(key: keyName)) {
+    return storage.read(key: keyName);
+  }
+
+  return null;
+}
+
 Future writeStorageKey(String key, String value) {
   FlutterSecureStorage storage = const FlutterSecureStorage();
 
   return storage.write(key: key, value: value);
+}
+
+Future writeVehicleStorageKey(int vehicleId, String key, String value) {
+  FlutterSecureStorage storage = const FlutterSecureStorage();
+
+  String keyName = "$vehicleId-$key";
+
+  return storage.write(key: keyName, value: value);
 }
 
 Future deleteStorageKey(String key) {

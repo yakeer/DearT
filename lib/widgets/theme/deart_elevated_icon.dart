@@ -9,17 +9,19 @@ class DearTElevatedButtton extends StatefulWidget {
   final String? longPressPopupTitle;
   final String? longPressPopupMessage;
   final Alignment textAlignment;
+  final Color textColor;
 
-  const DearTElevatedButtton(
-      {Key? key,
-      required this.label,
-      required this.icon,
-      required this.onPressed,
-      this.disabled,
-      this.longPressPopupTitle,
-      this.longPressPopupMessage,
-      this.textAlignment = Alignment.centerLeft})
-      : super(key: key);
+  const DearTElevatedButtton({
+    Key? key,
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+    this.disabled,
+    this.longPressPopupTitle,
+    this.longPressPopupMessage,
+    this.textAlignment = Alignment.centerLeft,
+    this.textColor = Colors.white,
+  }) : super(key: key);
 
   @override
   State<DearTElevatedButtton> createState() => _DearTElevatedButttonState();
@@ -53,7 +55,10 @@ class _DearTElevatedButttonState extends State<DearTElevatedButtton> {
             icon: widget.icon != null ? Icon(widget.icon) : Container(),
             label: Align(
               alignment: widget.textAlignment,
-              child: Text(widget.label),
+              child: Text(
+                widget.label,
+                style: TextStyle(color: widget.textColor),
+              ),
             ),
           );
   }

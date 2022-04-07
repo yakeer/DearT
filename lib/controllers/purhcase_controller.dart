@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:deart/models/purchase/package_type.dart';
 import 'package:deart/utils/storage_utils.dart';
 import 'package:deart/utils/ui_utils.dart';
@@ -21,8 +22,10 @@ class PurchaseController extends GetxController {
 
   @override
   void onInit() {
-    _listenToPurchaseUpdates();
-    _getProducts();
+    if (Platform.isAndroid || Platform.isIOS) {
+      _listenToPurchaseUpdates();
+      _getProducts();
+    }
 
     super.onInit();
   }
